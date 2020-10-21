@@ -16,7 +16,7 @@ class NecesidadBasica extends Model
 
     public function encuesta()
     {
-        return $this->belongsToMany('App\Encuesta', 'encuesta_necesidades_basicas', 'id_necesidad_basica');
+        return $this->belongsToMany('App\Models\Encuesta', 'encuesta_necesidades_basicas', 'necesidad_basica_id');
 
     }
 

@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Encuesta;
+
 class Encuesta extends Model
 {
     use HasFactory;
@@ -23,17 +25,17 @@ class Encuesta extends Model
 
     public function departamento()
     {
-        return $this->belongsTo('App\Departamento', 'id_departamento');
+        return $this->belongsTo('App\Models\Departamento', 'id_departamento');
     }
 
     public function municipio()
     {
-        return $this->belongsTo('App\Municipio', 'id_municipio');
+        return $this->belongsTo('App\Models\Municipio', 'id_municipio');
     }
 
     public function necesidadesbasicas()
     {
-        return $this->belongsToMany('App\NecesidadBasica', 'encuesta_necesidades_basicas', 'id_encuesta');
+        return $this->belongsToMany('App\Models\NecesidadBasica', 'encuesta_necesidades_basicas', 'id_encuesta');
 
     }
 
