@@ -189,7 +189,9 @@ class EncuestaController extends Controller
 
                     $encuesta->paso = $request['paso'];
 
-
+                    $miembrosexistentes = MiembrosHogar::where('id_encuesta',$encuesta->id)->delete();
+                   
+                    
                     if(count($request['infoencuesta']['miembrosFamilia'])>0){
 
                         $guardado = false;
