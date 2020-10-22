@@ -341,7 +341,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                 return $encuesta;
                             }else{
-                                return "error";
+                                return error;
                             }
 
                         case "paso8":
@@ -356,7 +356,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                     return $encuesta;
                             }else{
-                                    return "error";
+                                    return error;
                             }
                         default:
                             # code...
