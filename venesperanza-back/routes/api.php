@@ -25,6 +25,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::resource('users', 'UserController');
 
+Route::post('validation','ValidationController@validacionTrafic');
 
 Route::resource('departamentos', 'DepartamentoController');
 

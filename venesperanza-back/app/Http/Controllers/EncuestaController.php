@@ -151,7 +151,7 @@ class EncuestaController extends Controller
                             if($encuesta->save()){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             };
                             break;
                         
@@ -195,10 +195,10 @@ class EncuestaController extends Controller
                                     if($encuesta){
                                         return $encuesta;
                                     }else{
-                                        return error;
+                                        return "error";
                                     };
                             }else{
-                                return error;
+                                return "error";
                             }
 
                             break;
@@ -275,7 +275,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             }
 
                             break;
@@ -323,10 +323,10 @@ class EncuestaController extends Controller
                                 if($encuesta){
                                     return $encuesta;
                                 }else{
-                                    return error;
+                                    return "error";
                                 }
                             }else{
-                                return error;
+                                return "error";
                             }
 
 
@@ -343,7 +343,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             }
 
                         case "paso8":
@@ -358,7 +358,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                     return $encuesta;
                             }else{
-                                    return error;
+                                    return "error";
                             }
                         default:
                             # code...
@@ -367,11 +367,11 @@ class EncuestaController extends Controller
 
                     
                 }else{
-                    return error;
+                    return "error";
                 }
 
             } catch (Exception $e) {
-                return error;
+                return "error";
             }
     }
 
