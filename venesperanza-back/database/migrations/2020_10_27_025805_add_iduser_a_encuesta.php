@@ -15,8 +15,6 @@ class AddIduserAEncuesta extends Migration
     {
         Schema::table('encuesta', function (Blueprint $table) {
             $table->integer('id_usuario')->nullable()->index('fk_usuario');
-            $table->foreign('id_usuario', 'fk_usuario_encuesta')->references('id')->on('users')->onUpdate('RESTRICT')->onDelete('RESTRICT');
-
         });
     }
 
