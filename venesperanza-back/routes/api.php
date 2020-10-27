@@ -23,15 +23,18 @@ use App\Http\Controllers\MunicipioController;
 /*
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+}); 
 
 */
-Route::post('login','UserController@login');
+Route::group(['middleware'=>'APIToken'],function(){
+    Route::post('login','UserController@login');
+});
+
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
 
-    Route::post('validation','ValidationController@validacionTrafic');
+    
 
     Route::resource('departamentos', 'DepartamentoController');
 
@@ -41,4 +44,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 
 });
+Route::post('validation','ValidationController@validacionTrafic');
 

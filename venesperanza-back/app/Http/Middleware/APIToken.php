@@ -17,13 +17,12 @@ class APIToken
     public function handle(Request $request, Closure $next)
     {
         
-        if($request->header('Authorization')){
+        
+        $token = $request['headers']['Authorization'];
+        if($token == env('APP_KEY')){
+      
         return $next($request);
         }
-        return response()->json([
-        'message' => 'Not a valid API request.',
-        ]);
-       
-        //return $next($request);
+        
     }
 }
