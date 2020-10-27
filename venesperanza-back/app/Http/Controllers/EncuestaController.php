@@ -55,7 +55,8 @@ class EncuestaController extends Controller
         $ben->primer_apellido =  $request['infoencuesta']['lastNameCtrl'];
         $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
         $ben->sexo =  $request['infoencuesta']['sexoCtrl'];
-        $ben->fecha_nacimiento = date("d/m/Y", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+        //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
+        $ben->fecha_nacimiento = date("y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
         //$ben->fecha_nacimiento =  $request['infoencuesta']['fechaNacimientoCtrl'];
         $ben->nacionalidad =  $request['infoencuesta']['nacionalidadCtrl'];
         $ben->tipo_documento =  $request['infoencuesta']['tipoDocumentoCtrl'];
@@ -133,8 +134,8 @@ class EncuestaController extends Controller
                             $encuesta->primer_apellido =  $request['infoencuesta']['lastNameCtrl'];
                             $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
                             $encuesta->sexo =  $request['infoencuesta']['sexoCtrl'];
-                            $encuesta->fecha_nacimiento = date("d/m/Y", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-                            //$ben->fecha_nacimiento =  $request['infoencuesta']['fechaNacimientoCtrl'];
+                            //$encuesta->fecha_nacimiento = date("d/m/Y", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                            $encuesta->fecha_nacimiento = date("y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
                             $encuesta->nacionalidad =  $request['infoencuesta']['nacionalidadCtrl'];
                             $encuesta->tipo_documento =  $request['infoencuesta']['tipoDocumentoCtrl'];
 
@@ -150,7 +151,7 @@ class EncuestaController extends Controller
                             if($encuesta->save()){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             };
                             break;
                         
@@ -194,10 +195,10 @@ class EncuestaController extends Controller
                                     if($encuesta){
                                         return $encuesta;
                                     }else{
-                                        return error;
+                                        return "error";
                                     };
                             }else{
-                                return error;
+                                return "error";
                             }
 
                             break;
@@ -227,7 +228,8 @@ class EncuestaController extends Controller
                                         $addMiembro->primer_apellido_miembro = $miembro['primerapellidoCtrl'];
                                         $addMiembro->segundo_apellido_miembro = $miembro['segundoapellidoCtrl'];
                                         $addMiembro->sexo_miembro = $miembro['sexoCtrl'];
-                                        $addMiembro->fecha_nacimiento = date("d/m/Y", strtotime($miembro['fechaCtrl']));
+                                        //$addMiembro->fecha_nacimiento = date("d/m/Y", strtotime($miembro['fechaCtrl']));
+                                        $addMiembro->fecha_nacimiento = date("y-m-d", strtotime($miembro['fechaCtrl']));
 
                                         
                                         if($addMiembro->save()){
@@ -273,7 +275,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             }
 
                             break;
@@ -321,10 +323,10 @@ class EncuestaController extends Controller
                                 if($encuesta){
                                     return $encuesta;
                                 }else{
-                                    return error;
+                                    return "error";
                                 }
                             }else{
-                                return error;
+                                return "error";
                             }
 
 
@@ -341,7 +343,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                 return $encuesta;
                             }else{
-                                return error;
+                                return "error";
                             }
 
                         case "paso8":
@@ -356,7 +358,7 @@ class EncuestaController extends Controller
                             if($encuesta){
                                     return $encuesta;
                             }else{
-                                    return error;
+                                    return "error";
                             }
                         default:
                             # code...
@@ -365,11 +367,11 @@ class EncuestaController extends Controller
 
                     
                 }else{
-                    return error;
+                    return "error";
                 }
 
             } catch (Exception $e) {
-                return error;
+                return "error";
             }
     }
 

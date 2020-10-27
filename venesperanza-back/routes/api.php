@@ -18,17 +18,27 @@ use App\Http\Controllers\MunicipioController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+
 /*
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});*/
+});
 
-Route::resource('users', 'UserController');
+*/
+Route::post('login','UserController@login');
 
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::resource('users', 'UserController');
 
-Route::resource('departamentos', 'DepartamentoController');
+    Route::post('validation','ValidationController@validacionTrafic');
 
-Route::resource('municipios', 'MunicipioController');
+    Route::resource('departamentos', 'DepartamentoController');
 
-Route::resource('encuestas', 'EncuestaController');
-Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
+    Route::resource('municipios', 'MunicipioController');
+
+    Route::resource('encuestas', 'EncuestaController');
+    Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
+
+});
+
