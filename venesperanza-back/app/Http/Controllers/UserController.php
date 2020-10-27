@@ -5,9 +5,33 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
+    private $apiToken;
+    public function __construct()
+    {
+    $this->apiToken = uniqid(base64_encode(Str::random(60)));
+    }
+
+    public function login(Request $request){
+
+        $user = new User;
+
+        $user->remember_token = $this->apiToken;
+
+        if($user->save()){
+            return $user;
+        }else{
+            return "error";
+        };
+
+
+
+    }
+
     /**
      * Display a listing of the resource.
      *
