@@ -2,21 +2,17 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1a8cc632-8e3d-4abb-a79c-6c1d45647f36" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env.example" beforeDir="false" afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_26_203227_create_users_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_10_26_203227_create_users_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_26_203228_add_foreign_keys_to_encuesta_necesidades_basicas_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_26_203228_add_foreign_keys_to_encuesta_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_26_203228_add_foreign_keys_to_miembros_hogar_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_26_203228_add_foreign_keys_to_municipio_table.php" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2020_10_27_025805_add_iduser_a_encuesta.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2020_10_27_025805_add_iduser_a_encuesta.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/EncuestaController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/EncuestaController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/Http/Middleware/APIToken.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Middleware/APIToken.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ComposerSettings" synchronizationState="SYNCHRONIZE">
+  <component name="ComposerSettings" doNotAsk="true" synchronizationState="SYNCHRONIZE">
     <pharConfigPath>$PROJECT_DIR$/composer.json</pharConfigPath>
     <execution />
   </component>
@@ -29,6 +25,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="PackageJsonUpdateNotifier">
+    <dismissed value="$PROJECT_DIR$/package.json" />
   </component>
   <component name="PhpWorkspaceProjectConfiguration">
     <include_path>
@@ -183,6 +182,7 @@
       <option name="presentableId" value="Default" />
       <updated>1603742826195</updated>
       <workItem from="1603742827265" duration="3138000" />
+      <workItem from="1603887644175" duration="637000" />
     </task>
     <servers />
   </component>

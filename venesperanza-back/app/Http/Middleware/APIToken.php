@@ -16,13 +16,12 @@ class APIToken
      */
     public function handle(Request $request, Closure $next)
     {
-        
-        
+
+
         $token = $request['headers']['Authorization'];
-        if($token == env('APP_KEY')){
-      
+        if($token == env('APP_API_KEY')){
         return $next($request);
         }
-        
+
     }
 }
