@@ -20,7 +20,8 @@ class ValidationController extends Controller
             if(strstr($request['datos']['url_origen'],'l.facebook.com') || strstr($request['datos']['url_origen'],'facebook.com') 
             || strstr($request['datos']['url_origen'],'m.facebook.com') || strstr($request['datos']['url_origen'],'lm.facebook.com')){
                 
-                $ipusuario = $_SERVER['REMOTE_ADDR'];
+               
+
                 $validacion = new Validation;
                 $validacion->fbclid = $request['datos']['facebookclid'];
 

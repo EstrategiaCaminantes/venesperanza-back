@@ -41,14 +41,14 @@ class EncuestaController extends Controller
     public function store(Request $request)
     {
 
-       
+
         try {
             //code...
-        
+
 
         $ben = new Encuesta;
 
-        
+
         $ben->paso = $request['paso'];
         $ben->primer_nombre =  $request['infoencuesta']['firstNameCtrl'];
         $ben->segundo_nombre =  $request['infoencuesta']['secondNameCtrl'];
@@ -56,8 +56,7 @@ class EncuestaController extends Controller
         $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
         $ben->sexo =  $request['infoencuesta']['sexoCtrl'];
         //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
-        $ben->fecha_nacimiento = date("y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-        //$ben->fecha_nacimiento =  $request['infoencuesta']['fechaNacimientoCtrl'];
+        $ben->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
         $ben->nacionalidad =  $request['infoencuesta']['nacionalidadCtrl'];
         $ben->tipo_documento =  $request['infoencuesta']['tipoDocumentoCtrl'];
 
@@ -68,10 +67,10 @@ class EncuestaController extends Controller
         if($ben->tipo_documento != "Indocumentado"){
             $ben->numero_documento =$request['infoencuesta']['numeroDocumentoCtrl'];
         }
-        
-        
+
+
         $ben->save();
-        
+
         return $ben;
 
 
@@ -80,7 +79,7 @@ class EncuestaController extends Controller
             //throw $th;
         }
 
-       
+
 
     }
 
@@ -118,24 +117,24 @@ class EncuestaController extends Controller
 
         try {
                     //code...
-                
-                
+
+
                 $encuesta = Encuesta::find($id);
 
-                
+
 
                 if($encuesta){
 
                     switch ($request['paso']) {
                         case "paso1":
-                            
+
                             $encuesta->primer_nombre =  $request['infoencuesta']['firstNameCtrl'];
                             $encuesta->segundo_nombre =  $request['infoencuesta']['secondNameCtrl'];
                             $encuesta->primer_apellido =  $request['infoencuesta']['lastNameCtrl'];
                             $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
                             $encuesta->sexo =  $request['infoencuesta']['sexoCtrl'];
                             //$encuesta->fecha_nacimiento = date("d/m/Y", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-                            $encuesta->fecha_nacimiento = date("y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                            $encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
                             $encuesta->nacionalidad =  $request['infoencuesta']['nacionalidadCtrl'];
                             $encuesta->tipo_documento =  $request['infoencuesta']['tipoDocumentoCtrl'];
 
@@ -146,15 +145,15 @@ class EncuestaController extends Controller
                             if($encuesta->tipo_documento != "Indocumentado"){
                                 $encuesta->numero_documento =$request['infoencuesta']['numeroDocumentoCtrl'];
                             }
-                            
-                            
+
+
                             if($encuesta->save()){
                                 return $encuesta;
                             }else{
                                 return "error";
                             };
                             break;
-                        
+
                         case "paso2":
 
                             if($request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
@@ -175,17 +174,17 @@ class EncuestaController extends Controller
                                             $encuesta->linea_asociada_whatsapp = 1;
 
                                         }else if($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no'){
-                                            $encuesta->linea_asociada_whatsapp = 0; 
+                                            $encuesta->linea_asociada_whatsapp = 0;
                                         }
 
                                     }else if($request['infoencuesta']['lineaContactoPropiaCtrl'] === "no"){
                                         $encuesta->linea_contacto_propia = 0;
-                                        $encuesta->linea_asociada_whatsapp = 0; 
+                                        $encuesta->linea_asociada_whatsapp = 0;
 
                                         $encuesta->preguntar_en_caso_de_llamar = $request['infoencuesta']['contactoAlternativoCtrl'];
 
                                     }
-                                    
+
                                     $encuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
                                     $encuesta->comentario = $request['infoencuesta']['comentarioAdicionalCtrl'];
 
@@ -203,15 +202,15 @@ class EncuestaController extends Controller
 
                             break;
 
-                    
-                        
+
+
                         case "paso3":
 
                             $encuesta->paso = $request['paso'];
 
                             $miembrosexistentes = MiembrosHogar::where('id_encuesta',$encuesta->id)->delete();
-                        
-                            
+
+
                             if(count($request['infoencuesta']['miembrosFamilia'])>0){
 
                                 $guardado = false;
@@ -229,16 +228,16 @@ class EncuestaController extends Controller
                                         $addMiembro->segundo_apellido_miembro = $miembro['segundoapellidoCtrl'];
                                         $addMiembro->sexo_miembro = $miembro['sexoCtrl'];
                                         //$addMiembro->fecha_nacimiento = date("d/m/Y", strtotime($miembro['fechaCtrl']));
-                                        $addMiembro->fecha_nacimiento = date("y-m-d", strtotime($miembro['fechaCtrl']));
+                                        $addMiembro->fecha_nacimiento = date("Y-m-d", strtotime($miembro['fechaCtrl']));
 
-                                        
+
                                         if($addMiembro->save()){
                                             $guardado = true;
                                         }
 
                                     }
 
-                                    
+
                                 }
 
                                 if($encuesta->save() && $guardado == true){
@@ -252,15 +251,15 @@ class EncuestaController extends Controller
                                 return ['encuesta'=>$encuesta,'Estado:'=>'Sin otros miembros de Hogar'];
                             }
 
-                            
-                            
 
-                            
-                            
+
+
+
+
 
 
                             break;
-                        
+
                         case "paso4":
 
                             $encuesta->paso = $request['paso'];
@@ -279,7 +278,7 @@ class EncuestaController extends Controller
                             }
 
                             break;
-                        
+
                         case "paso5":
 
                             $encuesta->paso = $request['paso'];
@@ -298,9 +297,9 @@ class EncuestaController extends Controller
                             }else{
                                 return "error";
                             }
-                            
+
                             break;
-                        
+
                         case "paso6":
 
                             if($request['infoencuesta']['necesidades17Ctrl'] != "" && sizeOf($request['infoencuesta']['necesidades22Ctrl']) > 0 ){
@@ -313,7 +312,7 @@ class EncuestaController extends Controller
 
                                 foreach ($request['infoencuesta']['necesidades22Ctrl'] as $necesidad) {
                                     $encuesta->necesidadesbasicas()->attach(intval($necesidad));
-                        
+
                                 }
 
 
@@ -332,7 +331,7 @@ class EncuestaController extends Controller
 
 
                             break;
-                        
+
                         case "paso7":
 
                             $encuesta->paso = $request['paso'];
@@ -354,7 +353,7 @@ class EncuestaController extends Controller
                             $encuesta->gastos_percapita1 = $encuesta->total_gastos / $request['infoencuesta']['cantidad_miembros'];
 
                             $encuesta->save();
-            
+
                             if($encuesta){
                                     return $encuesta;
                             }else{
@@ -365,7 +364,7 @@ class EncuestaController extends Controller
                             break;
                     }
 
-                    
+
                 }else{
                     return "error";
                 }
