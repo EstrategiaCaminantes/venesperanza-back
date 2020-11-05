@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Departamento;
 
 use App\Models\Municipio;
+use App\Models\Barrio;
+
 
 class MunicipioController extends Controller
 {
@@ -19,6 +21,15 @@ class MunicipioController extends Controller
     {
         return Municipio::all();
     }
+
+
+    public function obtenerBarrios(){
+
+        return Barrio::all();
+
+    }
+
+
 
     /**
      * Show the form for creating a new resource.

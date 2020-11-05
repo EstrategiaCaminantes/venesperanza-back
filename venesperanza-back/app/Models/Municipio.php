@@ -19,6 +19,10 @@ class Municipio extends Model
         return $this->belongsTo('App\Departamento', 'id_departamento');
     }
 
+    Public function barrios(){
+    	return $this->hasMany('App\Barrios');
+    }
+
     Public function encuestas(){
     	return $this->hasMany('App\Encuesta');
     }

@@ -15,7 +15,7 @@ class Encuesta extends Model
 
 
     protected $fillable = ['consentimiento_compartido','primer_nombre', 'segundo_nombre',
-    'primer_apellido','segundo_apellido','sexo','fecha_nacimiento','nacionalidad','tipo_documento',
+    'primer_apellido','segundo_apellido','sexo','otrosexo','fecha_nacimiento','nacionalidad','tipo_documento',
 'cual_otro_tipo_documento','numero_documento','id_departamento','municipio_registro','barrio','direccion',
 'numero_contacto','linea_contacto_propia','preguntar_en_caso_de_llamar','linea_asociada_whatsapp',
 'correo_electronico','comentario','mujeres_embarazadas','mujeres_lactantes','situacion_discapacidad',
@@ -32,6 +32,7 @@ class Encuesta extends Model
     {
         return $this->belongsTo('App\Models\Municipio', 'id_municipio');
     }
+    
 
     public function necesidadesbasicas()
     {

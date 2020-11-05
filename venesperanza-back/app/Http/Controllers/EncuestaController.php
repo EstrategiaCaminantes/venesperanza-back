@@ -49,6 +49,11 @@ class EncuestaController extends Controller
             $ben->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
             $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
             $ben->sexo = $request['infoencuesta']['sexoCtrl'];
+
+            if($ben->sexo === "otro"){
+                $ben->otrosexo = $request['infoencuesta']['otroSexoCtrl'];
+            }
+            
             //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
             $ben->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
             $ben->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
@@ -125,6 +130,12 @@ class EncuestaController extends Controller
                         $encuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
                         $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
                         $encuesta->sexo = $request['infoencuesta']['sexoCtrl'];
+
+                        if($encuesta->sexo === "otro"){
+                            $encuesta->otrosexo = $request['infoencuesta']['otroSexoCtrl'];
+                        }else{
+                            $encuesta->otrosexo = null;
+                        }
                         //$encuesta->fecha_nacimiento = date("d/m/Y", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
                         $encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
                         $encuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
@@ -217,6 +228,12 @@ class EncuestaController extends Controller
                                     $addMiembro->primer_apellido_miembro = $miembro['primerapellidoCtrl'];
                                     $addMiembro->segundo_apellido_miembro = $miembro['segundoapellidoCtrl'];
                                     $addMiembro->sexo_miembro = $miembro['sexoCtrl'];
+
+                                    if($addMiembro->sexo_miembro === "otro"){
+                                        $addMiembro->otrosexo_miembro = $miembro['otroSexoCtrl'];
+                                    }
+
+                                    
                                     //$addMiembro->fecha_nacimiento = date("d/m/Y", strtotime($miembro['fechaCtrl']));
                                     $addMiembro->fecha_nacimiento = date("Y-m-d", strtotime($miembro['fechaCtrl']));
 

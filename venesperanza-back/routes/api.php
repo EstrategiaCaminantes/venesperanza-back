@@ -40,6 +40,10 @@ Route::group(['middleware' => 'auth:api'], function () {
 
     Route::resource('municipios', 'MunicipioController');
 
+    Route::get('barrios','MunicipioController@obtenerBarrios');
+
+    
+
     Route::resource('encuestas', 'EncuestaController');
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 
