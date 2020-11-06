@@ -24,6 +24,7 @@ class CreateBarriosTable extends Migration
             $table->string('zona', 100)->nullable();
             $table->integer('sector')->nullable();
             $table->integer('seccion')->nullable();
+            $table->timestamps(0);
         });
     }
 

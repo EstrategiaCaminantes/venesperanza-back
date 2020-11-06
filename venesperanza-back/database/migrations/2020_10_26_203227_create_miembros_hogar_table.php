@@ -22,9 +22,8 @@ class CreateMiembrosHogarTable extends Migration
             $table->string('segundo_apellido_miembro', 500)->nullable();
             $table->string('sexo_miembro', 15)->nullable();
             $table->date('fecha_nacimiento')->nullable();
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->nullable()->useCurrent();
-            $table->softDeletes()->useCurrent();
+            $table->timestamps(0);
+            $table->softDeletes();
         });
     }
 
