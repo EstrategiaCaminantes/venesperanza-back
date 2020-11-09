@@ -36,7 +36,7 @@ Route::post('validarUbicacionVR','MunicipioController@validarUbicacionEnVRosario
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
 
-    
+    Route::resource('autorizacion','AutorizacionController');
 
     Route::resource('departamentos', 'DepartamentoController');
 
@@ -50,5 +50,5 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 
 });
-Route::post('validation','ValidationController@validacionTrafic');
+Route::post('validation','ValidationController@validacionUsuario');
 

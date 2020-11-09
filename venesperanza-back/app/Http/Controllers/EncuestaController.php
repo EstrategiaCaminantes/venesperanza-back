@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Encuesta;
 use App\Models\MiembrosHogar;
 
+use App\Models\Autorizacion;
+
 
 class EncuestaController extends Controller
 {
@@ -69,6 +71,16 @@ class EncuestaController extends Controller
 
 
             $ben->save();
+
+
+            $autorizacion = Autorizacion::find($request['autorizacion_id']);
+
+            $autorizacion->id_encuesta = $ben->id;
+
+            $autorizacion->save();
+
+            
+
 
             return $ben;
 
