@@ -51,9 +51,8 @@ class CreateEncuestaTable extends Migration
             $table->string('ingresos_c', 50)->nullable();
             $table->bigInteger('total_gastos')->nullable();
             $table->float('gastos_percapita1', 10, 0)->nullable();
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent();
-            $table->timestamp('deleted_at')->useCurrent();
+            $table->timestamps(0);
+            $table->softDeletes();
             $table->string('paso', 20);
         });
     }
