@@ -30,6 +30,8 @@ Route::group(['middleware'=>'APIToken'],function(){
     Route::post('login','UserController@login');
 });
 
+Route::post('validarUbicacionVR','MunicipioController@validarUbicacionEnVRosario');
+
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
