@@ -46,7 +46,7 @@ class AutorizacionController extends Controller
             $autorizacion->ip = $_SERVER['REMOTE_ADDR'];
 
             $autorizacion->save();
-            return $autorizacion;
+            return $autorizacion->id;
 
         } catch (Exception $e) {
             return $e->error;

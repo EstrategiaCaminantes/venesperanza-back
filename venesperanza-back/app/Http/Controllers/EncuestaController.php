@@ -74,7 +74,8 @@ class EncuestaController extends Controller
 
 
             $autorizacion = Autorizacion::find($request['autorizacion_id']);
-
+            
+            
             $autorizacion->id_encuesta = $ben->id;
 
             $autorizacion->save();
@@ -82,7 +83,7 @@ class EncuestaController extends Controller
             
 
 
-            return $ben;
+            return $ben->id;
 
 
         } catch (Exception $e) {
@@ -163,7 +164,7 @@ class EncuestaController extends Controller
 
 
                         if ($encuesta->save()) {
-                            return $encuesta;
+                            return $encuesta->id;
                         } else {
                             return "error";
                         };
@@ -206,7 +207,7 @@ class EncuestaController extends Controller
                             $encuesta->save();
 
                             if ($encuesta) {
-                                return $encuesta;
+                                return $encuesta->id;
                             } else {
                                 return "error";
                             };
@@ -223,7 +224,7 @@ class EncuestaController extends Controller
 
                         $miembrosexistentes = MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
 
-                        $encuesta->unico_miembro_hogar = $request['infoencuesta']['unicoMiembro'];
+                        
 
                         if (count($request['infoencuesta']['miembrosFamilia']) > 0) {
 
@@ -260,16 +261,20 @@ class EncuestaController extends Controller
 
                             }
 
+                            $encuesta->unico_miembro_hogar = false;
+
                             if ($encuesta->save() && $guardado == true) {
-                                return ['encuesta' => $encuesta, 'Estado:' => 'Info Guardada'];
+                                return ['encuesta' => $encuesta->id, 'Estado:' => 'Info Guardada'];
                             } else {
-                                return ['encuesta' => $encuesta, 'Estado:' => 'Info NO Guardada'];
+                                return ['encuesta' => $encuesta->id, 'Estado:' => 'Info NO Guardada'];
                             }
 
                         } else {
+
+                            $encuesta->unico_miembro_hogar = true;
                             
                             $encuesta->save();
-                            return ['encuesta' => $encuesta, 'Estado:' => 'Sin otros miembros de Hogar'];
+                            return ['encuesta' => $encuesta->id, 'Estado:' => 'Sin otros miembros de Hogar'];
                         }
 
 
@@ -287,7 +292,7 @@ class EncuestaController extends Controller
                         $encuesta->save();
 
                         if ($encuesta) {
-                            return $encuesta;
+                            return $encuesta->id;
                         } else {
                             return "error";
                         }
@@ -308,7 +313,7 @@ class EncuestaController extends Controller
 
 
                         if ($encuesta) {
-                            return $encuesta;
+                            return $encuesta->id;
                         } else {
                             return "error";
                         }
@@ -329,7 +334,7 @@ class EncuestaController extends Controller
                             }
                             $encuesta->save();
                             if ($encuesta) {
-                                return $encuesta;
+                                return $encuesta->id;
                             } else {
                                 return "error";
                             }
@@ -348,7 +353,7 @@ class EncuestaController extends Controller
                         $encuesta->save();
 
                         if ($encuesta) {
-                            return $encuesta;
+                            return $encuesta->id;
                         } else {
                             return "error";
                         }
@@ -359,12 +364,18 @@ class EncuestaController extends Controller
                         $encuesta->ingresos_c = $request['infoencuesta']['economicoCtrl'];
                         $encuesta->total_gastos = $request['infoencuesta']['gastoHogar7diasCtrl'];
                         $encuesta->gastos_percapita1 = $encuesta->total_gastos / $request['infoencuesta']['cantidad_miembros'];
-                        $encuesta->gasto_hogar = $request['infoencuesta']['gastoHogarCtrl'];
                         
+                        if($request['infoencuesta']['gastoHogarCtrl']){
+                            $encuesta->gasto_hogar = $request['infoencuesta']['gastoHogarCtrl'];
+                        }else{
+                            $encuesta->gasto_hogar = false;
+                        }
+                        
+
                         $encuesta->save();
 
                         if ($encuesta) {
-                            return $encuesta;
+                            return $encuesta->id;
                         } else {
                             return "error";
                         }
