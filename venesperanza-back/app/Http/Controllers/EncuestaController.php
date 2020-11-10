@@ -223,6 +223,7 @@ class EncuestaController extends Controller
 
                         $miembrosexistentes = MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
 
+                        $encuesta->unico_miembro_hogar = $request['infoencuesta']['unicoMiembro'];
 
                         if (count($request['infoencuesta']['miembrosFamilia']) > 0) {
 
@@ -266,6 +267,7 @@ class EncuestaController extends Controller
                             }
 
                         } else {
+                            
                             $encuesta->save();
                             return ['encuesta' => $encuesta, 'Estado:' => 'Sin otros miembros de Hogar'];
                         }
@@ -357,7 +359,8 @@ class EncuestaController extends Controller
                         $encuesta->ingresos_c = $request['infoencuesta']['economicoCtrl'];
                         $encuesta->total_gastos = $request['infoencuesta']['gastoHogar7diasCtrl'];
                         $encuesta->gastos_percapita1 = $encuesta->total_gastos / $request['infoencuesta']['cantidad_miembros'];
-
+                        $encuesta->gasto_hogar = $request['infoencuesta']['gastoHogarCtrl'];
+                        
                         $encuesta->save();
 
                         if ($encuesta) {
