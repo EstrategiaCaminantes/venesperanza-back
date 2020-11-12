@@ -56,8 +56,8 @@ class MunicipioController extends Controller
                     }
                     $points_polygon = count($arrayLongitudes) - 1; //numero de vertices
                     $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes,
-                        $arrayLatitudes, $request['coordenadas']['longitud'],
-                        $request['coordenadas']['latitud']);
+                        $arrayLatitudes, $request['coordenadas']['latitud'],
+                        $request['coordenadas']['longitud']);
                     return ['valid' => $posicionenpoligono];
                 }
             } else {
@@ -69,7 +69,7 @@ class MunicipioController extends Controller
     }
 
     //Valido si coordenadas de ubicacion están dentro del poligono
-    function is_in_polygon($points_polygon, $vertices_x, $vertices_y, $longitude_x, $latitude_y)
+    function is_in_polygon($points_polygon, $vertices_x, $vertices_y, $latitude_y, $longitude_x)
         //function is_in_polygon($longitude_x, $latitude_y)
     {
         $i = $j = $c = $point = 0;
