@@ -23,32 +23,22 @@ use App\Http\Controllers\MunicipioController;
 /*
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-}); 
+});
 
 */
-Route::group(['middleware'=>'APIToken'],function(){
-    Route::post('login','UserController@login');
+Route::group(['middleware' => 'APIToken'], function () {
+    Route::post('login', 'UserController@login');
 });
 
-Route::post('validarUbicacionVR','MunicipioController@validarUbicacionEnVRosario');
-
-
+Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
-
-    Route::resource('autorizacion','AutorizacionController');
-
+    Route::resource('autorizacion', 'AutorizacionController');
     Route::resource('departamentos', 'DepartamentoController');
-
     Route::resource('municipios', 'MunicipioController');
-
-    Route::get('barrios','MunicipioController@obtenerBarrios');
-
-    
-
+    Route::get('barrios', 'MunicipioController@obtenerBarrios');
     Route::resource('encuestas', 'EncuestaController');
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
-
 });
-Route::post('validation','ValidationController@validacionUsuario');
+Route::post('validation', 'ValidationController@validacionUsuario');
 
