@@ -28,14 +28,10 @@ class MunicipioController extends Controller
         return Municipio::all();
     }
 
-
     public function obtenerBarrios()
     {
-
         return Barrio::all();
-
     }
-
 
     public function validarUbicacionEnVRosario(Request $request)
     {
@@ -50,7 +46,7 @@ class MunicipioController extends Controller
                 $ipvalidar = $_SERVER['REMOTE_ADDR'];
                 $autorizacion = DB::table('autorizaciones')->where('ip', $ipvalidar)->first();
                 if ($autorizacion) {
-                    return ['existeenpoligono' => $posicionenpoligono];
+                    return ['valid' => $posicionenpoligono];
                 } else {
                     $jsonfile = Storage::get('public/villaDelRosarioGeoJSON.json');
                     $coordenadas = json_decode($jsonfile, true);
@@ -62,8 +58,7 @@ class MunicipioController extends Controller
                     $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes,
                         $arrayLatitudes, $request['coordenadas']['longitud'],
                         $request['coordenadas']['latitud']);
-                    //echo $posicionenpoligono;
-                    return ['existeenpoligono' => $posicionenpoligono];
+                    return ['valid' => $posicionenpoligono];
                 }
             } else {
                 return ['valid' => $posicionenpoligono];
