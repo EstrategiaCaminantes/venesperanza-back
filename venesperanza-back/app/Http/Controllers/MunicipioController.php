@@ -46,39 +46,45 @@ class MunicipioController extends Controller
       
         try {
 
-            $ipvalidar = $_SERVER['REMOTE_ADDR'];
-            $autorizacion = DB::table('autorizaciones')->where('ip', $ipvalidar )->first();
+            $posicionenpoligono = false;
+
+            if($request['adf'] == env('APP_KEY_ADF')){
+
+                    $ipvalidar = $_SERVER['REMOTE_ADDR'];
+                    $autorizacion = DB::table('autorizaciones')->where('ip', $ipvalidar )->first();
 
 
-            if($autorizacion){
-                $posicionenpoligono = false;
-                
-                return ['existeenpoligono'=>$posicionenpoligono];
+                    if($autorizacion){
+                        
+                        return ['existeenpoligono'=>$posicionenpoligono];
+                    }else{
+                        $jsonfile = Storage::get('public/villaDelRosarioGeoJSON.json');
+            
+                        $coordenadas = json_decode($jsonfile,true);
+                        foreach ($coordenadas as $key => $coordenada) {
+
+                    
+                            array_push($arrayLatitudes,$coordenada['geometry']['coordinates'][0]);
+                            array_push($arrayLongitudes,$coordenada['geometry']['coordinates'][1]);
+
+
+                        }
+
+                        $points_polygon =count($arrayLongitudes) - 1; //numero de vertices
+                        $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes, 
+                        $arrayLatitudes, $request['coordenadas']['longitud'],
+                        $request['coordenadas']['latitud']);
+                        //echo $posicionenpoligono;
+                        return ['existeenpoligono'=>$posicionenpoligono];
+
+                    }
+
             }else{
-                $jsonfile = Storage::get('public/villaDelRosarioGeoJSON.json');
-    
-                $coordenadas = json_decode($jsonfile,true);
-                foreach ($coordenadas as $key => $coordenada) {
+                return ['existeenpoligono'=>$posicionenpoligono];
+            }
+
 
             
-                    array_push($arrayLatitudes,$coordenada['geometry']['coordinates'][0]);
-                    array_push($arrayLongitudes,$coordenada['geometry']['coordinates'][1]);
-
-
-                }
-
-                $points_polygon =count($arrayLongitudes) - 1; //numero de vertices
-                $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes, 
-                $arrayLatitudes, $request['coordenadas']['longitud'],
-                $request['coordenadas']['latitud']);
-
-
-
-                
-                //echo $posicionenpoligono;
-                return ['existeenpoligono'=>$posicionenpoligono];
-
-            }
 
 
             
