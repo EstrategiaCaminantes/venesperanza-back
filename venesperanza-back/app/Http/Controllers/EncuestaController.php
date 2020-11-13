@@ -315,6 +315,7 @@ class EncuestaController extends Controller
         $web->resource = $request['resource'];
         $web->step = ($request['step']) ? json_encode($request['step']) : '';
         $web->metadata = ($request['metadata']) ? json_encode($request['metadata']) : '';
+        $web->encuesta = ($request['metadata'] && $request['metadata']['user_id']) ? $request['metadata']['user_id'] : '';
         $web->save();
     }
 }
