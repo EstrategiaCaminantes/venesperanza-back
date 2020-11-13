@@ -314,6 +314,7 @@ class EncuestaController extends Controller
         $web->eventname = $request['eventName'];
         $web->resource = $request['resource'];
         $web->step = ($request['step']) ? json_encode($request['step']) : '';
+        $web->metadata = ($request['metadata']) ? json_encode($request['metadata']) : '';
         $web->save();
     }
 }

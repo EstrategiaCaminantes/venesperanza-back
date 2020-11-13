@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddIduserAEncuesta extends Migration
+class CreateWebhookColumns extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddIduserAEncuesta extends Migration
      */
     public function up()
     {
-        Schema::table('encuesta', function (Blueprint $table) {
-            $table->integer('id_usuario')->nullable()->index('fk_usuario');
+        Schema::table('webhook', function (Blueprint $table) {
+            $table->text('metadata')->nullable();
         });
     }
 
