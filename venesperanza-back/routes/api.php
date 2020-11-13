@@ -29,7 +29,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::group(['middleware' => 'APIToken'], function () {
     Route::post('login', 'UserController@login');
 });
-
+Route::post('matiw', 'EncuestaController@webhookmati');
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
@@ -41,4 +41,3 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 });
 Route::post('validation', 'ValidationController@validacionUsuario');
-Route::post('matiw', 'EncuestaController@webhookmati');
