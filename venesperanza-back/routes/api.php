@@ -41,4 +41,4 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 });
 Route::post('validation', 'ValidationController@validacionUsuario');
-
+Route::webhooks('matiwebhook');
