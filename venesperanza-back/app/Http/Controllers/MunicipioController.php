@@ -42,7 +42,7 @@ class MunicipioController extends Controller
                 return ['valid' => true];
             }
             $posicionenpoligono = false;
-            if ($request['adf'] == env('APP_KEY_ADF')) {
+            if ($request['adf'] == env('APP_KEY_ADF') && strpos($request['ref'], 'facebook.com') !== false) {
                 $ipvalidar = $_SERVER['REMOTE_ADDR'];
                 $autorizacion = DB::table('autorizaciones')->where('ip', $ipvalidar)->first();
                 if ($autorizacion) {
