@@ -41,7 +41,7 @@ class EncuestaController extends Controller
     public function store(Request $request)
     {
         try {
-            $ben = new Webhook;
+            $ben = new Encuesta;
             $ben->paso = $request['paso'];
             $ben->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
             $ben->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
