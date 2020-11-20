@@ -31,6 +31,9 @@ Route::group(['middleware' => 'APIToken'], function () {
 });
 
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
+
+Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
+
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
     Route::resource('autorizacion', 'AutorizacionController');

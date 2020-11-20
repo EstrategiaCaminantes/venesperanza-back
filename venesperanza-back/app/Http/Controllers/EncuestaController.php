@@ -8,6 +8,7 @@ use App\Models\Encuesta;
 use App\Models\MiembrosHogar;
 use App\Models\Autorizacion;
 use App\Models\Webhook;
+use App\Models\NecesidadBasica;
 
 use DateTime;
 
@@ -126,6 +127,289 @@ class EncuestaController extends Controller
     public function edit($id)
     {
         //
+    }
+
+
+    public function asignarcodigospuntajes(){
+
+
+       try {
+            
+            $encuestas = Encuesta::whereNull('codigo_encuesta')->with('necesidadesbasicas')->get();
+
+            $nuevosDATOS = [];
+
+            $fechaactual = new DateTime(); //fecha actual
+
+            foreach($encuestas as $encuesta){
+
+                //Asignar el codigo_encuesta:
+
+                $nombreiniciales = mb_strtoupper(mb_substr($encuesta->primer_nombre, 0, 2));
+                $nombreiniciales2 = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $nombreiniciales3 = str_replace('Ü', 'U', $nombreiniciales2);
+
+                $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
+                $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
+
+                $fecha1 = new DateTime("1900-01-01"); 
+                $fecha2 = new DateTime($encuesta->fecha_nacimiento);
+                $diff = $fecha1->diff($fecha2);
+
+                //return ['diff'=>$diff];
+                $diferenciaDias = $diff->days;
+
+                $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
+
+                $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
+
+
+                //PUNTAJES PARA CADA PASO:
+
+                //puntaje paso 3:
+
+                //calcular Ratio:
+                $miembros_0_17_años = 0;
+                $miembros_18_59_años = 0;
+                $miembros_mas_60_años = 0;
+                //Calculo edad del miembro principal
+
+                $fecha2 = new DateTime($encuesta->fecha_nacimiento); 
+                $diff = $fechaactual->diff($fecha2);
+                $diferenciaAñosMiembroPrincipal = $diff->y; //edad del miembro principal
+
+                if ($diferenciaAñosMiembroPrincipal >= 0 && $diferenciaAñosMiembroPrincipal <= 17) {
+                    $miembros_0_17_años += 1;
+                } elseif ($diferenciaAñosMiembroPrincipal >= 18 && $diferenciaAñosMiembroPrincipal <= 59) {
+                    $miembros_18_59_años += 1;
+                } elseif ($diferenciaAñosMiembroPrincipal >= 60) {
+                    $miembros_mas_60_años += 1;
+                }
+
+
+                //Total Miembros familia para hacer calculos:
+                $miembrosFamiliaTamaño = 1; //el 1 es el miembro principal de la encuesta
+
+                //miembros segundarios de la encuesta:
+                $miembros = MiembrosHogar::where('id_encuesta',$encuesta['id'])->get(); 
+                
+                $miembrosFamiliaTamaño += sizeof($miembros); //sumo a miembros de familia los miembros segundarios
+            
+                if ($miembrosFamiliaTamaño > 0) {
+
+                    //recorro los miembros:
+
+                    foreach ($miembros as $miembro) {
+
+                        $fecha3 = new DateTime($miembro->fecha_nacimiento);
+                        $diff = $fechaactual->diff($fecha3);
+                        $diferenciaAñosMiembroSegundario = $diff->y; //edad del miembro segundario de familia
+
+                        //edad
+                        $miembro->edad = $diferenciaAñosMiembroSegundario;
+
+                        if ($diferenciaAñosMiembroSegundario >= 0 && $diferenciaAñosMiembroSegundario <= 17) {
+                            $miembros_0_17_años += 1;
+                        } elseif ($diferenciaAñosMiembroSegundario >= 18 && $diferenciaAñosMiembroSegundario <= 59) {
+                            $miembros_18_59_años += 1;
+                        } elseif ($diferenciaAñosMiembroSegundario >= 60) {
+                            $miembros_mas_60_años += 1;
+                        }
+
+                    }
+
+                    //$encuesta->miembros  = $miembros; //miembros en encuesta
+                    
+                    
+                    //validamos si hay miembros entre 18 y 59 para que no hay error al dividir por 0
+                    if ($miembros_18_59_años >= 1) {
+                        $division1 = ($miembros_0_17_años + $miembros_mas_60_años) / ($miembros_18_59_años);
+                        $division = round($division1, 1);
+                    } else {
+                        $division = 0.0;
+                    }
+
+                    //return $division;
+                    $puntaje3 = 0.0;
+
+                    if ($division <= 0.6) {
+                        $puntaje3 = 0.0;
+                    } elseif ($division >= 0.7 && $division <= 1.2) {
+                        $puntaje3 = 1.0;
+                    } elseif ($division >= 1.3 && $division <= 1.8) {
+                        $puntaje3 = 2.0;
+                    } elseif ($division >= 1.9) {
+                        $puntaje3 = 3.0;
+                    } else {
+                        $puntaje = 0.0;
+                    }
+                    //return $puntaje;
+                    $encuesta->puntaje_paso_tres = $puntaje3;
+
+                    
+
+                }else{ //si no hay miembros segundarios
+
+                    //Calculo de puntaje paso 3
+                    $puntaje3 = 0.0;
+                    $encuesta->puntaje_paso_tres = $puntaje3;
+                }
+
+
+
+                //Calculo puntaje paso 4
+
+                $puntaje_paso_cuatro = 0;
+
+                if ($encuesta->mujeres_embarazadas == 1) {
+                    $puntaje_paso_cuatro += 2;
+                }
+
+                if ($encuesta->mujeres_lactantes == 1) {
+                    $puntaje_paso_cuatro += 2;
+                }
+
+                if ($encuesta->situacion_discapacidad == 1) {
+                    $puntaje_paso_cuatro += 2;
+                }
+
+                if ($encuesta->enfermedades_cronicas == 1) {
+                    $puntaje_paso_cuatro += 2;
+                }
+
+                $encuesta->puntaje_paso_cuatro = $puntaje_paso_cuatro;
+
+
+                //calculo puntaje paso 5
+
+                $puntaje_paso_cinco = 0; 
+
+                
+                //para falta de comida
+                if ($encuesta->falta_comida == 1) {
+                    
+                    if ($encuesta->cuantas_veces_falta_comida == 'pocas_veces_1-2_veces') {
+                        $puntaje_paso_cinco += 1;
+                    } elseif ($encuesta->cuantas_veces_falta_comida == 'algunas_veces_3-10_veces') {
+                        $puntaje_paso_cinco += 2;
+                    } elseif ($encuesta->cuantas_veces_falta_comida == 'muchas_veces_mas_de_10_veces') {
+                        $puntaje_paso_cinco += 3;
+                    }
+
+                    
+                }
+
+                //para dormir sin comer
+                if ($encuesta->dormir_sin_comer == 1) {
+                    if ($encuesta->cuantas_veces_dormir_sin_comer == 'pocas_veces_1-2_veces') {
+                        $puntaje_paso_cinco += 1;
+                    } elseif ($encuesta->cuantas_veces_dormir_sin_comer == 'algunas_veces_3-10_veces') {
+                        $puntaje_paso_cinco += 2;
+                    } elseif ($encuesta->cuantas_veces_dormir_sin_comer == 'muchas_veces_mas_de_10_veces') {
+                        $puntaje_paso_cinco += 3;
+                    }
+                }
+                            
+                //para todo dia sin comer
+                
+                if ($encuesta->todo_dia_sin_comer == 1) {
+                    if ($encuesta->cuantas_veces_todo_dia_sin_comer == 'pocas_veces_1-2_veces') {
+                        $puntaje_paso_cinco += 1;
+                    } elseif ($encuesta->cuantas_veces_todo_dia_sin_comer == 'algunas_veces_3-10_veces') {
+                        $puntaje_paso_cinco += 2;
+                    } elseif ($encuesta->cuantas_veces_todo_dia_sin_comer == 'muchas_veces_mas_de_10_veces') {
+                        $puntaje_paso_cinco += 3;
+                    }
+                }
+                
+                $encuesta->puntaje_paso_cinco = $puntaje_paso_cinco;
+
+                
+                //calculo puntaje paso 6
+
+                $puntaje_paso_seis = 0;
+
+                if ($encuesta->satisfaccion_necesidades_basicas == 'todas') {
+                    $puntaje_paso_seis += 0;
+                } elseif ($encuesta->satisfaccion_necesidades_basicas == 'lamayoria') {
+                    $puntaje_paso_seis += 1;
+                } elseif ($encuesta->satisfaccion_necesidades_basicas == 'algunas') {
+                    $puntaje_paso_seis += 2;
+                } elseif ($encuesta->satisfaccion_necesidades_basicas == 'ninguna') {
+                    $puntaje_paso_seis += 3;
+                }
+                
+                if ($encuesta->satisfaccion_necesidades_basicas == 'algunas' || $encuesta->satisfaccion_necesidades_basicas == 'ninguna') {
+                    
+                    
+                    
+                    if (sizeOf($encuesta['necesidadesbasicas']) > 0) {
+                        
+                        foreach ($encuesta['necesidadesbasicas'] as $necesidad) {
+
+                            if ($necesidad['id']== 1 || $necesidad['id'] == 2 || $necesidad['id'] == 8) {
+                                $puntaje_paso_seis += 1;
+                            }
+
+                        }
+
+                    }
+                }
+                
+                $encuesta->puntaje_paso_seis = $puntaje_paso_seis;
+
+
+                //puntaje paso 7
+
+                $puntaje_paso_siete = 0;
+
+                if ($encuesta->tipo_vivienda_alojamiento_15_dias == 'inquilinato' || $encuesta->tipo_vivienda_alojamiento_15_dias == 'techo_improvisado') {
+                    $puntaje_paso_siete += 1;
+                } elseif ($encuesta->tipo_vivienda_alojamiento_15_dias == 'albergue_mas5dias') {
+                    $puntaje_paso_siete += 2;
+                } elseif ($encuesta->tipo_vivienda_alojamiento_15_dias == 'situacion_calle') {
+                    $puntaje_paso_siete += 3;
+                }
+                $encuesta->puntaje_paso_siete = $puntaje_paso_siete;
+
+
+
+
+                //puntaje paso 8
+
+
+                $puntaje_paso_ocho = 0;
+                
+                if ($encuesta->gasto_hogar == 1) {
+                    //al responder selecciono que NO hay gasto de hogar entonces valor es 1
+                    
+                } else {
+                    //selecciono que SI hay gasto de hogar e ingresa un valor entonces gasto_hogar es 0
+                    if ($encuesta->gastos_percapita1 <= 29400) {
+                        $puntaje_paso_ocho = 3;
+                    } elseif ($encuesta->gastos_percapita1 >= 29401 && $encuesta->gastos_percapita1 <= 46900) {
+                        $puntaje_paso_ocho = 2;
+                    } elseif ($encuesta->gastos_percapita1 >= 46901 && $encuesta->gastos_percapita1 <= 64400) {
+                        $puntaje_paso_ocho = 1;
+                    } elseif ($encuesta->gastos_percapita1 >= 64401) {
+                        $puntaje_paso_ocho = 0;
+                    }
+
+                    //encuesta->gasto_hogar = false;
+                }
+
+                $encuesta->puntaje_paso_ocho = $puntaje_paso_ocho;
+
+
+                $encuesta->save();
+            }
+
+            return $encuestas;
+
+        }catch (Exception $e) {
+            return "error";
+        }
     }
 
     /**

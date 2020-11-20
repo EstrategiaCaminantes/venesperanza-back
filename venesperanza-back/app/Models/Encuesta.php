@@ -21,7 +21,7 @@ class Encuesta extends Model
         'correo_electronico', 'comentario', 'unico_miembro_hogar', 'mujeres_embarazadas', 'mujeres_lactantes', 'situacion_discapacidad',
         'enfermedades_cronicas', 'falta_comida', 'cuantas_veces_falta_comida', 'dormir_sin_comer', 'cuantas_veces_dormir_sin_comer',
         'todo_dia_sin_comer', 'cuantas_veces_todo_dia_sin_comer', 'satisfaccion_necesidades_basicas', 'tipo_vivienda_alojamiento_15_dias',
-        'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta','puntaje_paso_cuatro','puntaje_paso_cinco','puntaje_paso_seis',
+        'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta','puntaje_paso_tres','puntaje_paso_cuatro','puntaje_paso_cinco','puntaje_paso_seis',
         'puntaje_paso_siete','puntaje_paso_ocho'
     ];
 
@@ -46,6 +46,12 @@ class Encuesta extends Model
     {
         return $this->hasMany('App\Models\MiembrosHogar');
     }
+
+/*
+    public function miembroshogar()
+    {
+        return $this->belongsToMany('App\Models\MiembrosHogar', 'miembros_hogar','id_encuesta');
+    }*/
 
 
 }
