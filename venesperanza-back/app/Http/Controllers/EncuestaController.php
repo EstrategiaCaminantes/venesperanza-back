@@ -384,7 +384,9 @@ class EncuestaController extends Controller
                 if ($encuesta->gasto_hogar == 1) {
                     //al responder selecciono que NO hay gasto de hogar entonces valor es 1
                     
-                } else {
+                } elseif($encuesta->gastos_percapita1) {
+
+                    
                     //selecciono que SI hay gasto de hogar e ingresa un valor entonces gasto_hogar es 0
                     if ($encuesta->gastos_percapita1 <= 29400) {
                         $puntaje_paso_ocho = 3;
