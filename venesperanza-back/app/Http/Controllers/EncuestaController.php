@@ -133,7 +133,7 @@ class EncuestaController extends Controller
     public function asignarcodigospuntajes()
     {
         try {
-            $encuestas = Encuesta::whereNull('codigo_encuesta')->with('necesidadesbasicas')->get();
+            $encuestas = Encuesta::whereNotNull('codigo_encuesta')->with('necesidadesbasicas')->get();
             $nuevosDATOS = [];
             $fechaactual = new DateTime(); //fecha actual
             foreach ($encuestas as $encuesta) {
@@ -414,7 +414,7 @@ class EncuestaController extends Controller
                             $miembros_mas_60_anios += 1;
                         }
                         $encuesta->paso = $request['paso'];
-                        $miembrosexistentes = MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
+                        MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
                         if (count($request['infoencuesta']['miembrosFamilia']) > 0) {
                             $guardado = false;
                             foreach ($request['infoencuesta']['miembrosFamilia'] as $miembro) {
@@ -452,28 +452,19 @@ class EncuestaController extends Controller
                             } else {
                                 $division = 0;
                             }
-
-                            //return $division;
                             $puntaje = 0;
-
-                            if ($division <= 0.6) {
-                                $puntaje = 0;
-                            } elseif ($division >= 0.7 && $division <= 1.2) {
+                            if ($division >= 0.7 && $division <= 1.2) {
                                 $puntaje = 1;
                             } elseif ($division >= 1.3 && $division <= 1.8) {
                                 $puntaje = 2;
                             } elseif ($division >= 1.9) {
                                 $puntaje = 3;
-                            } else {
-                                $puntaje = 0;
                             }
-                            //return $puntaje;
                             $encuesta->puntaje_paso_tres = $puntaje;
                             if ($encuesta->gasto_hogar == 0) {
                                 //Cuando SI hay gasto de hogar calcula nuevamente el gasto percapita
                                 $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_anios + $miembros_mas_60_anios + $miembros_18_59_anios);
                                 $encuesta->gastos_percapita1 = $gastos_percapita;
-                                //return $encuesta;
                             }
                             if ($encuesta->save() && $guardado == true) {
                                 return ['encuesta' => $encuesta->id, 'Estado:' => 'Info Guardada'];
@@ -484,50 +475,35 @@ class EncuestaController extends Controller
                             if ($encuesta->gasto_hogar == 0) {
                                 $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_anios + $miembros_mas_60_anios + $miembros_18_59_anios);
                                 $encuesta->gastos_percapita1 = $gastos_percapita;
-                                //return $encuesta;
                             }
                             $encuesta->unico_miembro_hogar = true;
-
-                            //Calculo de puntaje
-                            $puntaje = 0;
-                            $encuesta->puntaje_paso_tres = $puntaje;
+                            $encuesta->puntaje_paso_tres = 0;
                             $encuesta->save();
                             return ['encuesta' => $encuesta->id, 'Estado:' => 'Sin otros miembros de Hogar'];
                         }
                         break;
                     case "paso4":
-
                         $puntaje_paso_cuatro = 0;
-
                         $encuesta->paso = $request['paso'];
                         $encuesta->mujeres_embarazadas = $request['infoencuesta']['mujeresEmbarazadasCtrl'];
-
                         //calculo puntaje
                         if ($encuesta->mujeres_embarazadas && $encuesta->mujeres_embarazadas == 1) {
                             $puntaje_paso_cuatro += 2;
                         }
 
                         $encuesta->mujeres_lactantes = $request['infoencuesta']['mujeresLactantesCtrl'];
-
                         if ($encuesta->mujeres_lactantes && $encuesta->mujeres_lactantes == 1) {
                             $puntaje_paso_cuatro += 2;
                         }
-
                         $encuesta->situacion_discapacidad = $request['infoencuesta']['personasDiscapacidadCtrl'];
-
                         if ($encuesta->situacion_discapacidad && $encuesta->situacion_discapacidad == 1) {
                             $puntaje_paso_cuatro += 2;
                         }
-
                         $encuesta->enfermedades_cronicas = $request['infoencuesta']['personasEnfermedadesCronicasCtrl'];
-
                         if ($encuesta->enfermedades_cronicas && $encuesta->enfermedades_cronicas == 1) {
                             $puntaje_paso_cuatro += 2;
                         }
-
-                        //return $puntaje_paso_cinco;
                         $encuesta->puntaje_paso_cuatro = $puntaje_paso_cuatro;
-
                         $encuesta->save();
                         if ($encuesta) {
                             return $encuesta->id;
@@ -540,15 +516,11 @@ class EncuestaController extends Controller
                         $puntaje_paso_cinco = 0;
 
                         $encuesta->paso = $request['paso'];
-
                         $encuesta->falta_comida = $request['infoencuesta']['alimentos11Ctrl'];
-
                         //calculo puntaje
-
                         //para falta de comida
                         if ($encuesta->falta_comida == 1) {
                             $encuesta->cuantas_veces_falta_comida = $request['infoencuesta']['alimentos12Ctrl'];
-
                             if ($encuesta->cuantas_veces_falta_comida == 'pocas_veces_1-2_veces') {
                                 $puntaje_paso_cinco += 1;
                             } elseif ($encuesta->cuantas_veces_falta_comida == 'algunas_veces_3-10_veces') {
@@ -648,7 +620,6 @@ class EncuestaController extends Controller
                             $puntaje_paso_siete += 3;
                         }
                         $encuesta->puntaje_paso_siete = $puntaje_paso_siete;
-                        //return $encuesta->puntaje_paso_ocho;
                         $encuesta->save();
                         if ($encuesta) {
                             return $encuesta->id;
@@ -675,19 +646,12 @@ class EncuestaController extends Controller
                                 $puntaje_paso_ocho = 2;
                             } elseif ($encuesta->gastos_percapita1 >= 46901 && $encuesta->gastos_percapita1 <= 64400) {
                                 $puntaje_paso_ocho = 1;
-                            } elseif ($encuesta->gastos_percapita1 >= 64401) {
-                                $puntaje_paso_ocho = 0;
                             }
 
                             $encuesta->gasto_hogar = false;
                         }
-
                         $encuesta->puntaje_paso_ocho = $puntaje_paso_ocho;
-
                         $encuesta->save();
-
-                        return $encuesta->puntaje_paso_ocho;
-
                         if ($encuesta) {
                             return $encuesta->id;
                         } else {
