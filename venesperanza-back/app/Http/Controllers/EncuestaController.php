@@ -137,75 +137,61 @@ class EncuestaController extends Controller
             $nuevosDATOS = [];
             $fechaactual = new DateTime(); //fecha actual
             foreach ($encuestas as $encuesta) {
-                //Asignar el codigo_encuesta:
-                $nombreiniciales = mb_strtoupper(mb_substr($encuesta->primer_nombre, 0, 2));
-                $nombreiniciales2 = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                $nombreiniciales3 = str_replace('Ü', 'U', $nombreiniciales2);
-                $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
-                $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
-                $fecha1 = new DateTime("1900-01-01");
                 $fecha2 = new DateTime($encuesta->fecha_nacimiento);
-                $diff = $fecha1->diff($fecha2);
-                //return ['diff'=>$diff];
-                $diferenciaDias = $diff->days;
-                $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
-                $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
                 //PUNTAJES PARA CADA PASO:
                 //puntaje paso 3:
                 //calcular Ratio:
-                $miembros_0_17_años = 0;
-                $miembros_18_59_años = 0;
-                $miembros_mas_60_años = 0;
+                $miembros_0_17_anios = 0;
+                $miembros_18_59_anios = 0;
+                $miembros_mas_60_anios = 0;
                 //Calculo edad del miembro principal
-                $fecha2 = new DateTime($encuesta->fecha_nacimiento);
                 $diff = $fechaactual->diff($fecha2);
-                $diferenciaAñosMiembroPrincipal = $diff->y; //edad del miembro principal
-                if ($diferenciaAñosMiembroPrincipal >= 0 && $diferenciaAñosMiembroPrincipal <= 17) {
-                    $miembros_0_17_años += 1;
-                } elseif ($diferenciaAñosMiembroPrincipal >= 18 && $diferenciaAñosMiembroPrincipal <= 59) {
-                    $miembros_18_59_años += 1;
-                } elseif ($diferenciaAñosMiembroPrincipal >= 60) {
-                    $miembros_mas_60_años += 1;
+                $diferenciaaniosMiembroPrincipal = $diff->y; //edad del miembro principal
+                if ($diferenciaaniosMiembroPrincipal >= 0 && $diferenciaaniosMiembroPrincipal <= 17) {
+                    $miembros_0_17_anios += 1;
+                } elseif ($diferenciaaniosMiembroPrincipal >= 18 && $diferenciaaniosMiembroPrincipal <= 59) {
+                    $miembros_18_59_anios += 1;
+                } elseif ($diferenciaaniosMiembroPrincipal >= 60) {
+                    $miembros_mas_60_anios += 1;
                 }
                 //Total Miembros familia para hacer calculos:
-                $miembrosFamiliaTamaño = 1; //el 1 es el miembro principal de la encuesta
+                $miembrosFamiliaTamanio = 1; //el 1 es el miembro principal de la encuesta
                 //miembros segundarios de la encuesta:
                 $miembros = MiembrosHogar::where('id_encuesta', $encuesta['id'])->get();
-                $miembrosFamiliaTamaño += sizeof($miembros); //sumo a miembros de familia los miembros segundarios
-                $puntaje3 = 0.0;
-                if ($miembrosFamiliaTamaño > 0) {
+                $miembrosFamiliaTamanio += sizeof($miembros); //sumo a miembros de familia los miembros segundarios
+                $puntaje3 = 0;
+                if ($miembrosFamiliaTamanio > 0) {
                     //recorro los miembros:
                     foreach ($miembros as $miembro) {
                         $fecha3 = new DateTime($miembro->fecha_nacimiento);
                         $diff = $fechaactual->diff($fecha3);
-                        $diferenciaAñosMiembroSegundario = $diff->y; //edad del miembro segundario de familia
+                        $diferenciaaniosMiembroSegundario = $diff->y; //edad del miembro segundario de familia
                         //edad
-                        $miembro->edad = $diferenciaAñosMiembroSegundario;
-                        if ($diferenciaAñosMiembroSegundario >= 0 && $diferenciaAñosMiembroSegundario <= 17) {
-                            $miembros_0_17_años += 1;
-                        } elseif ($diferenciaAñosMiembroSegundario >= 18 && $diferenciaAñosMiembroSegundario <= 59) {
-                            $miembros_18_59_años += 1;
-                        } elseif ($diferenciaAñosMiembroSegundario >= 60) {
-                            $miembros_mas_60_años += 1;
+                        $miembro->edad = $diferenciaaniosMiembroSegundario;
+                        if ($diferenciaaniosMiembroSegundario >= 0 && $diferenciaaniosMiembroSegundario <= 17) {
+                            $miembros_0_17_anios += 1;
+                        } elseif ($diferenciaaniosMiembroSegundario >= 18 && $diferenciaaniosMiembroSegundario <= 59) {
+                            $miembros_18_59_anios += 1;
+                        } elseif ($diferenciaaniosMiembroSegundario >= 60) {
+                            $miembros_mas_60_anios += 1;
                         }
                     }
                     //$encuesta->miembros  = $miembros; //miembros en encuesta
                     //validamos si hay miembros entre 18 y 59 para que no hay error al dividir por 0
-                    if ($miembros_18_59_años >= 1) {
-                        $division1 = ($miembros_0_17_años + $miembros_mas_60_años) / ($miembros_18_59_años);
+                    if ($miembros_18_59_anios >= 1) {
+                        $division1 = ($miembros_0_17_anios + $miembros_mas_60_anios) / ($miembros_18_59_anios);
                         $division = round($division1, 1);
                     } else {
-                        $division = 0.0;
+                        $division = 0;
                     }
 
                     //return $division;
                     if ($division >= 0.7 && $division <= 1.2) {
-                        $puntaje3 = 1.0;
+                        $puntaje3 = 1;
                     } elseif ($division >= 1.3 && $division <= 1.8) {
-                        $puntaje3 = 2.0;
+                        $puntaje3 = 2;
                     } elseif ($division >= 1.9) {
-                        $puntaje3 = 3.0;
+                        $puntaje3 = 3;
                     }
                 }
                 $encuesta->puntaje_paso_tres = $puntaje3;
@@ -307,6 +293,19 @@ class EncuestaController extends Controller
                     //encuesta->gasto_hogar = false;
                 }
                 $encuesta->puntaje_paso_ocho = $puntaje_paso_ocho;
+                //Asignar el codigo_encuesta:
+                $nombreiniciales = mb_strtoupper(mb_substr($encuesta->primer_nombre, 0, 2));
+                $nombreiniciales2 = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $nombreiniciales3 = str_replace('Ü', 'U', $nombreiniciales2);
+                $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
+                $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
+                $fecha1 = new DateTime("1900-01-01");
+                $fecha2 = new DateTime($encuesta->fecha_nacimiento);
+                $diff = $fecha1->diff($fecha2);
+                $diferenciaDias = $diff->days;
+                $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
+                $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
                 $encuesta->save();
             }
             return $encuestas;
@@ -399,20 +398,20 @@ class EncuestaController extends Controller
                         break;
                     case "paso3":
                         //calcular Ratio:
-                        $miembros_0_17_años = 0;
-                        $miembros_18_59_años = 0;
-                        $miembros_mas_60_años = 0;
+                        $miembros_0_17_anios = 0;
+                        $miembros_18_59_anios = 0;
+                        $miembros_mas_60_anios = 0;
                         //Calculo edad del miembro principal
                         $fecha1 = new DateTime();
                         $fecha2 = new DateTime($encuesta->fecha_nacimiento);
                         $diff = $fecha1->diff($fecha2);
-                        $diferenciaAñosMiembroPrincipal = $diff->y;
-                        if ($diferenciaAñosMiembroPrincipal >= 0 && $diferenciaAñosMiembroPrincipal <= 17) {
-                            $miembros_0_17_años += 1;
-                        } elseif ($diferenciaAñosMiembroPrincipal >= 18 && $diferenciaAñosMiembroPrincipal <= 59) {
-                            $miembros_18_59_años += 1;
-                        } elseif ($diferenciaAñosMiembroPrincipal >= 60) {
-                            $miembros_mas_60_años += 1;
+                        $diferenciaaniosMiembroPrincipal = $diff->y;
+                        if ($diferenciaaniosMiembroPrincipal >= 0 && $diferenciaaniosMiembroPrincipal <= 17) {
+                            $miembros_0_17_anios += 1;
+                        } elseif ($diferenciaaniosMiembroPrincipal >= 18 && $diferenciaaniosMiembroPrincipal <= 59) {
+                            $miembros_18_59_anios += 1;
+                        } elseif ($diferenciaaniosMiembroPrincipal >= 60) {
+                            $miembros_mas_60_anios += 1;
                         }
                         $encuesta->paso = $request['paso'];
                         $miembrosexistentes = MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
@@ -431,13 +430,13 @@ class EncuestaController extends Controller
                                     //calculo edad de cada miembro de familia
                                     $fecha3 = new DateTime($addMiembro->fecha_nacimiento);
                                     $diff = $fecha1->diff($fecha3);
-                                    $diferenciaAñosMiembroSegundario = $diff->y;
-                                    if ($diferenciaAñosMiembroSegundario >= 0 && $diferenciaAñosMiembroSegundario <= 17) {
-                                        $miembros_0_17_años += 1;
-                                    } elseif ($diferenciaAñosMiembroSegundario >= 18 && $diferenciaAñosMiembroSegundario <= 59) {
-                                        $miembros_18_59_años += 1;
-                                    } elseif ($diferenciaAñosMiembroSegundario >= 60) {
-                                        $miembros_mas_60_años += 1;
+                                    $diferenciaaniosMiembroSegundario = $diff->y;
+                                    if ($diferenciaaniosMiembroSegundario >= 0 && $diferenciaaniosMiembroSegundario <= 17) {
+                                        $miembros_0_17_anios += 1;
+                                    } elseif ($diferenciaaniosMiembroSegundario >= 18 && $diferenciaaniosMiembroSegundario <= 59) {
+                                        $miembros_18_59_anios += 1;
+                                    } elseif ($diferenciaaniosMiembroSegundario >= 60) {
+                                        $miembros_mas_60_anios += 1;
                                     }
                                     if ($addMiembro->save()) {
                                         $guardado = true;
@@ -447,32 +446,32 @@ class EncuestaController extends Controller
 
                             $encuesta->unico_miembro_hogar = false;
                             //Calculo de Puntaje
-                            if ($miembros_18_59_años >= 1) {
-                                $division1 = ($miembros_0_17_años + $miembros_mas_60_años) / ($miembros_18_59_años);
+                            if ($miembros_18_59_anios >= 1) {
+                                $division1 = ($miembros_0_17_anios + $miembros_mas_60_anios) / ($miembros_18_59_anios);
                                 $division = round($division1, 1);
                             } else {
-                                $division = 0.0;
+                                $division = 0;
                             }
 
                             //return $division;
-                            $puntaje = 0.0;
+                            $puntaje = 0;
 
                             if ($division <= 0.6) {
-                                $puntaje = 0.0;
+                                $puntaje = 0;
                             } elseif ($division >= 0.7 && $division <= 1.2) {
-                                $puntaje = 1.0;
+                                $puntaje = 1;
                             } elseif ($division >= 1.3 && $division <= 1.8) {
-                                $puntaje = 2.0;
+                                $puntaje = 2;
                             } elseif ($division >= 1.9) {
-                                $puntaje = 3.0;
+                                $puntaje = 3;
                             } else {
-                                $puntaje = 0.0;
+                                $puntaje = 0;
                             }
                             //return $puntaje;
                             $encuesta->puntaje_paso_tres = $puntaje;
                             if ($encuesta->gasto_hogar == 0) {
                                 //Cuando SI hay gasto de hogar calcula nuevamente el gasto percapita
-                                $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_años + $miembros_mas_60_años + $miembros_18_59_años);
+                                $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_anios + $miembros_mas_60_anios + $miembros_18_59_anios);
                                 $encuesta->gastos_percapita1 = $gastos_percapita;
                                 //return $encuesta;
                             }
@@ -483,14 +482,14 @@ class EncuestaController extends Controller
                             }
                         } else {
                             if ($encuesta->gasto_hogar == 0) {
-                                $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_años + $miembros_mas_60_años + $miembros_18_59_años);
+                                $gastos_percapita = $encuesta->total_gastos / ($miembros_0_17_anios + $miembros_mas_60_anios + $miembros_18_59_anios);
                                 $encuesta->gastos_percapita1 = $gastos_percapita;
                                 //return $encuesta;
                             }
                             $encuesta->unico_miembro_hogar = true;
 
                             //Calculo de puntaje
-                            $puntaje = 0.0;
+                            $puntaje = 0;
                             $encuesta->puntaje_paso_tres = $puntaje;
                             $encuesta->save();
                             return ['encuesta' => $encuesta->id, 'Estado:' => 'Sin otros miembros de Hogar'];
