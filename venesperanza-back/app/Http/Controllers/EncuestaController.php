@@ -67,34 +67,21 @@ class EncuestaController extends Controller
 
             //codigo_encuesta
             $nombreiniciales = mb_strtoupper(mb_substr($ben->primer_nombre, 0, 2));
-            //$nombreiniciales =  str_replace( strtoupper(substr ( $ben->primer_nombre, 0,2 )), ['Á','É','Í','Ó','Ú','Ñ','Ü'],['A','E','I','O','U','Ñ','U']);
-            //$nombreiniciales = str_replace($nombreiniciales, ['Á','É','Í','Ó','Ú','Ñ','Ü'],['A','E','I','O','U','Ñ','U']);
-            $nombreiniciales2 = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-            $nombreiniciales3 = str_replace('Ü', 'U', $nombreiniciales2);
+            $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+            $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
 
 
             $apellidoiniciales = mb_strtoupper(mb_substr($ben->primer_apellido, 0, 2));
-            //$apellidoiniciales = str_replace( strtoupper( substr ($ben->primer_apellido,0,2 )), ['Á','É','Í','Ó','Ú','Ñ','Ü'],['A','E','I','O','U','Ñ','U']);
-            //$apellidoiniciales = str_replace($apellidoiniciales, ['Á','É','Í','Ó','Ú','Ñ','Ü'],['A','E','I','O','U','Ñ','U']);
-            $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-            $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
-            //return ['nombreeditado'=> $nombreiniciales3, 'apellidoeditado'=>$apellidoiniciales3];
+            $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+            $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
 
-            //$fecha1= mktime(0,0,0,01,01,1970);
-
-            $fecha1 = new DateTime("1900-01-01");
-            //$fecha2= new DateTime("2017-08-04");
+            $fecha1900 = new DateTime("1900-01-01");
             $fecha2 = new DateTime($ben->fecha_nacimiento);
-            $diff = $fecha1->diff($fecha2);
-
-            //return ['diff'=>$diff];
+            $diff = $fecha1900->diff($fecha2);
             $diferenciaDias = $diff->days;
-
             $sexoinicial = strtoupper(substr($ben->sexo, 0, 1));
 
-
-            $ben->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
-            //return $ben->codigo_encuesta;
+            $ben->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
             $ben->save();
             $autorizacion = Autorizacion::find($request['autorizacion_id']);
             $autorizacion->id_encuesta = $ben->id;
@@ -162,7 +149,7 @@ class EncuestaController extends Controller
                 $puntaje3 = 0;
                 if ($miembrosFamiliaTamanio > 0) {
                     //recorro los miembros:
-                    $fecha1 = new DateTime("1900-01-01");
+                    $fecha1900 = new DateTime("1900-01-01");
                     foreach ($miembros as $miembro) {
                         //Asignar el codigo_encuesta:
                         $nombreinicialesM = mb_strtoupper(mb_substr($miembro->primer_nombre_miembro, 0, 2));
@@ -172,7 +159,7 @@ class EncuestaController extends Controller
                         $apellidoinicialesM = strtr($apellidoinicialesM, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
                         $apellidoinicialesM = str_replace('Ü', 'U', $apellidoinicialesM);
                         $fecha2 = new DateTime($miembro->fecha_nacimiento);
-                        $diffM = $fecha1->diff($fecha2);
+                        $diffM = $fecha1900->diff($fecha2);
                         $diferenciaDias = $diffM->days;
                         $sexoinicial = strtoupper(substr($miembro->sexo_miembro, 0, 1));
                         $miembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
@@ -315,9 +302,9 @@ class EncuestaController extends Controller
                 $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
                 $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
                 $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
-                $fecha1 = new DateTime("1900-01-01");
+                $fecha1900 = new DateTime("1900-01-01");
                 $fecha2 = new DateTime($encuesta->fecha_nacimiento);
-                $diff = $fecha1->diff($fecha2);
+                $diff = $fecha1900->diff($fecha2);
                 $diferenciaDias = $diff->days;
                 $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
                 $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
@@ -365,9 +352,9 @@ class EncuestaController extends Controller
                         $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
                         $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
                         $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
-                        $fecha1 = new DateTime("1900-01-01");
+                        $fecha1900 = new DateTime("1900-01-01");
                         $fecha2 = new DateTime($encuesta->fecha_nacimiento);
-                        $diff = $fecha1->diff($fecha2);
+                        $diff = $fecha1900->diff($fecha2);
                         $diferenciaDias = $diff->days;
                         $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
                         $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
@@ -453,6 +440,19 @@ class EncuestaController extends Controller
                                     } elseif ($diferenciaaniosMiembroSegundario >= 60) {
                                         $miembros_mas_60_anios += 1;
                                     }
+                                    //Asignar el codigo_encuesta:
+                                    $nombreinicialesM = mb_strtoupper(mb_substr($miembro['primernombreCtrl'], 0, 2));
+                                    $nombreinicialesM = strtr($nombreinicialesM, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                                    $nombreinicialesM = str_replace('Ü', 'U', $nombreinicialesM);
+                                    $apellidoinicialesM = mb_strtoupper(mb_substr($miembro['primerapellidoCtrl'], 0, 2));
+                                    $apellidoinicialesM = strtr($apellidoinicialesM, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                                    $apellidoinicialesM = str_replace('Ü', 'U', $apellidoinicialesM);
+                                    $fecha2 = new DateTime(date("Y-m-d", strtotime($miembro['fechaCtrl'])));
+                                    $fecha1900 = new DateTime("1900-01-01");
+                                    $diffM = $fecha1900->diff($fecha2);
+                                    $diferenciaDias = $diffM->days;
+                                    $sexoinicial = strtoupper(substr($miembro['sexoCtrl'], 0, 1));
+                                    $addMiembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
                                     if ($addMiembro->save()) {
                                         $guardado = true;
                                     }
