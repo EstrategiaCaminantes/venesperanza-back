@@ -162,9 +162,24 @@ class EncuestaController extends Controller
                 $puntaje3 = 0;
                 if ($miembrosFamiliaTamanio > 0) {
                     //recorro los miembros:
+                    $fecha1 = new DateTime("1900-01-01");
                     foreach ($miembros as $miembro) {
-                        $fecha3 = new DateTime($miembro->fecha_nacimiento);
-                        $diff = $fechaactual->diff($fecha3);
+                        //Asignar el codigo_encuesta:
+                        $nombreinicialesM = mb_strtoupper(mb_substr($miembro->primer_nombre_miembro, 0, 2));
+                        $nombreinicialesM = strtr($nombreinicialesM, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                        $nombreinicialesM = str_replace('Ü', 'U', $nombreinicialesM);
+                        $apellidoinicialesM = mb_strtoupper(mb_substr($miembro->primer_apellido_miembro, 0, 2));
+                        $apellidoinicialesM = strtr($apellidoinicialesM, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                        $apellidoinicialesM = str_replace('Ü', 'U', $apellidoinicialesM);
+                        $fecha2 = new DateTime($miembro->fecha_nacimiento);
+                        $diffM = $fecha1->diff($fecha2);
+                        $diferenciaDias = $diffM->days;
+                        $sexoinicial = strtoupper(substr($miembro->sexo_miembro, 0, 1));
+                        $miembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
+                        $miembro->save();
+
+                        //Calculo puntaje
+                        $diff = $fechaactual->diff($fecha2);
                         $diferenciaaniosMiembroSegundario = $diff->y; //edad del miembro segundario de familia
                         //edad
                         $miembro->edad = $diferenciaaniosMiembroSegundario;
