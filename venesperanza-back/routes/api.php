@@ -33,6 +33,7 @@ Route::group(['middleware' => 'APIToken'], function () {
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
 
 //Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
+Route::resource('encuestas', 'EncuestaController');
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
@@ -40,7 +41,6 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('departamentos', 'DepartamentoController');
     Route::resource('municipios', 'MunicipioController');
     Route::get('barrios', 'MunicipioController@obtenerBarrios');
-    Route::resource('encuestas', 'EncuestaController');
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
 });
 Route::post('validation', 'ValidationController@validacionUsuario');

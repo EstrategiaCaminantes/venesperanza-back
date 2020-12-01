@@ -22,7 +22,7 @@ class EncuestaController extends Controller
      */
     public function index()
     {
-        //
+        return Encuesta::with(['miembroshogar', 'necesidadesbasicas', 'departamento', 'municipio'])->get();
     }
 
     /**

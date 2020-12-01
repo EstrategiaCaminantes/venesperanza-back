@@ -21,9 +21,11 @@ class Encuesta extends Model
         'correo_electronico', 'comentario', 'unico_miembro_hogar', 'mujeres_embarazadas', 'mujeres_lactantes', 'situacion_discapacidad',
         'enfermedades_cronicas', 'falta_comida', 'cuantas_veces_falta_comida', 'dormir_sin_comer', 'cuantas_veces_dormir_sin_comer',
         'todo_dia_sin_comer', 'cuantas_veces_todo_dia_sin_comer', 'satisfaccion_necesidades_basicas', 'tipo_vivienda_alojamiento_15_dias',
-        'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta','puntaje_paso_tres','puntaje_paso_cuatro','puntaje_paso_cinco','puntaje_paso_seis',
-        'puntaje_paso_siete','puntaje_paso_ocho'
+        'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta', 'puntaje_paso_tres',
+        'puntaje_paso_cuatro', 'puntaje_paso_cinco', 'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho'
     ];
+
+    protected $appends = ['puntaje'];
 
     public function departamento()
     {
@@ -35,7 +37,6 @@ class Encuesta extends Model
         return $this->belongsTo('App\Models\Municipio', 'id_municipio');
     }
 
-
     public function necesidadesbasicas()
     {
         return $this->belongsToMany('App\Models\NecesidadBasica', 'encuesta_necesidades_basicas', 'id_encuesta');
@@ -44,14 +45,14 @@ class Encuesta extends Model
 
     public function miembroshogar()
     {
-        return $this->hasMany('App\Models\MiembrosHogar');
+        return $this->hasMany('App\Models\MiembrosHogar', 'id_encuesta');
     }
 
-/*
-    public function miembroshogar()
+    public function getPuntajeAttribute()
     {
-        return $this->belongsToMany('App\Models\MiembrosHogar', 'miembros_hogar','id_encuesta');
-    }*/
+        return $this->puntaje_paso_tres + $this->puntaje_paso_cuatro + $this->puntaje_paso_cinco
+            + $this->puntaje_paso_seis + $this->puntaje_paso_siete + $this->puntaje_paso_ocho;
+    }
 
 
 }
