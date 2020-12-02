@@ -43,23 +43,23 @@ class MunicipioController extends Controller
             }
             $posicionenpoligono = false;
             if ($request['adf'] == env('APP_KEY_ADF') && strpos($request['ref'], 'facebook.com') !== false) {
-                $ipvalidar = $_SERVER['REMOTE_ADDR'];
+                /* $ipvalidar = $_SERVER['REMOTE_ADDR'];
                 $autorizacion = DB::table('autorizaciones')->where('ip', $ipvalidar)->first();
                 if ($autorizacion) {
-                    return ['valid' => $posicionenpoligono];
-                } else {
-                    $jsonfile = Storage::get('public/villaDelRosarioGeoJSON.json');
-                    $coordenadas = json_decode($jsonfile, true);
-                    foreach ($coordenadas as $key => $coordenada) {
-                        array_push($arrayLatitudes, $coordenada['geometry']['coordinates'][0]);
-                        array_push($arrayLongitudes, $coordenada['geometry']['coordinates'][1]);
-                    }
-                    $points_polygon = count($arrayLongitudes) - 1; //numero de vertices
-                    $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes,
-                        $arrayLatitudes, $request['coordenadas']['longitud'],
-                        $request['coordenadas']['latitud']);
-                    return ['valid' => $posicionenpoligono];
+                     return ['valid' => $posicionenpoligono];
+                 } else {*/
+                $jsonfile = Storage::get('public/villaDelRosarioGeoJSON.json');
+                $coordenadas = json_decode($jsonfile, true);
+                foreach ($coordenadas as $key => $coordenada) {
+                    array_push($arrayLatitudes, $coordenada['geometry']['coordinates'][0]);
+                    array_push($arrayLongitudes, $coordenada['geometry']['coordinates'][1]);
                 }
+                $points_polygon = count($arrayLongitudes) - 1; //numero de vertices
+                $posicionenpoligono = $this->is_in_polygon($points_polygon, $arrayLongitudes,
+                    $arrayLatitudes, $request['coordenadas']['longitud'],
+                    $request['coordenadas']['latitud']);
+                return ['valid' => $posicionenpoligono];
+                /*}*/
             } else {
                 return ['valid' => $posicionenpoligono];
             }
