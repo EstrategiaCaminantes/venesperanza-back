@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+
 
 
 class UserController extends Controller
@@ -31,6 +33,57 @@ class UserController extends Controller
 
 
     }
+
+    public function dashboardLogin(Request $request){
+
+        $user = User::whereEmail($request->email)->first();
+        
+        if(!is_null($user) && Hash::check($request->password, $user->password)){
+
+            $user['remember_token'] = $this->apiToken;
+            $user->save();
+            //$token = $user->createToken('Laravel')->accessToken;
+            //$token = $this->apiToken;
+        
+            
+            
+            return response()->json([
+                'res' => $user,
+                //'token' => $token,
+                'message' => 'Bienvenido al sistema'
+            ],200);
+        }else{
+            return response()->json([
+                'res' => false,
+                'message' => 'Cuenta o password incorrectos'
+            ], 200);
+        }
+
+
+    }
+
+
+    public function logout($token){
+        
+        $user = User::where('remember_token',$token)->first();
+        
+        if($user){
+            $user['remember_token'] = null;
+            $user->save();
+            return response()->json([
+                'res' => true,
+                'message' => 'success!'
+            ], 200);
+        }else{
+            return response()->json([
+                'res' => true,
+                'message' => 'success!'
+            ], 200);
+        }
+        
+    }
+
+    
 
     /**
      * Display a listing of the resource.

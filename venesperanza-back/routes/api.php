@@ -26,14 +26,37 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 */
+
+
+
+//rutas dashboard
+
+//login 
+Route::group(['middleware' => 'DashboardApiToken'], function(){
+    Route::post('loginDashboard', 'UserController@dashboardLogin');
+});
+
+//consulta de encuestas y logout de usuario
+Route::group(['middleware' => 'DashboardAuthenticate'], function(){
+    Route::resource('encuestas', 'EncuestaController');
+    Route::get('logout/{token}', 'UserController@logout');
+
+
+});
+
+
+
+//rutas formulario de encuestas:
+
+//validacion de usuario
+Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
+
+
+
+//login del formulario de encuesta
 Route::group(['middleware' => 'APIToken'], function () {
     Route::post('login', 'UserController@login');
 });
-
-Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
-
-//Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
-Route::resource('encuestas', 'EncuestaController');
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
