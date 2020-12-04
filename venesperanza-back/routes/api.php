@@ -52,7 +52,6 @@ Route::group(['middleware' => 'DashboardAuthenticate'], function(){
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
 
 //Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
-Route::resource('encuestas', 'EncuestaController');
 
 //login del formulario de encuesta
 Route::group(['middleware' => 'APIToken'], function () {
@@ -63,6 +62,7 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');
     Route::resource('autorizacion', 'AutorizacionController');
     Route::resource('departamentos', 'DepartamentoController');
+    Route::resource('encuestas', 'EncuestaController'); 
     Route::resource('municipios', 'MunicipioController');
     Route::get('barrios', 'MunicipioController@obtenerBarrios');
     Route::resource('necesidadesbasicas', 'NecesidadesBasicasController');
