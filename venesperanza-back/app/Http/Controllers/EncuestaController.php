@@ -22,6 +22,11 @@ class EncuestaController extends Controller
      */
     public function index()
     {
+
+    }
+
+    public function getEncuestas()
+    {
         return Encuesta::with(['miembroshogar', 'necesidadesbasicas', 'departamento', 'municipio'])->get();
     }
 

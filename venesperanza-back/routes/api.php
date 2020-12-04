@@ -38,7 +38,7 @@ Route::group(['middleware' => 'DashboardApiToken'], function(){
 
 //consulta de encuestas y logout de usuario
 Route::group(['middleware' => 'DashboardAuthenticate'], function(){
-    Route::get('encuestasdata', 'EncuestaController@index');
+    Route::get('encuestasdata', 'EncuestaController@getEncuestas');
     Route::get('logout/{token}', 'UserController@logout');
 
 
