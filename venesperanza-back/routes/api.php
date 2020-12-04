@@ -38,7 +38,7 @@ Route::group(['middleware' => 'DashboardApiToken'], function(){
 
 //consulta de encuestas y logout de usuario
 Route::group(['middleware' => 'DashboardAuthenticate'], function(){
-    Route::resource('encuestas', 'EncuestaController');
+    Route::get('encuestasdata', 'EncuestaController@index');
     Route::get('logout/{token}', 'UserController@logout');
 
 
@@ -51,7 +51,8 @@ Route::group(['middleware' => 'DashboardAuthenticate'], function(){
 //validacion de usuario
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
 
-
+//Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
+Route::resource('encuestas', 'EncuestaController');
 
 //login del formulario de encuesta
 Route::group(['middleware' => 'APIToken'], function () {
