@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Models\Encuesta;
@@ -28,6 +29,30 @@ class EncuestaController extends Controller
     public function getEncuestas()
     {
         return Encuesta::with(['miembroshogar', 'necesidadesbasicas', 'departamento', 'municipio'])->get();
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return array
+     */
+    public function dashboard()
+    {
+        $f = ['id', 'created_at', 'puntaje_paso_tres', 'puntaje_paso_cuatro', 'puntaje_paso_cinco',
+            'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho'];
+        $week = Encuesta::select($f)
+            ->get()
+            ->groupBy(function ($date) {
+                $week = Carbon::parse($date->created_at);
+                return $week->startOfWeek()->toDateString() . ' - ' . $week->endOfWeek()->toDateString();
+            });
+        $day = Encuesta::select($f)
+            ->get()
+            ->groupBy(function ($date) {
+                $week = Carbon::parse($date->created_at);
+                return $week->format('Y-m-d');
+            });
+        return array('day' => $day, 'week' => $week);
     }
 
     /**

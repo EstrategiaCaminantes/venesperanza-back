@@ -14,7 +14,7 @@ class AddUserEmailPasswordToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('email')->nullable()->unique();
+            $table->string('email')->nullable();
             $table->string('password')->nullable();
         });
     }
