@@ -39,7 +39,7 @@ class EncuestaController extends Controller
     public function dashboard()
     {
         $f = ['id', 'created_at', 'puntaje_paso_tres', 'puntaje_paso_cuatro', 'puntaje_paso_cinco',
-            'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho'];
+            'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho', 'paso'];
         $week = Encuesta::select($f)
             ->get()
             ->groupBy(function ($date) {
