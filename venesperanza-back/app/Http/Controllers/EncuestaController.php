@@ -74,54 +74,88 @@ class EncuestaController extends Controller
     public function store(Request $request)
     {
         try {
-            $ben = new Encuesta;
-            $ben->paso = $request['paso'];
-            $ben->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
-            $ben->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
-            $ben->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
-            $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
-            $ben->sexo = $request['infoencuesta']['sexoCtrl'];
-            if ($ben->sexo === "otro") {
-                $ben->otrosexo = $request['infoencuesta']['otroSexoCtrl'];
+          
+                //Nuevo PASO 1 que por ahora es PASO 0, crea la encuesta en bd
+    
+                $nuevaEncuesta = new Encuesta;
+    
+                $nuevaEncuesta->paso = $request['paso'];
+    
+                $nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+                $nuevaEncuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
+    
+                if($nuevaEncuesta->estar_dentro_colombia == 1 || $nuevaEncuesta->estar_dentro_colombia == 2){
+    
+                    if($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido'){
+                        
+                        $nuevaEncuesta->id_departamento = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+
+                        if($request['infoencuesta']['llegadaDestinoCiudadCtrl'] != 'nodefinido'){
+                            $nuevaEncuesta->id_municipio = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
+
+                        }
+                    }
+                   
+                }else{
+                    $nuevaEncuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
+                }
+    
+                $nuevaEncuesta->save();
+                /*
+                //Anterior PASO 1 primeros datos para crear encuesta
+                $ben = new Encuesta;
+                $ben->paso = $request['paso'];
+                $ben->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
+                $ben->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
+                $ben->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
+                $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
+                $ben->sexo = $request['infoencuesta']['sexoCtrl'];
+                if ($ben->sexo === "otro") {
+                    $ben->otrosexo = $request['infoencuesta']['otroSexoCtrl'];
+                }
+                //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
+                $ben->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                $ben->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
+                $ben->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
+                if ($ben->tipo_documento == "Otro") {
+                    $ben->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
+                }
+                if ($ben->tipo_documento != "Indocumentado") {
+                    $ben->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
+                }
+    
+                //codigo_encuesta
+                $nombreiniciales = mb_strtoupper(mb_substr($ben->primer_nombre, 0, 2));
+                $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
+    
+    
+                $apellidoiniciales = mb_strtoupper(mb_substr($ben->primer_apellido, 0, 2));
+                $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
+    
+                $fecha1900 = new DateTime("1900-01-01");
+                $fecha2 = new DateTime($ben->fecha_nacimiento);
+                $diff = $fecha1900->diff($fecha2);
+                $diferenciaDias = $diff->days;
+                $sexoinicial = strtoupper(substr($ben->sexo, 0, 1));
+    
+                $ben->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
+                $ben->save();
+                */
+    
+    
+                $autorizacion = Autorizacion::find($request['autorizacion_id']);
+                //$autorizacion->id_encuesta = $ben->id;
+                $autorizacion->id_encuesta = $nuevaEncuesta->id;
+                $autorizacion->save();
+                //return $ben->id;
+                return $nuevaEncuesta->id;
+    
+            } catch (Exception $e) {
+                return $e;
+                //throw $th;
             }
-            //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
-            $ben->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-            $ben->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
-            $ben->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
-            if ($ben->tipo_documento == "Otro") {
-                $ben->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
-            }
-            if ($ben->tipo_documento != "Indocumentado") {
-                $ben->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
-            }
-
-            //codigo_encuesta
-            $nombreiniciales = mb_strtoupper(mb_substr($ben->primer_nombre, 0, 2));
-            $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-            $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
-
-
-            $apellidoiniciales = mb_strtoupper(mb_substr($ben->primer_apellido, 0, 2));
-            $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-            $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
-
-            $fecha1900 = new DateTime("1900-01-01");
-            $fecha2 = new DateTime($ben->fecha_nacimiento);
-            $diff = $fecha1900->diff($fecha2);
-            $diferenciaDias = $diff->days;
-            $sexoinicial = strtoupper(substr($ben->sexo, 0, 1));
-
-            $ben->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
-            $ben->save();
-            $autorizacion = Autorizacion::find($request['autorizacion_id']);
-            $autorizacion->id_encuesta = $ben->id;
-            $autorizacion->save();
-            return $ben->id;
-
-        } catch (Exception $e) {
-            return $e;
-            //throw $th;
-        }
     }
 
     /**
@@ -359,7 +393,52 @@ class EncuestaController extends Controller
             $encuesta = Encuesta::find($id);
             if ($encuesta) {
                 switch ($request['paso']) {
+
                     case "paso1":
+                        //DATOS DE LLEGADA Y DESTINO
+    
+                        $encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+                        $encuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
+            
+                        if($encuesta->estar_dentro_colombia == 1 || $encuesta->estar_dentro_colombia == 2){
+            
+                            if($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido'){
+                                
+                                $encuesta->id_departamento = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+
+                                if($request['infoencuesta']['llegadaDestinoCiudadCtrl'] != 'nodefinido'){
+                                    $encuesta->id_municipio = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
+
+                                }else{
+                                    $encuesta->id_municipio = null;
+                                }
+                            }else{
+                                $encuesta->id_departamento = null;
+                                $encuesta->id_municipio = null;
+                            }
+
+                            $encuesta->pais_destino_final = null;
+                        
+                        }else{
+                            $encuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
+
+                            $encuesta->id_departamento = null;
+                            $encuesta->id_municipio = null;
+
+                        }
+            
+                        if ($encuesta->save()) {
+                            return $encuesta->id;
+                        } else {
+                            return "error";
+                        }
+
+
+
+                    /*
+                    case "paso1":
+                        //DATOS DEL ENCUESTADO
+
                         $encuesta->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
                         $encuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
                         $encuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
@@ -394,41 +473,12 @@ class EncuestaController extends Controller
                             return "error";
                         }
                         break;
+                    */
+                   
                     case "paso2":
-                        if ($request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
-                            && $request['infoencuesta']['barrioCtrl'] != "" && $request['infoencuesta']['numeroContactoCtrl'] != ""
-                            && $request['infoencuesta']['lineaContactoPropiaCtrl'] != "") {
-                            $encuesta->paso = $request['paso'];
-                            $encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
-                            $encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
-                            $encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
-                            $encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
-                            $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
-                            if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === 'si') {
-                                $encuesta->linea_contacto_propia = 1;
-                                if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
-                                    $encuesta->linea_asociada_whatsapp = 1;
-                                } else if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no') {
-                                    $encuesta->linea_asociada_whatsapp = 0;
-                                }
-                            } else if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === "no") {
-                                $encuesta->linea_contacto_propia = 0;
-                                $encuesta->linea_asociada_whatsapp = 0;
-                                $encuesta->preguntar_en_caso_de_llamar = $request['infoencuesta']['contactoAlternativoCtrl'];
-                            }
-                            $encuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
-                            $encuesta->comentario = $request['infoencuesta']['comentarioAdicionalCtrl'];
-                            $encuesta->save();
-                            if ($encuesta) {
-                                return $encuesta->id;
-                            } else {
-                                return "error";
-                            };
-                        } else {
-                            return "error";
-                        }
-                        break;
-                    case "paso3":
+
+                        //miembros hogar
+
                         //calcular Ratio:
                         $miembros_0_17_anios = 0;
                         $miembros_18_59_anios = 0;
@@ -459,6 +509,48 @@ class EncuestaController extends Controller
                                     $addMiembro->segundo_apellido_miembro = $miembro['segundoapellidoCtrl'];
                                     $addMiembro->sexo_miembro = $miembro['sexoCtrl'];
                                     $addMiembro->fecha_nacimiento = date("Y-m-d", strtotime($miembro['fechaCtrl']));
+                                    
+                                    //nuevos campos
+                                    $addMiembro->nacionalidad = $miembro['nacionalidadCtrl'];
+
+                                    if($addMiembro->nacionalidad == 'Otro'){
+                                        $addMiembro->cual_otro_nacionalidad = $miembro['otroNacionalidadCtrl'];
+                                    }else{
+                                        $addMiembro->cual_otro_nacionalidad = null;
+                                    }
+
+
+                                    $addMiembro->tipo_documento = $miembro['tipoDocumentoCtrl'];
+
+                                    if($addMiembro->tipo_documento == 'Otro'){
+                                        $addMiembro->cual_otro_tipo_documento = $miembro['otroTipoDocumentoCtrl'];
+                                    }else{
+                                        $addMiembro->cual_otro_tipo_documento = null;
+                                    }
+
+
+
+                                    if($addMiembro->tipo_documento == 'Indocumentado'){
+                                        $addMiembro->numero_documento = null;
+                                    }else{
+                                        $addMiembro->numero_documento = $miembro['numeroDocumentoCtrl'];
+
+                                    }
+
+
+                                    $addMiembro->compartir_foto_documento = $miembro['compartirFotoDocumentoCtrl'];
+
+
+                                    //return $addMiembro; //prueba
+
+
+
+
+
+
+
+
+
                                     //calculo edad de cada miembro de familia
                                     $fecha3 = new DateTime($addMiembro->fecha_nacimiento);
                                     $diff = $fecha1->diff($fecha3);
@@ -527,6 +619,71 @@ class EncuestaController extends Controller
                             return ['encuesta' => $encuesta->id, 'Estado:' => 'Sin otros miembros de Hogar'];
                         }
                         break;
+
+                     case "paso3":
+                        //DATOS DE CONTACTO
+                        if (/*$request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
+                            && $request['infoencuesta']['barrioCtrl'] != "" && $request['infoencuesta']['numeroContactoCtrl'] != ""
+                            &&*/ $request['infoencuesta']['lineaContactoPropiaCtrl'] != "") {
+                            $encuesta->paso = $request['paso'];
+                            //$encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
+                            //$encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
+                            //$encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
+                            //$encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
+                            $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
+                            if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === 'si') {
+                                $encuesta->linea_contacto_propia = 1;
+                                if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
+                                    $encuesta->linea_asociada_whatsapp = 1;
+                                } else if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no') {
+                                    $encuesta->linea_asociada_whatsapp = 0;
+                                }
+
+                                $encuesta->numero_alternativo = null;
+                                $encuesta->linea_contacto_alternativo = null;
+                                $encuesta->linea_alternativa_asociada_whatsapp = null;
+
+                            } else if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === "no") {
+                                $encuesta->linea_contacto_propia = 0;
+                                $encuesta->linea_asociada_whatsapp = 0;
+                                
+                                //$encuesta->preguntar_en_caso_de_llamar = $request['infoencuesta']['contactoAlternativoCtrl'];
+
+                                $encuesta->numero_alternativo = $request['infoencuesta']['contactoAlternativoCtrl'];
+
+                                if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'si'){
+                                    $encuesta->linea_contacto_alternativo = 1;
+
+                                    if($request['infoencuesta']['lineaContactoAlternativoAsociadaAWhatsappCtrl'] == 'si'){
+                                        $encuesta->linea_alternativa_asociada_whatsapp = 1; 
+                                    }else if($request['infoencuesta']['lineaContactoAlternativoAsociadaAWhatsappCtrl'] == 'no'){
+                                        $encuesta->linea_alternativa_asociada_whatsapp = 0; 
+                                    }
+                                }else if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'no'){
+                                    $encuesta->linea_contacto_alternativo = 0;
+                                    $encuesta->linea_alternativa_asociada_whatsapp = 0;
+                                }
+                            }
+                            $encuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
+                            $encuesta->comentario = $request['infoencuesta']['comentarioAdicionalCtrl'];
+
+                            if($request['infoencuesta']['cuentaFacebook'] == 'si'){
+                                $encuesta->cuenta_facebook = 1;
+                            }else if($request['infoencuesta']['cuentaFacebook'] == 'no'){
+                                $encuesta->cuenta_facebook = 0;
+                            }
+
+                            $encuesta->save();
+                            if ($encuesta) {
+                                return $encuesta->id;
+                            } else {
+                                return "error";
+                            };
+                        } else {
+                            return "error";
+                        }
+                        break;
+
                     case "paso4":
                         $puntaje_paso_cuatro = 0;
                         $encuesta->paso = $request['paso'];

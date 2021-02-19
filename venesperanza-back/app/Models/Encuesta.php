@@ -18,11 +18,14 @@ class Encuesta extends Model
         'primer_apellido', 'segundo_apellido', 'sexo', 'otrosexo', 'fecha_nacimiento', 'nacionalidad', 'tipo_documento',
         'cual_otro_tipo_documento', 'numero_documento', 'id_departamento', 'municipio_registro', 'barrio', 'direccion',
         'numero_contacto', 'linea_contacto_propia', 'preguntar_en_caso_de_llamar', 'linea_asociada_whatsapp',
+        'numero_alternativo', 'linea_contacto_alternativo', 'linea_alternativa_asociada_whatsapp',
+        'cuenta_facebook',
         'correo_electronico', 'comentario', 'unico_miembro_hogar', 'mujeres_embarazadas', 'mujeres_lactantes', 'situacion_discapacidad',
         'enfermedades_cronicas', 'falta_comida', 'cuantas_veces_falta_comida', 'dormir_sin_comer', 'cuantas_veces_dormir_sin_comer',
         'todo_dia_sin_comer', 'cuantas_veces_todo_dia_sin_comer', 'satisfaccion_necesidades_basicas', 'tipo_vivienda_alojamiento_15_dias',
         'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta', 'puntaje_paso_tres',
-        'puntaje_paso_cuatro', 'puntaje_paso_cinco', 'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho'
+        'puntaje_paso_cuatro', 'puntaje_paso_cinco', 'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho',
+        'fecha_llegada_pais', 'estar_dentro_colombia', 'pais_destino_final'
     ];
 
     protected $appends = ['puntaje'];

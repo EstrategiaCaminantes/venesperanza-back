@@ -12,7 +12,9 @@ class MiembrosHogar extends Model
     protected $table = 'miembros_hogar';
 
     protected $fillable = ['id_encuesta','primer_nombre_miembro', 'segundo_nombre_miembro',
-    'primer_apellido_miembro','segundo_apellido_miembro','sexo_miembro','fecha_nacimiento', 'codigo_encuesta'];
+    'primer_apellido_miembro','segundo_apellido_miembro','sexo_miembro','fecha_nacimiento', 'codigo_encuesta',
+    'nacionalidad', 'cual_otro_nacionalidad', 'tipo_documento', 'cual_otro_tipo_documento','numero_documento',
+    'compartir_foto_documento', 'url_foto_documento' ];
 
     public function encuesta()
     {
