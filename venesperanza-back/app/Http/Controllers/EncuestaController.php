@@ -81,6 +81,7 @@ class EncuestaController extends Controller
     
                 $nuevaEncuesta->paso = $request['paso'];
     
+                $nuevaEncuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
                 $nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                 $nuevaEncuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
     
@@ -396,7 +397,8 @@ class EncuestaController extends Controller
 
                     case "paso1":
                         //DATOS DE LLEGADA Y DESTINO
-    
+                        
+                        $encuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
                         $encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                         $encuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
             
@@ -622,12 +624,12 @@ class EncuestaController extends Controller
 
                      case "paso3":
                         //DATOS DE CONTACTO
-                        if (/*$request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
-                            && $request['infoencuesta']['barrioCtrl'] != "" && $request['infoencuesta']['numeroContactoCtrl'] != ""
-                            &&*/ $request['infoencuesta']['lineaContactoPropiaCtrl'] != "") {
+                        if ($request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
+                            /*&& $request['infoencuesta']['barrioCtrl'] != ""*/ && $request['infoencuesta']['numeroContactoCtrl'] != ""
+                            && $request['infoencuesta']['lineaContactoPropiaCtrl'] != "") {
                             $encuesta->paso = $request['paso'];
-                            //$encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
-                            //$encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
+                            $encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
+                            $encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
                             //$encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
                             //$encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
                             $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];

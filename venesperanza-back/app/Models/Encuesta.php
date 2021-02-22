@@ -25,7 +25,7 @@ class Encuesta extends Model
         'todo_dia_sin_comer', 'cuantas_veces_todo_dia_sin_comer', 'satisfaccion_necesidades_basicas', 'tipo_vivienda_alojamiento_15_dias',
         'ingresos_c', 'total_gastos', 'gastos_percapita1', 'gasto_hogar', 'codigo_encuesta', 'puntaje_paso_tres',
         'puntaje_paso_cuatro', 'puntaje_paso_cinco', 'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho',
-        'fecha_llegada_pais', 'estar_dentro_colombia', 'pais_destino_final'
+        'fecha_llegada_pais', 'estar_dentro_colombia', 'pais_destino_final','como_llego_al_formulario'
     ];
 
     protected $appends = ['puntaje'];
