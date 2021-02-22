@@ -89,15 +89,18 @@ class EncuestaController extends Controller
     
                     if($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido'){
                         
-                        $nuevaEncuesta->id_departamento = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+                        $nuevaEncuesta->id_departamento_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
 
                         if($request['infoencuesta']['llegadaDestinoCiudadCtrl'] != 'nodefinido'){
-                            $nuevaEncuesta->id_municipio = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
+                            $nuevaEncuesta->id_municipio_destino_final = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
 
                         }
                     }
                    
                 }else{
+                    $nuevaEncuesta->id_departamento_destino_final = null;
+                    $nuevaEncuesta->id_municipio_destino_final = null;
+
                     $nuevaEncuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
                 }
     
@@ -406,17 +409,17 @@ class EncuestaController extends Controller
             
                             if($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido'){
                                 
-                                $encuesta->id_departamento = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
-
+                                $encuesta->id_departamento_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+                              
                                 if($request['infoencuesta']['llegadaDestinoCiudadCtrl'] != 'nodefinido'){
-                                    $encuesta->id_municipio = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
+                                    $encuesta->id_municipio_destino_final = $request['infoencuesta']['llegadaDestinoCiudadCtrl'];
 
                                 }else{
-                                    $encuesta->id_municipio = null;
+                                    $encuesta->id_municipio_destino_final = null;
                                 }
                             }else{
-                                $encuesta->id_departamento = null;
-                                $encuesta->id_municipio = null;
+                                $encuesta->id_departamento_destino_final = null;
+                                $encuesta->id_municipio_destino_final = null;
                             }
 
                             $encuesta->pais_destino_final = null;
@@ -424,8 +427,8 @@ class EncuestaController extends Controller
                         }else{
                             $encuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
 
-                            $encuesta->id_departamento = null;
-                            $encuesta->id_municipio = null;
+                            $encuesta->id_departamento_destino_final = null;
+                             $encuesta->id_municipio_destino_final = null;
 
                         }
             
