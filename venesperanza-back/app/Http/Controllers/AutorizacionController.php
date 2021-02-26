@@ -45,6 +45,11 @@ class AutorizacionController extends Controller
             $autorizacion->condiciones = $request['condiciones'];
             $autorizacion->ip = $_SERVER['REMOTE_ADDR'];
 
+            if($request['coordenadas']!= null){
+                $autorizacion->latitud = $request['coordenadas']['latitud'];
+                $autorizacion->longitud = $request['coordenadas']['longitud'];
+            }
+
             $autorizacion->save();
             return $autorizacion->id;
 

@@ -13,7 +13,7 @@ class Autorizacion extends Model
 
 
     protected $fillable = [
-        'tratamiento_datos', 'terminos_condiciones','condiciones','ip','id_encuesta'
+        'tratamiento_datos', 'terminos_condiciones','condiciones','ip','id_encuesta','latitud','longitud'
     ];
 
    

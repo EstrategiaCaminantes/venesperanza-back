@@ -13,6 +13,9 @@ use App\Models\NecesidadBasica;
 
 use DateTime;
 
+use Illuminate\Support\Facades\Storage;
+
+
 
 class EncuestaController extends Controller
 {
@@ -82,6 +85,13 @@ class EncuestaController extends Controller
                 $nuevaEncuesta->paso = $request['paso'];
     
                 $nuevaEncuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
+
+                if($nuevaEncuesta->como_llego_al_formulario == "Otro"){
+                    $nuevaEncuesta->donde_encontro_formulario = $request['infoencuesta']['dondeEncontroFormularioCtrl'];
+                }else{
+                    $nuevaEncuesta->donde_encontro_formulario = null;
+                }
+
                 $nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                 $nuevaEncuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
     
@@ -402,6 +412,13 @@ class EncuestaController extends Controller
                         //DATOS DE LLEGADA Y DESTINO
                         
                         $encuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
+
+                        if($encuesta->como_llego_al_formulario == "Otro"){
+                            $encuesta->donde_encontro_formulario = $request['infoencuesta']['dondeEncontroFormularioCtrl'];
+                        }else{
+                            $encuesta->donde_encontro_formulario = null;
+                        }
+
                         $encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                         $encuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
             
@@ -502,6 +519,8 @@ class EncuestaController extends Controller
                         }
                         $encuesta->paso = $request['paso'];
                         MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
+
+                        $encuesta->total_miembros_hogar = $request['infoencuesta']['totalMiembrosHogar'];
                         if (count($request['infoencuesta']['miembrosFamilia']) > 0) {
                             $guardado = false;
                             foreach ($request['infoencuesta']['miembrosFamilia'] as $miembro) {
@@ -537,16 +556,19 @@ class EncuestaController extends Controller
 
                                     if($addMiembro->tipo_documento == 'Indocumentado'){
                                         $addMiembro->numero_documento = null;
+                                        $addMiembro->compartir_foto_documento = null;
                                     }else{
                                         $addMiembro->numero_documento = $miembro['numeroDocumentoCtrl'];
+
+                                        $addMiembro->compartir_foto_documento = $miembro['compartirFotoDocumentoCtrl'];
+
 
                                     }
 
 
-                                    $addMiembro->compartir_foto_documento = $miembro['compartirFotoDocumentoCtrl'];
 
 
-                                    //return $addMiembro; //prueba
+                                    //Storage::disk('local')->put('example.jpg', $miembro['fotoDocumentoCtrl']);
 
 
 
@@ -636,25 +658,33 @@ class EncuestaController extends Controller
                             //$encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
                             //$encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
                             $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
+
+                            //linea de contacto principal es propia?
                             if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === 'si') {
                                 $encuesta->linea_contacto_propia = 1;
-                                if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
+
+                                /*if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
                                     $encuesta->linea_asociada_whatsapp = 1;
+                                    $encuesta->numero_whatsapp_principal = null;
+
+
                                 } else if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no') {
                                     $encuesta->linea_asociada_whatsapp = 0;
-                                }
+                                    $encuesta->numero_whatsapp_principal = $request['infoencuesta']['numeroWhatsappCtrl'];
 
-                                $encuesta->numero_alternativo = null;
-                                $encuesta->linea_contacto_alternativo = null;
-                                $encuesta->linea_alternativa_asociada_whatsapp = null;
+                                }*/
+
+                                //$encuesta->numero_alternativo = null;
+                                //$encuesta->linea_contacto_alternativo = null;
+                                //$encuesta->linea_alternativa_asociada_whatsapp = null;
 
                             } else if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === "no") {
                                 $encuesta->linea_contacto_propia = 0;
-                                $encuesta->linea_asociada_whatsapp = 0;
+                                //$encuesta->linea_asociada_whatsapp = 0;
                                 
                                 //$encuesta->preguntar_en_caso_de_llamar = $request['infoencuesta']['contactoAlternativoCtrl'];
 
-                                $encuesta->numero_alternativo = $request['infoencuesta']['contactoAlternativoCtrl'];
+                                /*$encuesta->numero_alternativo = $request['infoencuesta']['contactoAlternativoCtrl'];
 
                                 if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'si'){
                                     $encuesta->linea_contacto_alternativo = 1;
@@ -667,16 +697,67 @@ class EncuestaController extends Controller
                                 }else if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'no'){
                                     $encuesta->linea_contacto_alternativo = 0;
                                     $encuesta->linea_alternativa_asociada_whatsapp = 0;
-                                }
+                                }*/
                             }
-                            $encuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
-                            $encuesta->comentario = $request['infoencuesta']['comentarioAdicionalCtrl'];
 
-                            if($request['infoencuesta']['cuentaFacebook'] == 'si'){
-                                $encuesta->cuenta_facebook = 1;
-                            }else if($request['infoencuesta']['cuentaFacebook'] == 'no'){
-                                $encuesta->cuenta_facebook = 0;
+                            //linea de contacto principal esta asociada a whatsapp?
+                            if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
+                                    $encuesta->linea_asociada_whatsapp = 1;
+                                    $encuesta->numero_whatsapp_principal = null;
+                            } else if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no') {
+                                    $encuesta->linea_asociada_whatsapp = 0;
+                                    $encuesta->numero_whatsapp_principal = $request['infoencuesta']['numeroWhatsappCtrl'];
                             }
+
+
+                            $encuesta->numero_alternativo = $request['infoencuesta']['contactoAlternativoCtrl'];
+
+                            //linea de contacto alternativo es propia?
+                            if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'si'){
+                                    $encuesta->linea_contacto_alternativo = 1;
+
+                                    if($request['infoencuesta']['lineaContactoAlternativoAsociadaAWhatsappCtrl'] == 'si'){
+                                        $encuesta->linea_alternativa_asociada_whatsapp = 1; 
+                                    }else if($request['infoencuesta']['lineaContactoAlternativoAsociadaAWhatsappCtrl'] == 'no'){
+                                        $encuesta->linea_alternativa_asociada_whatsapp = 0; 
+                                    }
+                            }else if($request['infoencuesta']['lineaContactoAlternativoCtrl'] === 'no'){
+                                    $encuesta->linea_contacto_alternativo = 0;
+                                    //$encuesta->linea_alternativa_asociada_whatsapp = 0;
+                            }
+                            
+
+                            $encuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
+                            
+
+                            if($request['infoencuesta']['tieneCuentaFacebook'] == 'si'){
+                                $encuesta->tiene_cuenta_facebook = 1;
+                                $encuesta->cuenta_facebook = $request['infoencuesta']['cuentaFacebookCtrl'];
+
+                            }else if($request['infoencuesta']['tieneCuentaFacebook'] == 'no'){
+                                $encuesta->tiene_cuenta_facebook = 0;
+                                $encuesta->cuenta_facebook = null;
+                            }
+
+
+                            //si podemos contactarte
+                            if($request['infoencuesta']['podemosContactarte'] == 'si'){
+                                $encuesta->podemos_contactarte = 1;
+                                $encuesta->forma_contactarte = $request['infoencuesta']['formaContactarteCtrl'];
+
+                                if($encuesta->forma_contactarte == 'Otro'){
+                                    $encuesta->otra_forma_contactarte = $request['infoencuesta']['otraFormaContactarteCtrl'];
+                                }else{
+                                    $encuesta->otra_forma_contactarte = null;
+                                }
+                            }else{ //no podemos contactarte
+                                $encuesta->podemos_contactarte = 0;
+                                $encuesta->forma_contactarte = null;
+                                $encuesta->otra_forma_contactarte = null;
+                            }
+
+
+                            $encuesta->comentario = $request['infoencuesta']['comentarioAdicionalCtrl'];
 
                             $encuesta->save();
                             if ($encuesta) {
