@@ -405,7 +405,10 @@ class EncuestaController extends Controller
     {
         try {
             $encuesta = Encuesta::find($id);
+            
             if ($encuesta) {
+
+            
                 switch ($request['paso']) {
 
                     case "paso1":
@@ -517,6 +520,7 @@ class EncuestaController extends Controller
                         } elseif ($diferenciaaniosMiembroPrincipal >= 60) {
                             $miembros_mas_60_anios += 1;
                         }
+                        //return $encuesta; //RETORNA ENCUESTA
                         $encuesta->paso = $request['paso'];
                         MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
 
@@ -553,31 +557,6 @@ class EncuestaController extends Controller
                                     }
 
 
-
-                                    if($addMiembro->tipo_documento == 'Indocumentado'){
-                                        $addMiembro->numero_documento = null;
-                                        $addMiembro->compartir_foto_documento = null;
-                                    }else{
-                                        $addMiembro->numero_documento = $miembro['numeroDocumentoCtrl'];
-
-                                        $addMiembro->compartir_foto_documento = $miembro['compartirFotoDocumentoCtrl'];
-
-
-                                    }
-
-
-
-
-                                    //Storage::disk('local')->put('example.jpg', $miembro['fotoDocumentoCtrl']);
-
-
-
-
-
-
-
-
-
                                     //calculo edad de cada miembro de familia
                                     $fecha3 = new DateTime($addMiembro->fecha_nacimiento);
                                     $diff = $fecha1->diff($fecha3);
@@ -602,6 +581,59 @@ class EncuestaController extends Controller
                                     $diferenciaDias = $diffM->days;
                                     $sexoinicial = strtoupper(substr($miembro['sexoCtrl'], 0, 1));
                                     $addMiembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
+                                    
+                                    
+                                    //documento miembro
+                                    if($addMiembro->tipo_documento == 'Indocumentado'){
+                                        $addMiembro->numero_documento = null;
+                                        $addMiembro->compartir_foto_documento = null;
+                                    }else{
+                                        $addMiembro->numero_documento = $miembro['numeroDocumentoCtrl'];
+
+                                        $addMiembro->compartir_foto_documento = $miembro['compartirFotoDocumentoCtrl'];
+
+                                        //si compartir foto documento es si
+                                        if($addMiembro->compartir_foto_documento == 1 && $miembro['fotoDocumentoCtrl']){
+                                            /*$foto = $request->json('base64textString');
+                                            $nombre = $request->json('nombreArchivo');
+                                            $archivo = base64_decode($foto);
+                                            Storage::disk('local')->put($nombre, $archivo);*/
+
+                                            $foto = $miembro['fotoDocumentoCtrl']['base64textString'];
+                                           
+                                            //$nombre = $miembro['fotoDocumentoCtrl']['nombreArchivo'];
+                                            $formato = strstr($miembro['fotoDocumentoCtrl']['tipo'], '/');
+                                            
+                                            $replace = str_replace("/",".",$formato);
+
+                                            //nombrearchivo y url : idencuesta-codigoencuesta.tipoarchivo
+                                            $nombre = $encuesta->id . $addMiembro->codigo_encuesta . $replace; //codigo del miembro del hogar
+                                            $archivo = base64_decode($foto);
+
+                                            Storage::disk('local')->put($nombre, $archivo);
+
+                                            $url = Storage::url($nombre);
+                                           
+                                            $addMiembro->url_foto_documento = $url;
+                                            
+                                        }else{  //si compartir foto documento es no, elimina los archivos que existan del miembro del hogar en todos los formatos
+
+                                            $urleliminar1 = $encuesta->id . $addMiembro->codigo_encuesta . '.png';
+                                            $urleliminar2 = $encuesta->id . $addMiembro->codigo_encuesta . '.jpg';
+                                            $urleliminar3 = $encuesta->id . $addMiembro->codigo_encuesta . '.pdf';
+                                            $urleliminar4 = $encuesta->id . $addMiembro->codigo_encuesta . '.jpeg';
+                                            Storage::delete($urleliminar1);
+                                            Storage::delete($urleliminar2);
+                                            Storage::delete($urleliminar3);
+                                            Storage::delete($urleliminar4);
+
+                                                             
+                                        }
+
+
+                                    }
+                                    
+                                    
                                     if ($addMiembro->save()) {
                                         $guardado = true;
                                     }
