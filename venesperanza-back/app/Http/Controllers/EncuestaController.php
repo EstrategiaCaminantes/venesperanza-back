@@ -1027,6 +1027,9 @@ class EncuestaController extends Controller
         //
     }
 
+
+
+    /*
     public function actualizardatos(Request $request){
 
 
@@ -1064,6 +1067,7 @@ class EncuestaController extends Controller
         
     }
 
+    
     public function reportarllegada(Request $request){
 
         try {
@@ -1105,5 +1109,5 @@ class EncuestaController extends Controller
         } catch (\Throwable $e) {
             return "error";
         }
-    }
+    }*/
 }
