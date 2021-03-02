@@ -26,4 +26,8 @@ class Municipio extends Model
     Public function encuestas(){
     	return $this->hasMany('App\Encuesta');
     }
+
+    Public function llegadas(){
+    	return $this->hasMany('App\Llegadas');
+    }
 }

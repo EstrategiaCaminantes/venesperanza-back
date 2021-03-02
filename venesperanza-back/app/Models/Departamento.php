@@ -23,5 +23,10 @@ class Departamento extends Model
         return $this->hasMany('App\Encuesta', 'id_departamento');
     } 
 
+    public function llegada()
+    {
+        return $this->hasMany('App\Llegadas', 'id_departamento');
+    } 
+
 
 }

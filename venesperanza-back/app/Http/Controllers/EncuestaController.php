@@ -681,12 +681,42 @@ class EncuestaController extends Controller
 
                      case "paso3":
                         //DATOS DE CONTACTO
-                        if ($request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
-                            /*&& $request['infoencuesta']['barrioCtrl'] != ""*/ && $request['infoencuesta']['numeroContactoCtrl'] != ""
+                        if (/*$request['infoencuesta']['departamentoCtrl'] != "" && $request['infoencuesta']['municipioCtrl'] != ""
+                            && $request['infoencuesta']['barrioCtrl'] != "" &&*/ $request['infoencuesta']['numeroContactoCtrl'] != ""
                             && $request['infoencuesta']['lineaContactoPropiaCtrl'] != "") {
                             $encuesta->paso = $request['paso'];
-                            $encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
-                            $encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
+                            //$encuesta->id_departamento = $request['infoencuesta']['departamentoCtrl'];
+                           // $encuesta->id_municipio = $request['infoencuesta']['municipioCtrl'];
+
+                           //si selecciono municipio ubicacionCtrl
+
+                           
+                           if(isset($request['infoencuesta']['ubicacionCtrl']['nombre'])){
+
+                                $encuesta->ubicacion = $request['infoencuesta']['ubicacionCtrl']['nombre'];
+                           }else{
+                                $encuesta->ubicacion = $request['infoencuesta']['ubicacionCtrl'];
+                            }
+
+
+                                //si selecciono Otro municipio
+                            /*if($request['infoencuesta']['ubicacionCtrl']['nombre'] === "Otro"){
+
+                                    $encuesta->ubicacion = $request['infoencuesta']['ubicacionOtroCtrl'];
+        
+                                }else{ //si selecciono municipio 
+                                    $encuesta->ubicacion = $request['infoencuesta']['ubicacionCtrl']['nombre'];
+                                }
+
+                           }else{ //si ingreso nombre nuevo municipio
+
+                            //return $request['infoencuesta']['nuevoMunicipioUbicacionCtrl'];
+                            $encuesta->ubicacion = $request['infoencuesta']['nuevoMunicipioUbicacionCtrl'];
+
+                           }
+                           */
+                          
+                           
                             //$encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
                             //$encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
                             $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
@@ -995,5 +1025,85 @@ class EncuestaController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function actualizardatos(Request $request){
+
+
+        try {
+            $miembroHogar = MiembrosHogar::with(['encuesta'])
+            ->where('numero_documento',$request['numeroDocumentoCtrl'])
+            ->where('tipo_documento',$request['tipoDocumentoCtrl'])
+            ->first();
+
+            //$miembroHogar->tipo_documento = $request['tipoDocumentoCtrl'];
+            //$miembroHogar-> = $request['telefonoCtrl']
+
+            $encuesta = Encuesta::where('id', '=', $miembroHogar['encuesta']['id'])->first();
+
+            $encuesta['tipo_documento'] = $request['tipoDocumentoCtrl'];
+            $encuesta['numero_documento'] = $request['numeroDocumentoCtrl'];
+            $encuesta['numero_contacto'] = $request['telefonoCtrl'];
+            $encuesta['correo_electronico'] = $request['correoCtrl'];
+            
+
+            
+            if ($encuesta->save()) {
+                return response()->json([
+                    'res' => $encuesta->id,
+                    //'token' => $token,
+                    'message' => 'Encuesta Actualizada'
+                ],200);
+            } else {
+                return "error";
+            }
+        } catch (\Throwable $e) {
+            return "error";
+        }
+
+        
+    }
+
+    public function reportarllegada(Request $request){
+
+        try {
+            $miembroHogar = MiembrosHogar::with(['encuesta'])
+            ->where('numero_documento','=',$request['formData']['numeroDocumentoCtrl'])
+            ->where('tipo_documento','=',$request['formData']['tipoDocumentoCtrl'])
+            ->first();
+
+            //$miembroHogar->tipo_documento = $request['tipoDocumentoCtrl'];
+            //$miembroHogar-> = $request['telefonoCtrl']
+
+            
+
+            $encuesta = Encuesta::where('id', '=', $miembroHogar['encuesta']['id'])->first();
+
+            $encuesta['tipo_documento'] = $request['formData']['tipoDocumentoCtrl'];
+            $encuesta['id_departamento'] = $request['formData']['departamentoCtrl'];
+            $encuesta['id_municipio'] = $request['formData']['municipioCtrl'];
+            $encuesta['numero_contacto'] = $request['formData']['telefonoCtrl'];
+            $encuesta['numero_documento'] = $request['formData']['numeroDocumentoCtrl'];
+
+            
+
+            $autorizacion = Autorizacion::where('id_encuesta','=',$encuesta['id'])->first();
+
+            $autorizacion->latitud = $request['coordenadas']['latitud'];
+            $autorizacion->longitud = $request['coordenadas']['longitud'];
+
+       
+            if ($encuesta->save() && $autorizacion->save()) {
+                return response()->json([
+                    'res' => $encuesta->id,
+                    //'token' => $token,
+                    'message' => 'Encuesta Actualizada'
+                ],200);
+            } else {
+                return "error";
+            }
+        } catch (\Throwable $e) {
+            return "error";
+        }
     }
 }

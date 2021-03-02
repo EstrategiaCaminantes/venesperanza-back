@@ -18,6 +18,7 @@ class MiembrosHogar extends Model
 
     public function encuesta()
     {
-        return $this->belongsTo('App\Models\Encuesta');
+        return $this->belongsTo('App\Models\Encuesta','id_encuesta');
+        
     }
 }

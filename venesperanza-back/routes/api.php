@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 //login
 Route::group(['middleware' => 'DashboardApiToken'], function () {
     Route::post('loginDashboard', 'UserController@dashboardLogin');
+    Route::post('actualizardatos','DatosActualizadosController@actualizardatos');
+    Route::post('reportarllegada','LlegadasController@reportarllegada');
+    
 });
 
 //consulta de encuestas y logout de usuario
@@ -19,10 +22,15 @@ Route::group(['middleware' => 'DashboardAuthenticate'], function () {
 //rutas formulario de encuestas:
 //validacion de usuario
 Route::post('validateUser', 'MunicipioController@validarUbicacionEnVRosario');
+
+Route::get('departamentosllegada', 'DepartamentoController@index');
+Route::get('municipiosllegada', 'MunicipioController@index');
+
 //Route::get('asignarcodigospuntajes','EncuestaController@asignarcodigospuntajes');
 //login del formulario de encuesta
 Route::group(['middleware' => 'APIToken'], function () {
     Route::post('login', 'UserController@login');
+   
 });
 Route::group(['middleware' => 'auth:api'], function () {
     Route::resource('users', 'UserController');

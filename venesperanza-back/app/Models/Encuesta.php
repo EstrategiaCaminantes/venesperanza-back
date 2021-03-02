@@ -28,7 +28,8 @@ class Encuesta extends Model
         'fecha_llegada_pais', 'estar_dentro_colombia', 'pais_destino_final','como_llego_al_formulario',
         '  id_municipio_destino_final','id_departamento_destino_final',
         'total_miembros_hogar', 'donde_encontro_formulario',
-        'podemos_contactarte','forma_contactarte','otra_forma_contactarte'
+        'podemos_contactarte','forma_contactarte','otra_forma_contactarte',
+        'ubicacion'
     ];
 
     protected $appends = ['puntaje'];
