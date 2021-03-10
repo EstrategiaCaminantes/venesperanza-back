@@ -29,7 +29,7 @@ class Encuesta extends Model
         '  id_municipio_destino_final','id_departamento_destino_final',
         'total_miembros_hogar', 'donde_encontro_formulario',
         'podemos_contactarte','forma_contactarte','otra_forma_contactarte',
-        'ubicacion'
+        'ubicacion', 'numero_entregado_venesperanza'
     ];
 
     protected $appends = ['puntaje'];

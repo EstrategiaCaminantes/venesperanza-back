@@ -719,6 +719,9 @@ class EncuestaController extends Controller
                            
                             //$encuesta->barrio = $request['infoencuesta']['barrioCtrl'];
                             //$encuesta->direccion = $request['infoencuesta']['direccionCtrl'];
+                        
+                            $encuesta->numero_entregado_venesperanza = $request['infoencuesta']['numeroEntregadoVenEsperanzaCtrl'];
+              
                             $encuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
 
                             //linea de contacto principal es propia?
