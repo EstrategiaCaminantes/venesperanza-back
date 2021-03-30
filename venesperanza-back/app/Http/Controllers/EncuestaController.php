@@ -92,7 +92,9 @@ class EncuestaController extends Controller
                     $nuevaEncuesta->donde_encontro_formulario = null;
                 }
 
-                $nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+                $nuevaEncuesta->fecha_llegada_pais = date("Y-m-d", strtotime($request['infoencuesta']['llegadaDestinofechaLlegadaCtrl']));
+                
+                //$nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                 $nuevaEncuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
     
                 if($nuevaEncuesta->estar_dentro_colombia == 1 || $nuevaEncuesta->estar_dentro_colombia == 2){
@@ -113,6 +115,18 @@ class EncuestaController extends Controller
 
                     $nuevaEncuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
                 }
+
+                if($request['infoencuesta']['razonElegirDestinoFinalCtrl'] === "Otra"){
+
+                    $nuevaEncuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
+                    $nuevaEncuesta->otra_razon_elegir_destino_final = $request['infoencuesta']['otraRazonElegirDestinoFinalCtrl'];
+               
+                }else{
+                    $nuevaEncuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
+                    $nuevaEncuesta->otra_razon_elegir_destino_final = null;
+                }
+
+                $nuevaEncuesta->recibe_transporte_humanitario = $request['infoencuesta']['hogarRecibeTransporteHumanitarioCtrl'];
     
                 $nuevaEncuesta->save();
                 /*
@@ -422,7 +436,9 @@ class EncuestaController extends Controller
                             $encuesta->donde_encontro_formulario = null;
                         }
 
-                        $encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+                        $encuesta->fecha_llegada_pais = date("Y-m-d", strtotime($request['infoencuesta']['llegadaDestinofechaLlegadaCtrl']));
+
+                        //$encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
                         $encuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
             
                         if($encuesta->estar_dentro_colombia == 1 || $encuesta->estar_dentro_colombia == 2){
@@ -451,6 +467,19 @@ class EncuestaController extends Controller
                              $encuesta->id_municipio_destino_final = null;
 
                         }
+
+                        if($request['infoencuesta']['razonElegirDestinoFinalCtrl'] === "Otra"){
+
+                            $encuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
+                            $encuesta->otra_razon_elegir_destino_final = $request['infoencuesta']['otraRazonElegirDestinoFinalCtrl'];
+                       
+                        }else{
+                            $encuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
+                            $encuesta->otra_razon_elegir_destino_final = null;
+                        }
+
+                        $encuesta->recibe_transporte_humanitario = $request['infoencuesta']['hogarRecibeTransporteHumanitarioCtrl'];
+
             
                         if ($encuesta->save()) {
                             return $encuesta->id;

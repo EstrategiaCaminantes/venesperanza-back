@@ -27,9 +27,8 @@ class Encuesta extends Model
         'puntaje_paso_cuatro', 'puntaje_paso_cinco', 'puntaje_paso_seis', 'puntaje_paso_siete', 'puntaje_paso_ocho',
         'fecha_llegada_pais', 'estar_dentro_colombia', 'pais_destino_final','como_llego_al_formulario',
         '  id_municipio_destino_final','id_departamento_destino_final',
-        'total_miembros_hogar', 'donde_encontro_formulario',
-        'podemos_contactarte','forma_contactarte','otra_forma_contactarte',
-        'ubicacion', 'numero_entregado_venesperanza'
+        'total_miembros_hogar', 'donde_encontro_formulario','podemos_contactarte','forma_contactarte','otra_forma_contactarte',
+        'ubicacion', 'numero_entregado_venesperanza','razon_elegir_destino_final','otra_razon_elegir_destino_final','recibe_transporte_humanitario'
     ];
 
     protected $appends = ['puntaje'];
