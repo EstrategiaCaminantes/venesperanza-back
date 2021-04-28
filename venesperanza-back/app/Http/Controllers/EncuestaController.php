@@ -252,7 +252,7 @@ class EncuestaController extends Controller
                         $apellidoinicialesM = str_replace('Ü', 'U', $apellidoinicialesM);
                         $fecha2 = new DateTime($miembro->fecha_nacimiento);
                         $diffM = $fecha1900->diff($fecha2);
-                        $diferenciaDias = $diffM->days;
+                        $diferenciaDias = ($diffM->days)+2;
                         $sexoinicial = strtoupper(substr($miembro->sexo_miembro, 0, 1));
                         $miembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
                         $miembro->save();
@@ -397,7 +397,7 @@ class EncuestaController extends Controller
                 $fecha1900 = new DateTime("1900-01-01");
                 $fecha2 = new DateTime($encuesta->fecha_nacimiento);
                 $diff = $fecha1900->diff($fecha2);
-                $diferenciaDias = $diff->days;
+                $diferenciaDias = ($diff->days)+2;
                 $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
                 $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
                 $encuesta->save();
@@ -607,7 +607,7 @@ class EncuestaController extends Controller
                                     $fecha2 = new DateTime(date("Y-m-d", strtotime($miembro['fechaCtrl'])));
                                     $fecha1900 = new DateTime("1900-01-01");
                                     $diffM = $fecha1900->diff($fecha2);
-                                    $diferenciaDias = $diffM->days;
+                                    $diferenciaDias = ($diffM->days)+2;
                                     $sexoinicial = strtoupper(substr($miembro['sexoCtrl'], 0, 1));
                                     $addMiembro->codigo_encuesta = $nombreinicialesM . $apellidoinicialesM . $diferenciaDias . $sexoinicial;
                                     
