@@ -14,9 +14,9 @@ class Encuesta extends Model
     protected $table = 'encuesta';
 
 
-    protected $fillable = ['consentimiento_compartido', 'primer_nombre', 'segundo_nombre',
-        'primer_apellido', 'segundo_apellido', 'sexo', 'otrosexo', 'fecha_nacimiento', 'nacionalidad', 'tipo_documento',
-        'cual_otro_tipo_documento', 'numero_documento', 'id_departamento', 'municipio_registro', 'barrio', 'direccion',
+    protected $fillable = ['fuente','consentimiento_compartido', 'primer_nombre', 'segundo_nombre',
+        'primer_apellido', 'segundo_apellido', 'sexo', 'otrosexo', 'fecha_nacimiento', 'nacionalidad','cual_otro_nacionalidad','tipo_documento',
+        'cual_otro_tipo_documento', 'numero_documento', 'compartir_foto_documento_encuestado','url_foto_documento_encuestado', 'id_departamento', 'municipio_registro', 'barrio', 'direccion',
         'numero_contacto', 'linea_contacto_propia', 'preguntar_en_caso_de_llamar', 'linea_asociada_whatsapp','numero_whatsapp_principal',
         'numero_alternativo', 'linea_contacto_alternativo', 'linea_alternativa_asociada_whatsapp',
         'tiene_cuenta_facebook','cuenta_facebook',
