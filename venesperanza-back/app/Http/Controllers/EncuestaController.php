@@ -83,6 +83,59 @@ class EncuestaController extends Controller
                 $nuevaEncuesta = new Encuesta;
     
                 $nuevaEncuesta->paso = $request['paso'];
+
+                $nuevaEncuesta->fuente = "web";
+
+
+                //Datos encuestado jefe hogar
+                $nuevaEncuesta->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
+                $nuevaEncuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
+                $nuevaEncuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
+                $nuevaEncuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
+                $nuevaEncuesta->sexo = $request['infoencuesta']['sexoCtrl'];
+               
+                $nuevaEncuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                $nuevaEncuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
+                
+                if($nuevaEncuesta->nacionalidad == "Otro"){
+                    $nuevaEncuesta->cual_otro_nacionalidad = $request['infoencuesta']['otroNacionalidadCtrl'];
+                }else{
+                    $nuevaEncuesta->cual_otro_nacionalidad = null;
+                }
+
+                $nuevaEncuesta->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
+                if ($nuevaEncuesta->tipo_documento == "Otro") {
+                    $nuevaEncuesta->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
+                }
+                if ($nuevaEncuesta->tipo_documento != "Indocumentado") {
+                    $nuevaEncuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
+                }
+
+                
+                //Termina datos jefe hogar
+
+                $nuevaEncuesta->total_miembros_hogar = 1;
+    
+
+                //codigo_encuesta
+                $nombreiniciales = mb_strtoupper(mb_substr($nuevaEncuesta->primer_nombre, 0, 2));
+                $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
+    
+    
+                $apellidoiniciales = mb_strtoupper(mb_substr($nuevaEncuesta->primer_apellido, 0, 2));
+                $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
+    
+                $fecha1900 = new DateTime("1900-01-01");
+                $fecha2 = new DateTime($nuevaEncuesta->fecha_nacimiento);
+                $diff = $fecha1900->diff($fecha2);
+                $diferenciaDias = ($diff->days)+2;
+                $sexoinicial = strtoupper(substr($nuevaEncuesta->sexo, 0, 1));
+    
+                $nuevaEncuesta->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
+                //termina codigo_encuesta
+
     
                 $nuevaEncuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
 
@@ -129,49 +182,61 @@ class EncuestaController extends Controller
                 $nuevaEncuesta->recibe_transporte_humanitario = $request['infoencuesta']['hogarRecibeTransporteHumanitarioCtrl'];
     
                 $nuevaEncuesta->save();
-                /*
-                //Anterior PASO 1 primeros datos para crear encuesta
-                $ben = new Encuesta;
-                $ben->paso = $request['paso'];
-                $ben->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
-                $ben->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
-                $ben->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
-                $ben->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
-                $ben->sexo = $request['infoencuesta']['sexoCtrl'];
-                if ($ben->sexo === "otro") {
-                    $ben->otrosexo = $request['infoencuesta']['otroSexoCtrl'];
+
+
+                //documento ENCUESTADO
+                if($nuevaEncuesta->tipo_documento == 'Indocumentado'){
+                    $nuevaEncuesta->numero_documento = null;
+                    $nuevaEncuesta->compartir_foto_documento_encuestado = null;
+                }else{
+                    $nuevaEncuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
+
+                    $nuevaEncuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
+
+                    //si compartir foto documento es si
+                    if($nuevaEncuesta->compartir_foto_documento_encuestado == 1 && $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']){
+                        /*$foto = $request->json('base64textString');
+                        $nombre = $request->json('nombreArchivo');
+                        $archivo = base64_decode($foto);
+                        Storage::disk('local')->put($nombre, $archivo);*/
+
+                        $foto = $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['base64textString'];
+                       
+                        //$nombre = $miembro['fotoDocumentoCtrl']['nombreArchivo'];
+                        $formato = strstr($request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['tipo'], '/');
+                        
+                        $replace = str_replace("/",".",$formato);
+
+                        //nombrearchivo y url : idencuesta-codigoencuesta.tipoarchivo
+                        $nombre = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . $replace; //codigo del miembro del hogar
+                        $archivo = base64_decode($foto);
+
+                        Storage::disk('local')->put($nombre, $archivo);
+
+                        $url = Storage::url($nombre);
+                       
+                        $nuevaEncuesta->url_foto_documento_encuestado = $url;
+
+                        $nuevaEncuesta->save();
+                        
+                    }else{  //si compartir foto documento es no, elimina los archivos que existan del miembro del hogar en todos los formatos
+
+                        $urleliminar1 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.png';
+                        $urleliminar2 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.jpg';
+                        $urleliminar3 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.pdf';
+                        $urleliminar4 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.jpeg';
+                        Storage::delete($urleliminar1);
+                        Storage::delete($urleliminar2);
+                        Storage::delete($urleliminar3);
+                        Storage::delete($urleliminar4);
+
+                                         
+                    }
+
+
                 }
-                //$ben->fecha_nacimiento = date_format(strtotime($request['infoencuesta']['fechaNacimientoCtrl']),"y-m-d");
-                $ben->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-                $ben->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
-                $ben->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
-                if ($ben->tipo_documento == "Otro") {
-                    $ben->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
-                }
-                if ($ben->tipo_documento != "Indocumentado") {
-                    $ben->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
-                }
-    
-                //codigo_encuesta
-                $nombreiniciales = mb_strtoupper(mb_substr($ben->primer_nombre, 0, 2));
-                $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
-    
-    
-                $apellidoiniciales = mb_strtoupper(mb_substr($ben->primer_apellido, 0, 2));
-                $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
-    
-                $fecha1900 = new DateTime("1900-01-01");
-                $fecha2 = new DateTime($ben->fecha_nacimiento);
-                $diff = $fecha1900->diff($fecha2);
-                $diferenciaDias = $diff->days;
-                $sexoinicial = strtoupper(substr($ben->sexo, 0, 1));
-    
-                $ben->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
-                $ben->save();
-                */
-    
+
+                
     
                 $autorizacion = Autorizacion::find($request['autorizacion_id']);
                 //$autorizacion->id_encuesta = $ben->id;
@@ -426,6 +491,105 @@ class EncuestaController extends Controller
                 switch ($request['paso']) {
 
                     case "paso1":
+
+
+                        //Datos encuestado jefe hogar
+                        $encuesta->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
+                        $encuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
+                        $encuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
+                        $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
+                        $encuesta->sexo = $request['infoencuesta']['sexoCtrl'];
+                    
+                        $encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                        $encuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
+                        
+                        if($encuesta->nacionalidad == "Otro"){
+                            $encuesta->cual_otro_nacionalidad = $request['infoencuesta']['otroNacionalidadCtrl'];
+                        }else{
+                            $encuesta->cual_otro_nacionalidad = null;
+                        }
+
+                        $encuesta->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
+                        if ($encuesta->tipo_documento == "Otro") {
+                            $encuesta->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
+                        }
+                        
+                        //Termina datos jefe hogar
+            
+
+                        //codigo_encuesta
+                        $nombreiniciales = mb_strtoupper(mb_substr($encuesta->primer_nombre, 0, 2));
+                        $nombreiniciales = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                        $nombreiniciales = str_replace('Ü', 'U', $nombreiniciales);
+            
+            
+                        $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
+                        $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
+                        $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
+            
+                        $fecha1900 = new DateTime("1900-01-01");
+                        $fecha2 = new DateTime($encuesta->fecha_nacimiento);
+                        $diff = $fecha1900->diff($fecha2);
+                        $diferenciaDias = ($diff->days)+2;
+                        $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
+            
+                        $encuesta->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
+                        //termina codigo_encuesta
+
+                         //documento ENCUESTADO
+                        if($encuesta->tipo_documento == 'Indocumentado'){
+                            $encuesta->numero_documento = null;
+                            $encuesta->compartir_foto_documento_encuestado = null;
+                        }else{
+                            $encuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
+
+                            $encuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
+
+                            //si compartir foto documento es si
+                            if($encuesta->compartir_foto_documento_encuestado == 1 && $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']){
+                                /*$foto = $request->json('base64textString');
+                                $nombre = $request->json('nombreArchivo');
+                                $archivo = base64_decode($foto);
+                                Storage::disk('local')->put($nombre, $archivo);*/
+
+                                $foto = $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['base64textString'];
+                            
+                                //$nombre = $miembro['fotoDocumentoCtrl']['nombreArchivo'];
+                                $formato = strstr($request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['tipo'], '/');
+                                
+                                $replace = str_replace("/",".",$formato);
+
+                                //nombrearchivo y url : idencuesta-codigoencuesta.tipoarchivo
+                                $nombre = $encuesta->id . $encuesta->codigo_encuesta . $replace; //codigo del miembro del hogar
+                                $archivo = base64_decode($foto);
+
+                                Storage::disk('local')->put($nombre, $archivo);
+
+                                $url = Storage::url($nombre);
+                            
+                                $encuesta->url_foto_documento_encuestado = $url;
+                                
+                            }else{  //si compartir foto documento es no, elimina los archivos que existan del miembro del hogar en todos los formatos
+
+                                $urleliminar1 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.png';
+                                $urleliminar2 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.jpg';
+                                $urleliminar3 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.pdf';
+                                $urleliminar4 = $nuevaEncuesta->id . $nuevaEncuesta->codigo_encuesta . '.jpeg';
+                                Storage::delete($urleliminar1);
+                                Storage::delete($urleliminar2);
+                                Storage::delete($urleliminar3);
+                                Storage::delete($urleliminar4);
+
+                                                
+                            }
+
+
+                        }
+
+
+
+
+
                         //DATOS DE LLEGADA Y DESTINO
                         
                         $encuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
@@ -488,46 +652,6 @@ class EncuestaController extends Controller
                         }
 
 
-
-                    /*
-                    case "paso1":
-                        //DATOS DEL ENCUESTADO
-
-                        $encuesta->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
-                        $encuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
-                        $encuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
-                        $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
-                        $encuesta->sexo = $request['infoencuesta']['sexoCtrl'];
-                        $encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-                        $encuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
-                        $encuesta->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
-                        if ($encuesta->tipo_documento == "Otro") {
-                            $encuesta->cual_otro_tipo_documento = $request['infoencuesta']['otroTipoDocumentoCtrl'];
-                        }
-                        if ($encuesta->tipo_documento != "Indocumentado") {
-                            $encuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
-                        }
-
-                        //codigo_encuesta
-                        $nombreiniciales = mb_strtoupper(mb_substr($encuesta->primer_nombre, 0, 2));
-                        $nombreiniciales2 = strtr($nombreiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                        $nombreiniciales3 = str_replace('Ü', 'U', $nombreiniciales2);
-                        $apellidoiniciales = mb_strtoupper(mb_substr($encuesta->primer_apellido, 0, 2));
-                        $apellidoiniciales2 = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
-                        $apellidoiniciales3 = str_replace('Ü', 'U', $apellidoiniciales2);
-                        $fecha1900 = new DateTime("1900-01-01");
-                        $fecha2 = new DateTime($encuesta->fecha_nacimiento);
-                        $diff = $fecha1900->diff($fecha2);
-                        $diferenciaDias = $diff->days;
-                        $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
-                        $encuesta->codigo_encuesta = $nombreiniciales3 . $apellidoiniciales3 . $diferenciaDias . $sexoinicial;
-                        if ($encuesta->save()) {
-                            return $encuesta->id;
-                        } else {
-                            return "error";
-                        }
-                        break;
-                    */
                    
                     case "paso2":
 
@@ -553,13 +677,15 @@ class EncuestaController extends Controller
                         $encuesta->paso = $request['paso'];
                         MiembrosHogar::where('id_encuesta', $encuesta->id)->delete();
 
-                        $encuesta->total_miembros_hogar = $request['infoencuesta']['totalMiembrosHogar'];
+                        $encuesta->total_miembros_hogar = 1;
+                        $encuesta->total_miembros_hogar = $encuesta->total_miembros_hogar + $request['infoencuesta']['totalMiembrosHogar'];
                         if (count($request['infoencuesta']['miembrosFamilia']) > 0) {
                             $guardado = false;
                             foreach ($request['infoencuesta']['miembrosFamilia'] as $miembro) {
                                 $addMiembro = new MiembrosHogar;
                                 if ($addMiembro) {
                                     $addMiembro->id_encuesta = $encuesta->id;
+                                    $addMiembro->fuente = "web";
                                     $addMiembro->primer_nombre_miembro = $miembro['primernombreCtrl'];
                                     $addMiembro->segundo_nombre_miembro = $miembro['segundonombreCtrl'];
                                     $addMiembro->primer_apellido_miembro = $miembro['primerapellidoCtrl'];
