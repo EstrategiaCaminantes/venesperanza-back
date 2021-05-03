@@ -80,7 +80,7 @@ class EncuestaController extends Controller
             //Nuevo PASO 1 que por ahora es PASO 0, crea la encuesta en bd
             $nuevaEncuesta = new Encuesta;
             $nuevaEncuesta->paso = $request['paso'];
-            $nuevaEncuesta->fuente = "web";
+            $nuevaEncuesta->fuente = 2;
 
             //Datos encuestado jefe hogar
             $nuevaEncuesta->primer_nombre = $request['infoencuesta']['firstNameCtrl'];
@@ -667,7 +667,7 @@ class EncuestaController extends Controller
                                 $addMiembro = new MiembrosHogar;
                                 if ($addMiembro) {
                                     $addMiembro->id_encuesta = $encuesta->id;
-                                    $addMiembro->fuente = "web";
+                                    $addMiembro->fuente = 2;
                                     $addMiembro->primer_nombre_miembro = $miembro['primernombreCtrl'];
                                     $addMiembro->segundo_nombre_miembro = $miembro['segundonombreCtrl'];
                                     $addMiembro->primer_apellido_miembro = $miembro['primerapellidoCtrl'];

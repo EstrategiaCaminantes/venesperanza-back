@@ -15,14 +15,14 @@ class AddColumnsToEncuestaAndMiembrosHogarTable extends Migration
     {
         Schema::table('encuesta', function (Blueprint $table) {
             $table->string('cual_otro_nacionalidad', 100)->nullable()->default(NULL);
-            $table->string('fuente', 50)->nullable()->default(NULL);
+            $table->integer('fuente')->nullable()->default(NULL);
             $table->tinyInteger('compartir_foto_documento_encuestado')->nullable()->default(NULL);
             $table->string('url_foto_documento_encuestado', 200)->nullable()->default(NULL);
             
         });
 
         Schema::table('miembros_hogar', function (Blueprint $table) {
-            $table->string('fuente', 50)->nullable()->default(NULL);
+            $table->integer('fuente')->nullable()->default(NULL);
            
             
         });
