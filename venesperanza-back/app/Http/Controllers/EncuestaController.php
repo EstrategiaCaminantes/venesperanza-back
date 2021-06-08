@@ -77,9 +77,9 @@ class EncuestaController extends Controller
     {
         try {
 
-            //Nuevo PASO 1 que por ahora es PASO 0, crea la encuesta en bd
+            //YA NO HAY PASOS Nuevo PASO 1 que por ahora es PASO 0, crea la encuesta en bd
             $nuevaEncuesta = new Encuesta;
-            $nuevaEncuesta->paso = $request['paso'];
+            //$nuevaEncuesta->paso = $request['paso'];
             $nuevaEncuesta->fuente = 2;
 
             //Datos encuestado jefe hogar
@@ -87,15 +87,16 @@ class EncuestaController extends Controller
             $nuevaEncuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
             $nuevaEncuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
             $nuevaEncuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
-            $nuevaEncuesta->sexo = $request['infoencuesta']['sexoCtrl'];
-            $nuevaEncuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-            $nuevaEncuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
+            //$nuevaEncuesta->sexo = $request['infoencuesta']['sexoCtrl'];
+            //$nuevaEncuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+            /*$nuevaEncuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
 
             if ($nuevaEncuesta->nacionalidad == "Otro") {
                 $nuevaEncuesta->cual_otro_nacionalidad = $request['infoencuesta']['otroNacionalidadCtrl'];
             } else {
                 $nuevaEncuesta->cual_otro_nacionalidad = null;
             }
+            */
 
             $nuevaEncuesta->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
             if ($nuevaEncuesta->tipo_documento == "Otro") {
@@ -105,7 +106,7 @@ class EncuestaController extends Controller
                 $nuevaEncuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
             }
             //Termina datos jefe hogar
-            $nuevaEncuesta->total_miembros_hogar = 1;
+            //$nuevaEncuesta->total_miembros_hogar = 1;
 
             //codigo_encuesta
             $nombreiniciales = mb_strtoupper(mb_substr($nuevaEncuesta->primer_nombre, 0, 2));
@@ -116,6 +117,7 @@ class EncuestaController extends Controller
             $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
             $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
 
+            /*
             $fecha1900 = new DateTime("1900-01-01");
             $fecha2 = new DateTime($nuevaEncuesta->fecha_nacimiento);
             $diff = $fecha1900->diff($fecha2);
@@ -124,15 +126,20 @@ class EncuestaController extends Controller
 
             $nuevaEncuesta->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
             //termina codigo_encuesta
+            */
 
             $nuevaEncuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
+            /*
             if ($nuevaEncuesta->como_llego_al_formulario == "Otro") {
                 $nuevaEncuesta->donde_encontro_formulario = $request['infoencuesta']['dondeEncontroFormularioCtrl'];
             } else {
                 $nuevaEncuesta->donde_encontro_formulario = null;
-            }
+            }*/
+
             $nuevaEncuesta->fecha_llegada_pais = date("Y-m-d", strtotime($request['infoencuesta']['llegadaDestinofechaLlegadaCtrl']));
             //$nuevaEncuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+            
+            /*
             $nuevaEncuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
             if ($nuevaEncuesta->estar_dentro_colombia == 1 || $nuevaEncuesta->estar_dentro_colombia == 2) {
                 if ($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido') {
@@ -146,6 +153,38 @@ class EncuestaController extends Controller
                 $nuevaEncuesta->id_municipio_destino_final = null;
                 $nuevaEncuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
             }
+            */
+            if ($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido') {
+                $nuevaEncuesta->id_departamento_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+                
+            }
+            
+            $nuevaEncuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
+
+            $nuevaEncuesta->numero_entregado_venesperanza = $request['infoencuesta']['numeroEntregadoVenEsperanzaCtrl'];
+            
+            if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === 'si') {
+                
+                $nuevaEncuesta->linea_contacto_propia = 1;
+             
+            } else if ($request['infoencuesta']['lineaContactoPropiaCtrl'] === "no") {
+                
+                $nuevaEncuesta->linea_contacto_propia = 0;
+              
+            }
+
+
+            //linea de contacto principal esta asociada a whatsapp?
+            if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'si') {
+                $nuevaEncuesta->linea_asociada_whatsapp = 1;
+            } else if ($request['infoencuesta']['lineaContactoAsociadaAWhatsappCtrl'] == 'no') {
+                $nuevaEncuesta->linea_asociada_whatsapp = 0;
+            }
+            
+
+            $nuevaEncuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
+
+            /*
             if ($request['infoencuesta']['razonElegirDestinoFinalCtrl'] === "Otra") {
                 $nuevaEncuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
                 $nuevaEncuesta->otra_razon_elegir_destino_final = $request['infoencuesta']['otraRazonElegirDestinoFinalCtrl'];
@@ -155,16 +194,20 @@ class EncuestaController extends Controller
             }
             $nuevaEncuesta->recibe_transporte_humanitario = $request['infoencuesta']['hogarRecibeTransporteHumanitarioCtrl'];
             $nuevaEncuesta->save();
+            */
 
 
             //documento ENCUESTADO
+            /*
             if ($nuevaEncuesta->tipo_documento == 'Indocumentado') {
                 $nuevaEncuesta->numero_documento = null;
-                $nuevaEncuesta->compartir_foto_documento_encuestado = null;
+                //$nuevaEncuesta->compartir_foto_documento_encuestado = null;
             } else {
                 $nuevaEncuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
-                $nuevaEncuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
+                //$nuevaEncuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
+                
                 //si compartir foto documento es si
+                
                 if ($nuevaEncuesta->compartir_foto_documento_encuestado == 1 && $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']) {
                     
                     $foto = $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['base64textString'];
@@ -191,14 +234,20 @@ class EncuestaController extends Controller
                     Storage::delete($urleliminar3);
                     Storage::delete($urleliminar4);
                 }
+                
             }
+            */
 
+            $nuevaEncuesta->save();
             $autorizacion = Autorizacion::find($request['autorizacion_id']);
             //$autorizacion->id_encuesta = $ben->id;
             $autorizacion->id_encuesta = $nuevaEncuesta->id;
             $autorizacion->save();
             //return $ben->id;
             return $nuevaEncuesta->id;
+            
+
+            
 
     
         } catch (Exception $e) {
@@ -497,15 +546,17 @@ class EncuestaController extends Controller
                         $encuesta->segundo_nombre = $request['infoencuesta']['secondNameCtrl'];
                         $encuesta->primer_apellido = $request['infoencuesta']['lastNameCtrl'];
                         $encuesta->segundo_apellido = $request['infoencuesta']['secondLastNameCtrl'];
-                        $encuesta->sexo = $request['infoencuesta']['sexoCtrl'];
-                        $encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
-                        $encuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
+                        //$encuesta->sexo = $request['infoencuesta']['sexoCtrl'];
+                        //$encuesta->fecha_nacimiento = date("Y-m-d", strtotime($request['infoencuesta']['fechaNacimientoCtrl']));
+                        //$encuesta->nacionalidad = $request['infoencuesta']['nacionalidadCtrl'];
                         
+                        /*
                         if($encuesta->nacionalidad == "Otro"){
                             $encuesta->cual_otro_nacionalidad = $request['infoencuesta']['otroNacionalidadCtrl'];
                         }else{
                             $encuesta->cual_otro_nacionalidad = null;
                         }
+                        */
 
                         $encuesta->tipo_documento = $request['infoencuesta']['tipoDocumentoCtrl'];
                         if ($encuesta->tipo_documento == "Otro") {
@@ -522,6 +573,7 @@ class EncuestaController extends Controller
                         $apellidoiniciales = strtr($apellidoiniciales, array('Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U', 'Ñ' => 'N', 'Ü', 'U'));
                         $apellidoiniciales = str_replace('Ü', 'U', $apellidoiniciales);
             
+                        /*
                         $fecha1900 = new DateTime("1900-01-01");
                         $fecha2 = new DateTime($encuesta->fecha_nacimiento);
                         $diff = $fecha1900->diff($fecha2);
@@ -529,17 +581,19 @@ class EncuestaController extends Controller
                         $sexoinicial = strtoupper(substr($encuesta->sexo, 0, 1));
             
                         $encuesta->codigo_encuesta = $nombreiniciales . $apellidoiniciales . $diferenciaDias . $sexoinicial;
+                        */
                         //termina codigo_encuesta
 
                          //documento ENCUESTADO
                         if($encuesta->tipo_documento == 'Indocumentado'){
                             $encuesta->numero_documento = null;
-                            $encuesta->compartir_foto_documento_encuestado = null;
+                            //$encuesta->compartir_foto_documento_encuestado = null;
                         }else{
                             $encuesta->numero_documento = $request['infoencuesta']['numeroDocumentoCtrl'];
-                            $encuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
+                            //$encuesta->compartir_foto_documento_encuestado = $request['infoencuesta']['compartirFotoDocumentoEncuestadoCtrl'];
 
                             //si compartir foto documento es si
+                            /*
                             if($encuesta->compartir_foto_documento_encuestado == 1 && $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']){
                                 
                                 $foto = $request['infoencuesta']['fotoDocumentoEncuestadoCtrl']['base64textString'];
@@ -568,6 +622,7 @@ class EncuestaController extends Controller
 
                                                 
                             }
+                            */
 
 
                         }
@@ -576,15 +631,17 @@ class EncuestaController extends Controller
 
                         $encuesta->como_llego_al_formulario = $request['infoencuesta']['comoLlegoAlFormularioCtrl'];
 
+                        /*
                         if ($encuesta->como_llego_al_formulario == "Otro") {
                             $encuesta->donde_encontro_formulario = $request['infoencuesta']['dondeEncontroFormularioCtrl'];
                         } else {
                             $encuesta->donde_encontro_formulario = null;
-                        }
+                        }*/
 
                         $encuesta->fecha_llegada_pais = date("Y-m-d", strtotime($request['infoencuesta']['llegadaDestinofechaLlegadaCtrl']));
 
                         //$encuesta->fecha_llegada_pais = $request['infoencuesta']['llegadaDestinofechaLlegadaCtrl'];
+                        /*
                         $encuesta->estar_dentro_colombia = $request['infoencuesta']['llegadaDestinoPlaneaEstarEnColombiaCtrl']; //reciba 0-No, 1-Si, 2-NoEstoySeguro
 
                         if ($encuesta->estar_dentro_colombia == 1 || $encuesta->estar_dentro_colombia == 2) {
@@ -613,7 +670,12 @@ class EncuestaController extends Controller
                             $encuesta->id_municipio_destino_final = null;
 
                         }
+                        */
 
+                        
+                        $encuesta->id_departamento_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+
+                        /*
                         if ($request['infoencuesta']['razonElegirDestinoFinalCtrl'] === "Otra") {
 
                             $encuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
@@ -625,7 +687,7 @@ class EncuestaController extends Controller
                         }
 
                         $encuesta->recibe_transporte_humanitario = $request['infoencuesta']['hogarRecibeTransporteHumanitarioCtrl'];
-
+                        */
 
                         if ($encuesta->save()) {
                             return $encuesta->id;
