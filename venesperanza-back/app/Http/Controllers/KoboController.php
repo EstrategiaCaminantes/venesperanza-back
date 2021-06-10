@@ -10,6 +10,7 @@ use App\Models\MiembrosHogar;
 use App\Models\Autorizacion;
 use App\Models\Webhook;
 use App\Models\NecesidadBasica;
+use App\Models\Municipio;
 
 use DateTime;
 
@@ -41,52 +42,52 @@ class KoboController extends Controller
         $respuestasKobo = [];
         $totalkobo = 0;
         
-        foreach ($encuestasKobo as $encuestaKobo) {
+        //foreach ($formulariosKobo as $encuestaKobo) {
 
-                $encuesta_kobo_existe = Encuesta::where('fuente','=',3)->where('id_kobo','=',$kobo['_id'])->first();
+                $encuesta_kobo_existe = Encuesta::where('fuente','=',3)->where('id_kobo','=',$formulariosKobo[99]['_id'])->first();
 
                 if(!$encuesta_kobo_existe){
-                    array_push( $respuestasKobo, $kobo['_id']);
+                    array_push( $respuestasKobo, $formulariosKobo[99]['_id']);
                     //cada kobo que no exista en la tabla encuesta de base datos, crea el registro nuevo con la info del kobo
                     //cada campo del kobo convertirlo al campo de la base datos
                     $nuevaEncuestaKobo = new Encuesta;
 
-                    $nuevaEncuestaKobo->id_kobo = $kobo['_id'];
+                    $nuevaEncuestaKobo->id_kobo = $formulariosKobo[99]['_id'];
                     $nuevaEncuestaKobo->fuente = 3;
 
-                    if(isset($encuestaKobo['Caracterización Grupo Familiar/¿En qué fecha tu y tu grupo'])){
-                        $nuevaEncuestaKobo->fecha_llegada_pais = $encuestaKobo['Caracterización Grupo Familiar/¿En qué fecha tu y tu grupo'];
+                    if(isset($formulariosKobo[99]['Caracterizacion_GF/Fecha_llegada'])){
+                        $nuevaEncuestaKobo->fecha_llegada_pais = $formulariosKobo[99]['Caracterizacion_GF/Fecha_llegada'];
                     }
 
-                    if(isset($encuestaKobo['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'])){
-                        $nuevaEncuestaKobo->ubicacion = $encuestaKobo['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'];
+                    if(isset($formulariosKobo[99]['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'])){
+                        $nuevaEncuestaKobo->ubicacion = $formulariosKobo[99]['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'];
                     }
 
-                    if(isset($encuestaKobo['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'])){
+                    if(isset($formulariosKobo[99]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'])){
 
-                        if($encuestaKobo['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 's'){
+                        if($formulariosKobo[99]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 's'){
                             $nuevaEncuestaKobo->estar_dentro_colombia = 1;
-                        }else if($encuestaKobo['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no_estoy_seguro_a'){
+                        }else if($formulariosKobo[99]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no_estoy_seguro_a'){
                             $nuevaEncuestaKobo->estar_dentro_colombia = 2;
-                        }else if($encuestaKobo['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no'){
+                        }else if($formulariosKobo[99]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no'){
                             $nuevaEncuestaKobo->estar_dentro_colombia = 0;
                         }
                     }
 
-                    if(isset($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])){
+                    if(isset($formulariosKobo[99]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])){
 
-                        if(isset($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === 'Otro'){
+                        if($formulariosKobo[99]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === 'otro'){
 
-                            $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'];
+                            $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[99]['Caracterizacion_GF/_Cu_l'];
 
                         }else{
 
-                            $municipioDestinoFinal = Municipio::where('nombre', '=', $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])->first();
+                            $municipioDestinoFinal = Municipio::where('nombre', '=', $formulariosKobo[99]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])->first();
 
                             if($municipioDestinoFinal){
                                 $nuevaEncuestaKobo->id_municipio_destino_final = $municipioDestinoFinal->id;
                             }else{
-                                $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
+                                $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[99]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
 
                             }
                         }
@@ -94,6 +95,7 @@ class KoboController extends Controller
                        
                     }
 
+                    //return $nuevaEncuestaKobo;
 
                     $nuevaEncuestaKobo->save();
 
@@ -102,9 +104,9 @@ class KoboController extends Controller
 
                     $autorizacion->id_encuesta = $nuevaEncuestaKobo->id;
 
-                    if(isset($encuestaKobo['Consentimiento/Autorizo_el_tratamiento_de_mis'])){
+                    if(isset($formulariosKobo[99]['Consentimiento/Autorizo_el_tratamiento_de_mis'])){
 
-                        if($encuestaKobo['Consentimiento/Autorizo_el_tratamiento_de_mis'] === 's'){
+                        if($formulariosKobo[99]['Consentimiento/Autorizo_el_tratamiento_de_mis'] === 's'){
                             
                             $autorizacion->tratamiento_datos = 1;
                            
@@ -115,9 +117,9 @@ class KoboController extends Controller
                         $totalkobo += 1;
                     }
 
-                    if(isset($encuestaKobo['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'])){
+                    if(isset($formulariosKobo[99]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'])){
 
-                        if($encuestaKobo['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'] === 's'){
+                        if($formulariosKobo[99]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'] === 's'){
                             $autorizacion->terminos_condiciones = 1;
                             $autorizacion->condiciones = 1;
                         }else{
@@ -137,8 +139,9 @@ class KoboController extends Controller
            
 
             
-        }
-        return $totalkobo;
+        //}
+        //return $totalkobo;
+        return $formulariosKobo[99];
 
         //Prueba individual
         /*

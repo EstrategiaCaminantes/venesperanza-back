@@ -59,3 +59,45 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+## CRON JOB KOBO
+
+- Comando para crear CRON, definiendo la clase 'FormulariosKobo' en carpeta app/Console/Commands:
+
+    php artisan make:command FormulariosKobo
+
+- Definimos el nombre de la tarea en la variable $signature de la clase FormulariosKobo en el archivo app/Console/Commands/FormulariosKobo.php:
+
+    protected $signature = 'formularioskobo:task';
+
+- Definimos la funcionalidad del CRON en la funcion handle() de la clase FormulariosKobo, debemos importar los Models que utilizaremos en la funcionalidad.
+
+- Agregamos la clase FormulariosKobo en variable $commands del archivo app/Console/Kernel.php:
+
+    Commands\FormulariosKobo::Class
+
+- Creamos la tarea en la función schedule() del archivo app/Console/Kernel.php para que se ejecute cada día a la media noche:
+
+    $schedule->command('formularioskobo:task')->dailyAt('00:00');
+
+- Para ejecutar el CRON 1 vez, ejecutamos el comando:
+
+    php artisan schedule:run
+
+- Para que el CRON se empiece a ejecutar automaticamente ejecutamos el comando:
+
+    php artisan schedule:work
+
+- Para ejecutar el CRON en el servidor:
+
+  Consultar la documentación "https://laravel.com/docs/8.x/scheduling#introduction" en apartado "Running Tasks On One Server" -> "Running the scheduler".
+
+
+  En Linux se debe crear la tarea programada o cron job en el servidor para que se ejecute el siguiente comando:
+  " * * * * * cd /path-to-your-project && php artisan schedule:work >> /dev/null 2>&1 "
+
+  En windows invocar a un archivo .bat que ejecute el comando cuando el servidor arranque:
+
+    Ejemplo: formulariosKobo.bat
+ 
