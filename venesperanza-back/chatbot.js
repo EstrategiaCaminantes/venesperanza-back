@@ -172,7 +172,12 @@ app.post('/whatsapp', async (req, res) => {
 
       if (existeEncuesta.recordset.length > 0) { 
 
-        mensajeRespuesta = `Ya has respondido el formulario. Gracias`;
+        mensajeRespuesta = `Ya has respondido el formulario. Gracias
+        Ahora por favor respóndeme con el número correspondiente a lo que quieres hacer:\n
+              1️⃣ Quieres diligenciar el formulario de registro ✍🏻\n
+              2️⃣ Quieres informar de tu llegada a destino ☝🏻\n
+              3️⃣ Ya te registraste antes y quieres actualizar tus datos de contacto  🙌🏻 `;
+
         client.messages
           .create({
             //from: 'whatsapp:+14155238886',
@@ -194,6 +199,99 @@ app.post('/whatsapp', async (req, res) => {
     });
   }
 
+  //funcion consulta si existe llegada a destino para actualizar o crear uno nuevo
+  async function consultaExisteLlegadaADestino(conversacion){
+    const sqlConsultarLlegadaDestino = `SELECT * FROM llegadas where waId = '${conversacion.waId}'`;
+
+    connection.query(sqlConsultarLlegadaDestino, (error, existeLlegadaADestino) => {
+      mensajeRespuesta = '';
+      if (error) throw error;
+
+      if (existeLlegadaADestino.recordset.length > 0) { 
+
+        conversacion.tipo_formulario = 2;
+        actualizarConversacion(conversacion);
+
+        existeLlegadaADestino.recordset[0].pregunta = 1;
+        //actualizarDatosContacto(existeLlegadaADestino[0]);
+        actualizarLlegadaEncuesta(existeLlegadaADestino.recordset[0]);
+
+        mensajeRespuesta = `A continuación responde a las preguntas para registrar tu llegada a destino como teléfono u otros:
+        Tipo de documento 📇 Responde con el número de acuerdo a la opción correspondiente:
+        1️⃣ Acta de Nacimiento
+        2️⃣ Cédula de Identidad (venezolana)
+        3️⃣ Cédula de Ciudadanía (colombiana)
+        4️⃣ Pasaporte
+        5️⃣ Cédula de Extranjería
+        6️⃣ Otro`;
+
+        client.messages
+          .create({
+            //from: 'whatsapp:+14155238886',
+            from: 'whatsapp:'+process.env.TWILIO_WHATSAPP,
+            body: mensajeRespuesta,
+            to: req.body.From
+          })
+          .then(message => console.log(message.body))
+          .catch(e => { console.error('Got an error:', e.code, e.message); });
+        
+      }else{
+        //conversacion.tipo_formulario = 1;
+        //actualizarConversacion(conversacion);
+        //crearDatosActualizados(conversacion);
+        crearLlegadaADestino(conversacion);
+        //mensajeRespuesta = `Por favor escribe tu primer nombre. Sólo puedo leer texto, no utilices audio, imágenes o emojis.`;
+
+      }
+      
+    });
+    
+  }
+
+
+  async function consultaExisteDatosActualizados(conversacion){
+    const sqlConsultarDatosActualizados = `SELECT * FROM datos_actualizados where waId = '${conversacion.waId}'`;
+
+    connection.query(sqlConsultarDatosActualizados, (error, existeDatosActualizados) => {
+      mensajeRespuesta = '';
+      if (error) throw error;
+
+      if (existeDatosActualizados.recordset.length > 0) { 
+
+        conversacion.tipo_formulario = 3;
+        actualizarConversacion(conversacion);
+
+        existeDatosActualizados.recordset[0].pregunta = 1;
+        actualizarDatosContacto(existeDatosActualizados.recordset[0]);
+        mensajeRespuesta = `A continuación responde a las preguntas para actualizar tus datos de contacto como teléfono u otros:
+        Tipo de documento 📇 Responde con el número de acuerdo a la opción correspondiente:
+        1️⃣ Acta de Nacimiento
+        2️⃣ Cédula de Identidad (venezolana)
+        3️⃣ Cédula de Ciudadanía (colombiana)
+        4️⃣ Pasaporte
+        5️⃣ Otro`;
+
+        client.messages
+          .create({
+            //from: 'whatsapp:+14155238886',
+            from: 'whatsapp:'+process.env.TWILIO_WHATSAPP,
+            body: mensajeRespuesta,
+            to: req.body.From
+          })
+          .then(message => console.log(message.body))
+          .catch(e => { console.error('Got an error:', e.code, e.message); });
+        
+      }else{
+        //conversacion.tipo_formulario = 1;
+        //actualizarConversacion(conversacion);
+        crearDatosActualizados(conversacion);
+        //mensajeRespuesta = `Por favor escribe tu primer nombre. Sólo puedo leer texto, no utilices audio, imágenes o emojis.`;
+
+      }
+      
+    });
+
+  }
   
 
   //funcion seleccion de formulario a responder
@@ -214,13 +312,13 @@ app.post('/whatsapp', async (req, res) => {
             
             case '2':
               //crea actualizar datos
-              crearLlegadaADestino(conversation);
+              consultaExisteLlegadaADestino(conversation);
 
             break;
 
             case '3':
               //crea reporte llegada
-              crearDatosActualizados(conversation);
+              consultaExisteDatosActualizados(conversation);
 
             break;
 
@@ -312,7 +410,7 @@ app.post('/whatsapp', async (req, res) => {
     
 
     const sqlnuevo = `INSERT INTO conversacion_chatbot (waId,profileName,conversation_start,autorizacion,tipo_formulario,created_at)
-    VALUES ('${params.WaId}','${newprofile}',0,0,null,${created_at})`;
+    VALUES ('${params.WaId}','${newprofile}',0,0,null,'${created_at}')`;
     
     //connection.query(sqlnuevo, nuevaconversacion, (error, results) => {
     connection.query(sqlnuevo, (error, results) =>{
@@ -389,8 +487,10 @@ app.post('/whatsapp', async (req, res) => {
   function autorizacionTratamientoDatos($conversa) {
 
     //const sqlAutorizacion = 'INSERT INTO autorizaciones SET ?';
-    const sqlAutorizacion = `INSERT INTO autorizaciones (id_encuesta, tratamiento_datos, terminos_condiciones, condiciones, waId)
-    VALUES (null,1,1,1,${$conversa.waId})`;
+    created_at = new Date();
+
+    const sqlAutorizacion = `INSERT INTO autorizaciones (id_encuesta, tratamiento_datos, terminos_condiciones, condiciones, waId, created_at)
+    VALUES (null,1,1,1,'${$conversa.waId}', '${$created_at}')`;
     //console.log('NUEVA AUTORIZACION: ', $conversa);
     //console.log('PARAMS SON: ', params);
 
@@ -444,8 +544,10 @@ app.post('/whatsapp', async (req, res) => {
     }*/
     //console.log('NUEVA CONVERSACION: ', nuevaconversacion);
 
-    const sqlnuevaencuesta = `INSERT INTO encuesta (waId,profileName,pregunta,fuente)
-    VALUES ('${$conversation.waId}','${$conversation.profileName}',1,1)`;
+    created_at = new Date();
+
+    const sqlnuevaencuesta = `INSERT INTO encuesta (waId,profileName,pregunta,fuente, created_at)
+    VALUES ('${$conversation.waId}','${$conversation.profileName}',1,1, '${$created_at}')`;
 
     //connection.query(sqlnuevaencuesta, nuevaencuesta, (error, results) => {
     connection.query(sqlnuevaencuesta, (error,results)=>{
@@ -491,8 +593,10 @@ app.post('/whatsapp', async (req, res) => {
       pregunta: 1,
     }*/
 
-    const sqlnuevaLlegada = `INSERT INTO llegadas (waId,pregunta) 
-    VALUES ('${$conversation.waId}',1)`;
+    created_at = new Date();
+
+    const sqlnuevaLlegada = `INSERT INTO llegadas (waId,pregunta, created_at) 
+    VALUES ('${$conversation.waId}',1,'${$created_at}')`;
 
 
     //connection.query(sqlnuevaLlegada, nuevaLlegada, (error, results) => {
@@ -514,8 +618,7 @@ app.post('/whatsapp', async (req, res) => {
         3️⃣ Cédula de Ciudadanía (colombiana)
         4️⃣ Pasaporte
         5️⃣ Cédula de Extranjería
-        6️⃣ Indocumentado
-        7️⃣ Otro`;
+        6️⃣ Otro`;
       }
 
       client.messages
@@ -544,8 +647,11 @@ app.post('/whatsapp', async (req, res) => {
       waId: $conversation.waId,
       pregunta: 1,
     }*/
-    const sqlnuevoDatosActualizados = `INSERT INTO datos_actualizados (waId,pregunta) 
-    VALUES ('${$conversation.waId}',1)`;
+
+    created_at = new Date();
+
+    const sqlnuevoDatosActualizados = `INSERT INTO datos_actualizados (waId,pregunta,created_at) 
+    VALUES ('${$conversation.waId}',1,'${$created_at}')`;
 
     //connection.query(sqlnuevoDatosActualizados, nuevoDatosActualizados, (error, results) => {
     connection.query(sqlnuevoDatosActualizados, (error, results) => { 
@@ -567,8 +673,7 @@ app.post('/whatsapp', async (req, res) => {
         3️⃣ Cédula de Ciudadanía (colombiana)
         4️⃣ Pasaporte
         5️⃣ Cédula de Extranjería
-        6️⃣ Indocumentado
-        7️⃣ Otro`;
+        6️⃣ Otro`;
       }
       
       client.messages
@@ -603,6 +708,7 @@ app.post('/whatsapp', async (req, res) => {
     
     /*$conversa.fecha_nacimiento = dateFormat($conversa.fecha_nacimiento, "yyyy-mm-dd");
     console.log('NUEVO FORMATO FECHA: ', $conversa.fecha_nacimiento);*/
+    $encuesta.updated_at = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') ;
 
     //campos finales
     const sqlCreaEncuesta = `UPDATE encuesta SET pregunta = ${$encuesta.pregunta},
@@ -626,8 +732,9 @@ app.post('/whatsapp', async (req, res) => {
      linea_alternativa_asociada_whatsapp = ${$encuesta.linea_alternativa_asociada_whatsapp}, correo_electronico = '${$encuesta.correo_electronico}',
      tiene_cuenta_facebook = ${$encuesta.tiene_cuenta_facebook}, cuenta_facebook = '${$encuesta.cuenta_facebook}',
      podemos_contactarte = ${$encuesta.podemos_contactarte}, forma_contactarte = '${$encuesta.forma_contactarte}',
-     otra_forma_contactarte = '${$encuesta.otra_forma_contactarte}', comentario = '${$encuesta.comentario}'
-     where id = ${$encuesta.id}`;
+     otra_forma_contactarte = '${$encuesta.otra_forma_contactarte}', comentario = '${$encuesta.comentario}',
+     updated_at = '${$encuesta.updated_at}'
+     WHERE id = ${$encuesta.id}`;
 
     //version anterior
     /*const sqlCreaEncuesta = `UPDATE encuesta SET conversation_start = ${$conversa.conversation_start}, 
@@ -661,6 +768,107 @@ app.post('/whatsapp', async (req, res) => {
 
       //return callback(true);
 
+    });
+  }
+
+  //funcion actualiza llegada
+  function actualizarLlegada($llegada) {
+
+    //console.log('DATOS QUE LLEGAN A ACTUALIZAR LLEGADA::: ', $llegada)
+    //campos finales
+    //console.log('ESTOY EN ACTUALIZAR LLEGADA', $llegada);
+    $llegada.updated_at = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') ;
+
+    const sqlLlegada = `UPDATE llegadas SET pregunta = ${$llegada.pregunta},
+    tipo_documento = '${$llegada.tipo_documento}', numero_documento = '${$llegada.numero_documento}',
+    telefono = ${$llegada.telefono}, id_departamento = ${$llegada.id_departamento},
+    id_municipio = ${$llegada.id_municipio}, 
+     id_encuesta = ${$llegada.id_encuesta}, updated_at = '${$llegada.updated_at}'
+     WHERE waId = ${$llegada.waId}`;
+
+   
+
+    connection.query(sqlLlegada, (error, res) => {
+      if (error) console.log('ERRROR ACTUALIZAR LLEGADA', error);
+
+      //return callback(true);
+
+    });
+  }
+
+
+  //consulta si existe una encuesta con tipo_documento y numero_documento, si existe, asigna el id de encuesta a llegada
+  function actualizarLlegadaEncuesta($llegadaEncuesta){
+
+    //consulta encuesta con $llegadaEncuesta waId, toma id_encuesta y se lo asigna a llegadas where waid = encuesta.waId;
+    const sqlConsultaEncuesta = `SELECT id FROM encuesta WHERE waId = '${$llegadaEncuesta.waId}' AND tipo_documento = '${$llegadaEncuesta.tipo_documento}' AND numero_documento = '${$llegadaEncuesta.numero_documento}'`;
+
+    connection.query(sqlConsultaEncuesta, (error, encuesta) => {
+      //mensajeRespuesta = '';
+      if (error) console.log('ERROR EN ACTUALIZAR LLEGADA ENCUESTA:: ', error);
+
+      if (encuesta.recordset.length > 0) { 
+        //console.log('SI ENCONTRO UNA ENCUESTA CON EL WAID::');
+        $llegadaEncuesta.id_encuesta = encuesta.recordset[0]['id'];
+        actualizarLlegada($llegadaEncuesta);
+        //mensajeRespuesta = `Ya has respondido el formulario. Gracias`;
+        /*client.messages
+          .create({
+            //from: 'whatsapp:+14155238886',
+            from: 'whatsapp:'+process.env.TWILIO_WHATSAPP,
+            body: mensajeRespuesta,
+            to: req.body.From
+          })
+          .then(message => console.log(message.body))
+          .catch(e => { console.error('Got an error:', e.code, e.message); });*/
+        
+      }else{
+        $llegadaEncuesta.id_encuesta = null;
+        actualizarLlegada($llegadaEncuesta);
+      }
+    });
+  }
+
+
+  //funcion actualiza registro datos_actualizados
+  function actualizarDatosContacto($datosContactoActualizados){
+
+    $datosContactoActualizados.updated_at = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '') ;
+
+    const sqlActualizarDatos = `UPDATE datos_actualizados SET pregunta = ${$datosContactoActualizados.pregunta},
+    tipo_documento = '${$datosContactoActualizados.tipo_documento}', numero_documento = '${$datosContactoActualizados.numero_documento}',
+    telefono = ${$datosContactoActualizados.telefono}, correo_electronico = '${$datosContactoActualizados.correo_electronico}',
+     id_encuesta = ${$datosContactoActualizados.id_encuesta},  updated_at = '${$datosContactoActualizados.updated_at}'
+     WHERE waId = ${$datosContactoActualizados.waId}`;
+
+    connection.query(sqlActualizarDatos, (error, res) => {
+      if (error) throw error;
+
+      //return callback(true);
+
+    });
+  }
+
+  //consulta si existe una encuesta con tipo_documento y numero_documento, si existe, actualiza el registro de datos_actualizados
+  function actualizarDatosContactoEncuesta($datosContactoEncuesta){
+
+    //console.log('ENTRA A ACTUALIZAR DATOS CONTACTOENCUESTA!!!');
+    //consulta encuesta con $llegadaEncuesta waId, toma id_encuesta y se lo asigna a llegadas where waid = encuesta.waId;
+    const sqlConsultaEncuesta = `SELECT id FROM encuesta WHERE waId = '${$datosContactoEncuesta.waId}' AND tipo_documento = '${$datosContactoEncuesta.tipo_documento}' AND numero_documento = '${$datosContactoEncuesta.numero_documento}'`;
+
+    connection.query(sqlConsultaEncuesta, (error, encuesta) => {
+      //mensajeRespuesta = '';
+      if (error) console.log('ERROR EN ACTUALIZAR DATOS CONTACTO ENCUESTA:: ', error);
+
+      if (encuesta.recordset.length > 0) { 
+        console.log('SI ENCONTRO UNA ENCUESTA CON EL WAID EN ACTUALIZAR DATOS CONTACTO::');
+        $datosContactoEncuesta.id_encuesta = encuesta.recordset[0]['id'];
+        actualizarDatosContacto($datosContactoEncuesta);
+       
+      }else{
+        $datosContactoEncuesta.id_encuesta = null;
+        actualizarDatosContacto($datosContactoEncuesta);
+      }
     });
   }
 
@@ -1478,14 +1686,522 @@ app.post('/whatsapp', async (req, res) => {
 
           }else if(conversation.tipo_formulario == 2){
             //$formulario es reportar llegada
-            mensajeRespuesta = `Segunda respuesta de reportar llegada`;
+            //$formulario es reportar llegada
+            switch ($formulario.pregunta) {
+
+              //selecciona reportar llegada
+              case 1: //guardo respuesta pregunta 1
+                  try {
+      
+                    switch (req.body.Body) {
+                      case '1':
+                        $formulario.tipo_documento = "Acta de Nacimiento";
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+
+
+                        break;
+                      case '2':
+                        $formulario.tipo_documento = "Cédula de Identidad (venezonala)";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '3':
+                        $formulario.tipo_documento = "Cédula de ciudadania (colombiana)";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '4':
+                        $formulario.tipo_documento = "Pasaporte";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '5':
+                        $formulario.tipo_documento = "Cédula de Extranjería";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '6':
+                        $formulario.tipo_documento = "Otro";
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarLlegada($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                      break;
+
+                      default:
+                        mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                        ¿Cuál es tu tipo de documento? 📇 Responde con el número de acuerdo a la opción correspondiente:
+                          1️⃣ Acta de Nacimiento
+                          2️⃣ Cédula de Identidad (venezolana)
+                          3️⃣ Cédula de Ciudadanía (colombiana)
+                          4️⃣ Pasaporte
+                          5️⃣ Cédula de Extranjería
+                          6️⃣ Otro`;
+                        break;
+                    
+
+                      }
+
+                  } catch (error) {
+                    $formulario.pregunta = 1; //vuelve a entrar a pregunta 1
+                    actualizarLlegada($formulario);
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    ¿Cuál es tu tipo de documento? 📇 Responde con el número de acuerdo a la opción correspondiente:
+                            1️⃣ Acta de Nacimiento
+                            2️⃣ Cédula de Identidad (venezolana)
+                            3️⃣ Cédula de Ciudadanía (colombiana)
+                            4️⃣ Pasaporte
+                            5️⃣ Cédula de Extranjería
+                            6️⃣ Otro`;
+                  }
+              break;
+
+              case 2: //guardo respuesta pregunta 2
+
+                try {
+                  $formulario.numero_documento = req.body.Body;//.replace(/[^\ñ\Ñ\ü\Ü\á\Á\é\É\í\Í\ó\Ó\ú\Ú\-\w]/gi, '');
+
+                  const pattern = new RegExp('^[0-9]+$', 'i');
+
+                  if(pattern.test($formulario.numero_documento)){
+                    console.log('CUMPLE CON PATTERN EN REPORTELLEGADA');
+                  //if($formulario.numero_documento.length>0){
+                  
+                    $formulario.pregunta += 1;// pregunta 3. 
+                    //actualizarLlegada($formulario);
+
+                    //consulta encuesta por waId, tipo_documento, numero_documento, entonces toma el id_encuesta y lo asigna a 
+                    //llegada.
+                    actualizarLlegadaEncuesta($formulario);
+                    
+                    mensajeRespuesta = `Escribe tu número de teléfono en números 📞` ;
+
+                    }else{
+                      mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                      Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+
+                    }
+
+                } catch (error) {
+                  console.log('EL ERROR EN PASO 2 REPORTE LLEGADA: : ', error);
+                    $formulario.pregunta = 2; //vuelve a entrar a paso 2
+                    actualizarLlegada($formulario);
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                }
+
+              break;
+
+              case 3:
+                try {
+
+                  const pattern = new RegExp('^[0-9]+$', 'i');
+
+                  if(pattern.test(req.body.Body)){
+                    $formulario.telefono = req.body.Body;
+                    $formulario.pregunta += 1; //va a 4
+                    actualizarLlegada($formulario);
+
+                    mensajeRespuesta = `Envía el número del Departamento al que llegaste ó el número *1* en caso de que no sepas a qué Departamento llegaste. 1: No sé 
+                          2:	Antioquia
+                          3:	Atlántico
+                          4:	Bogotá D.C.
+                          5:	Bolívar
+                          6:	Boyaca
+                          7:	Caldas
+                          8:	Caqueta
+                          9:	Cauca
+                          10:	Cesar
+                          11:	Córdoba
+                          12:	Cundinamarca
+                          13:	Choco
+                          14:	Huila
+                          15:	La Guajira
+                          16:	Magdalena
+                          17:	Meta
+                          18:	Nariño
+                          19:	Norte de Santander
+                          20:	Quindio
+                          21:	Risaralda
+                          22:	Santander
+                          23:	Sucre
+                          24:	Tolima
+                          25:	Valle del Cauca
+                          26:	Arauca
+                          27:	Casanare
+                          28:	Putumayo
+                          29:	San Andres
+                          30:	Isla de Providencia y Santa Catalina
+                          31:	Amazonas
+                          32:	Guainia
+                          33:	Guaviare
+                          34:	Vaupes
+                          35:	Vichada`;
+                  }else{
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    Escribe tu número de teléfono en números 📞` ;
+
+                  }
+                  
+                } catch (error) {
+                  $formulario.pregunta = 3; //vuelve a 3
+                    actualizarEncuesta($formulario);
+                  mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                  Escribe tu número de teléfono en números 📞` ;
+                }
+              break;
+
+              case 4:
+                try {
+
+                  //console.log('LO QUE HAY EN BODY 28: ', req.body.Body);
+                  const opcionesDepartamento = ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16',
+                    '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35'];
+
+                  if (req.body.Body === '1') {
+                    //$formulario.pregunta += 1; //va a pregunta 5
+                    $formulario.id_departamento = null;
+                    $formulario.pregunta = null;
+                    //$formulario.id_municipio_destino_final = null;
+                    actualizarLlegada($formulario);
+
+                    conversation.tipo_formulario = null;
+                    actualizarConversacion(conversation);
+
+                    mensajeRespuesta = `Gracias por informar de tu llegada a destino!
+                    Ahora por favor respóndeme con el número correspondiente a lo que quieres hacer:\n
+                    1️⃣ Quieres diligenciar el formulario de registro ✍🏻\n
+                    2️⃣ Quieres informar de tu llegada a destino ☝🏻\n
+                    3️⃣ Ya te registraste antes y quieres actualizar tus datos de contacto  🙌🏻 `;
+
+
+                  } else if (opcionesDepartamento.includes(req.body.Body)) {
+                    //conversation.pregunta += 1; //va a pregunta 29
+                    //conversation.id_departamento_destino_final =  parseInt(req.body.Body);
+                    //crearEncuesta(conversation);
+                    //mensajeRespuesta = "Escriba en mayúscula el nombre del Municipio ó la palabra *NO SE* en caso de que no tenta definido el Municipio de destino.\n"+
+                    //"En el siguiente link puede consultar el nombre de los Municipios: https://docs.google.com/spreadsheets/d/1AwkvC905X-yddB_FB526e-_2f3CIOYdQF7TUfDYjvWk/edit#gid=1717145484";
+                    $idDepartamentoRecibido = parseInt(req.body.Body);
+                
+                    $formulario.pregunta += 1;
+                    $formulario.id_departamento = $idDepartamentoRecibido;
+
+                    actualizarLlegada($formulario);
+                    mensajeRespuesta = `Envía el Municipio ` ;
+                    
+                  } else {
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.
+¿Cuál es tu destino final dentro de Colombia? Envía el número del Departamento correspondiente ó el número *1* en caso de que no tengas definido el Departamento de destino. 1: No sé 
+                    2:	Antioquia
+                    3:	Atlántico
+                    4:	Bogotá D.C.
+                    5:	Bolívar
+                    6:	Boyaca
+                    7:	Caldas
+                    8:	Caqueta
+                    9:	Cauca
+                    10:	Cesar
+                    11:	Córdoba
+                    12:	Cundinamarca
+                    13:	Choco
+                    14:	Huila
+                    15:	La Guajira
+                    16:	Magdalena
+                    17:	Meta
+                    18:	Nariño
+                    19:	Norte de Santander
+                    20:	Quindio
+                    21:	Risaralda
+                    22:	Santander
+                    23:	Sucre
+                    24:	Tolima
+                    25:	Valle del Cauca
+                    26:	Arauca
+                    27:	Casanare
+                    28:	Putumayo
+                    29:	San Andres
+                    30:	Isla de Providencia y Santa Catalina
+                    31:	Amazonas
+                    32:	Guainia
+                    33:	Guaviare
+                    34:	Vaupes
+                    35:	Vichada`;
+                  }
+
+                } catch (error) {
+                  //console.log('ERROR EN 28__ ', error);
+                  $formulario.pregunta = 10; //vuelve a 11
+                  actualizarEncuesta($formulario);
+                  mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.
+                  ¿Cuál es tu destino final dentro de Colombia? Envía el número del Departamento correspondiente ó el número *1* en caso de que no tengas definido el Departamento de destino. 1: No sé 
+                  2:	Antioquia
+                  3:	Atlántico
+                  4:	Bogotá D.C.
+                  5:	Bolívar
+                  6:	Boyaca
+                  7:	Caldas
+                  8:	Caqueta
+                  9:	Cauca
+                  10:	Cesar
+                  11:	Córdoba
+                  12:	Cundinamarca
+                  13:	Choco
+                  14:	Huila
+                  15:	La Guajira
+                  16:	Magdalena
+                  17:	Meta
+                  18:	Nariño
+                  19:	Norte de Santander
+                  20:	Quindio
+                  21:	Risaralda
+                  22:	Santander
+                  23:	Sucre
+                  24:	Tolima
+                  25:	Valle del Cauca
+                  26:	Arauca
+                  27:	Casanare
+                  28:	Putumayo
+                  29:	San Andres
+                  30:	Isla de Providencia y Santa Catalina
+                  31:	Amazonas
+                  32:	Guainia
+                  33:	Guaviare
+                  34:	Vaupes
+                  35:	Vichada`;
+
+                }
+              break;
+
+              
+              case 5:
+                try{
+                  mensajeRespuesta = `Ya reportaste tu llegada a destino Gracias!`;
+                }catch{
+
+                }
+              break;
+
+              default:
+              break;
+            }
+
 
           }else if(conversation.tipo_formulario == 3){
             //$formulario es actualizar datos
-            mensajeRespuesta = `Segunda respuesta de actualizar`;
+            switch ($formulario.pregunta) {
+
+              //selecciona actualizar datos
+              case 1: //guardo respuesta pregunta 1
+                  try {
+      
+                    switch (req.body.Body) {
+                      case '1':
+                        $formulario.tipo_documento = "Acta de Nacimiento";
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+
+
+                        break;
+                      case '2':
+                        $formulario.tipo_documento = "Cédula de Identidad (venezonala)";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '3':
+                        $formulario.tipo_documento = "Cédula de ciudadania (colombiana)";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '4':
+                        $formulario.tipo_documento = "Pasaporte";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '5':
+                        $formulario.tipo_documento = "Cédula de Extranjería";
+
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                        break;
+
+                      case '6':
+                        $formulario.tipo_documento = "Otro";
+                        $formulario.pregunta += 1;// pregunta 2
+                        actualizarDatosContacto($formulario);
+                        mensajeRespuesta = `Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                      break;
+
+                      default:
+                        mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                        ¿Cuál es tu tipo de documento? 📇 Responde con el número de acuerdo a la opción correspondiente:
+                          1️⃣ Acta de Nacimiento
+                          2️⃣ Cédula de Identidad (venezolana)
+                          3️⃣ Cédula de Ciudadanía (colombiana)
+                          4️⃣ Pasaporte
+                          5️⃣ Cédula de Extranjería
+                          6️⃣ Otro`;
+                        break;
+                    
+
+                      }
+
+                  } catch (error) {
+                    $formulario.pregunta = 1; //vuelve a entrar a pregunta 1
+                    actualizarDatosContacto($formulario);
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    ¿Cuál es tu tipo de documento? 📇 Responde con el número de acuerdo a la opción correspondiente:
+                            1️⃣ Acta de Nacimiento
+                            2️⃣ Cédula de Identidad (venezolana)
+                            3️⃣ Cédula de Ciudadanía (colombiana)
+                            4️⃣ Pasaporte
+                            5️⃣ Cédula de Extranjería
+                            6️⃣ Otro`;
+                  }
+              break;
+
+              case 2: //guardo respuesta pregunta 2
+
+                try {
+                  $formulario.numero_documento = req.body.Body;//.replace(/[^\ñ\Ñ\ü\Ü\á\Á\é\É\í\Í\ó\Ó\ú\Ú\-\w]/gi, '');
+
+                  const pattern = new RegExp('^[0-9]+$', 'i');
+
+                  if(pattern.test($formulario.numero_documento)){
+                    console.log('CUMPLE CON PATTERN EN REPORTELLEGADA');
+                  //if($formulario.numero_documento.length>0){
+                  
+                    $formulario.pregunta += 1;// pregunta 3. 
+                    //actualizarLlegada($formulario);
+
+                    //consulta encuesta por waId, tipo_documento, numero_documento, entonces toma el id_encuesta y lo asigna a 
+                    //llegada.
+                    actualizarDatosContactoEncuesta($formulario);
+                    
+                    mensajeRespuesta = `Escribe tu número de teléfono en números 📞` ;
+
+                    }else{
+                      mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                      Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+
+                    }
+
+                } catch (error) {
+                  console.log('EL ERROR EN PASO 2 REPORTE LLEGADA: : ', error);
+                    $formulario.pregunta = 2; //vuelve a entrar a paso 2
+                    actualizarDatosContacto($formulario);
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    Escribe por favor tu número de documento 📇 (no utilices símbolos, solo números) Ejemplo: 123456789`;
+                }
+
+              break;
+
+              case 3:
+                try {
+
+                  const pattern = new RegExp('^[0-9]+$', 'i');
+
+                  if(pattern.test(req.body.Body)){
+                    $formulario.telefono = req.body.Body;
+                    $formulario.pregunta += 1; //va a 4
+                    actualizarDatosContacto($formulario);
+
+                    mensajeRespuesta = `¿Podrías compartirme un correo electrónico 📧 en el que te podamos contactar?  (si no tienes, ¡no te preocupes! escribe NO`;
+                  }else{
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                    Escribe tu número de teléfono en números 📞` ;
+
+                  }
+                  
+                } catch (error) {
+                  $formulario.pregunta = 3; //vuelve a 3
+                  actualizarDatosContacto($formulario);
+                  mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.\n
+                  Escribe tu número de teléfono en números 📞` ;
+                }
+              
+              break;
+
+              case 4:
+                try {
+
+                  emailregex = /^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i;
+                  //console.log('TEST EMAIL:: ', emailregex.test(req.body.Body));
+                  if(req.body.Body === 'NO'){
+                    $formulario.pregunta = null;
+                    actualizarDatosContacto($formulario);
+                    conversation.tipo_formulario = null;
+                    actualizarConversacion(conversation);
+                    mensajeRespuesta = `¡Gracias por actualizar tus Datos!
+                    Ahora por favor respóndeme con el número correspondiente a lo que quieres hacer:\n
+                    1️⃣ Quieres diligenciar el formulario de registro ✍🏻\n
+                    2️⃣ Quieres informar de tu llegada a destino ☝🏻\n
+                    3️⃣ Ya te registraste antes y quieres actualizar tus datos de contacto  🙌🏻 `;
+                  
+
+                  }else if(emailregex.test(req.body.Body)) {
+                    //console.log('TEST SI');
+                    $formulario.pregunta = null;
+                    
+                    $formulario.correo_electronico = req.body.Body;
+                    console.log('correo a guardar: ', $formulario.correo_electronico);
+                    actualizarDatosContacto($formulario);
+                    conversation.tipo_formulario = null;
+                    //console.log('CONVERSACION ACTUALIZAR:: ', conversation);
+                    actualizarConversacion(conversation);
+                    mensajeRespuesta = `¡Gracias por actualizar tus datos!
+                    Por favor respóndeme con el número correspondiente a lo que quieres hacer:\n
+                    1️⃣ Quieres diligenciar el formulario de registro ✍🏻\n
+                    2️⃣ Quieres informar de tu llegada a destino ☝🏻\n
+                    3️⃣ Ya te registraste antes y quieres actualizar tus datos de contacto  🙌🏻 `;
+                  
+                  }else{
+                    mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.
+                  ¿Podrías compartirme un correo electrónico 📧 en el que te podamos contactar?  (si no tienes, ¡no te preocupes! escribe NO`;
+
+                  }
+                  
+                } catch (error) {
+                  $formulario.pregunta = 4; //vuelve a 4
+                  actualizarDatosContacto($formulario);
+                  mensajeRespuesta = `Gracias 🙂, ten presente que no puedo reconocer imágenes, audios, ni emojis. Nos podemos comunicar por medio de texto o digitando el número de las opciones que te indico en mi pregunta.
+                  ¿Podrías compartirme un correo electrónico 📧 en el que te podamos contactar?  (si no tienes, ¡no te preocupes! escribe NO`;
+
+                }
+
+              default:
+                break;
+              }
+
 
             
           }
+
+            
+       
 
         }else{
           switch (req.body.Body) {
