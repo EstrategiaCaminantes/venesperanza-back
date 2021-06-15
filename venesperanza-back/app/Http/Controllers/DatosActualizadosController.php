@@ -22,23 +22,20 @@ class DatosActualizadosController extends Controller
 
 
         try {
+            /*
             $miembroHogar = MiembrosHogar::with(['encuesta'])
             ->where('numero_documento',$request['numeroDocumentoCtrl'])
             ->where('tipo_documento',$request['tipoDocumentoCtrl'])
+            ->first();*/
+
+            $encuesta = Encuesta::where('numero_documento', $request['numeroDocumentoCtrl'])
+            ->where('tipo_documento', $request['tipoDocumentoCtrl'])
             ->first();
 
-            //$miembroHogar->tipo_documento = $request['tipoDocumentoCtrl'];
-            //$miembroHogar-> = $request['telefonoCtrl']
-
-           /* $encuesta = Encuesta::where('id', '=', $miembroHogar['encuesta']['id'])->first();
-
-            $encuesta['tipo_documento'] = $request['tipoDocumentoCtrl'];
-            $encuesta['numero_documento'] = $request['numeroDocumentoCtrl'];
-            $encuesta['numero_contacto'] = $request['telefonoCtrl'];
-            $encuesta['correo_electronico'] = $request['correoCtrl'];*/
 
             $datosGuardados = null;
-            if($miembroHogar){
+            //if($miembroHogar){
+            if($encuesta){
 
                 $datosActualizados = new DatosActualizados;
 
@@ -46,11 +43,18 @@ class DatosActualizadosController extends Controller
                 $datosActualizados->numero_documento = $request['numeroDocumentoCtrl'];
                 $datosActualizados->telefono = $request['telefonoCtrl'];
                 $datosActualizados->correo_electronico = $request['correoCtrl'];
-                $datosActualizados->id_encuesta = $miembroHogar['encuesta']['id'];
+                //$datosActualizados->id_encuesta = $miembroHogar['encuesta']['id'];
+                $datosActualizados->id_encuesta = $encuesta['id'];
 
                 $datosActualizados->save();
 
+                $encuesta->numero_contacto = $request['telefonoCtrl'];
+                $encuesta->correo_electronico = $request['correoCtrl'];
+                $encuesta->save();
+
+
                 $datosGuardados = $datosActualizados;
+                
             }else{
                 $intentos = new Intentos;
 
@@ -77,7 +81,7 @@ class DatosActualizadosController extends Controller
                 return "error";
             }
         } catch (\Throwable $e) {
-            return "error";
+            return $e;
         }
 
         

@@ -22,25 +22,36 @@ class LlegadasController extends Controller
     {
 
         try {
-            $miembroHogar = MiembrosHogar::with(['encuesta'])
+            /*$miembroHogar = MiembrosHogar::with(['encuesta'])
                 ->where('numero_documento', '=', $request['formData']['numeroDocumentoCtrl'])
                 ->where('tipo_documento', '=', $request['formData']['tipoDocumentoCtrl'])
-                ->first();
+                ->first();*/
+            
+            $encuesta = Encuesta::where('numero_documento', '=', $request['formData']['numeroDocumentoCtrl'])
+            ->where('tipo_documento', '=', $request['formData']['tipoDocumentoCtrl'])
+            ->first();
+
 
             $datosGuardados = null;
-            if ($miembroHogar) {
+            //if ($miembroHogar) {
+            if($encuesta){
+
                 $llegada = new Llegadas;
                 $llegada->tipo_documento = $request['formData']['tipoDocumentoCtrl'];
                 $llegada->numero_documento = $request['formData']['numeroDocumentoCtrl'];
                 $llegada->id_departamento = $request['formData']['departamentoCtrl'];
                 $llegada->id_municipio = $request['formData']['municipioCtrl'];
                 $llegada->telefono = $request['formData']['telefonoCtrl'];
-                $llegada->id_encuesta = $miembroHogar['encuesta']['id'];
+                //$llegada->id_encuesta = $miembroHogar['encuesta']['id'];
+                $llegada->id_encuesta = $encuesta['id'];
+
                 if ($request['coordenadas']) {
                     $llegada->latitud = $request['coordenadas']['latitud'];
                     $llegada->longitud = $request['coordenadas']['longitud'];
                 }
                 $llegada->save();
+
+
                 $datosGuardados = $llegada;
             } else {
                 $intentos = new Intentos;
