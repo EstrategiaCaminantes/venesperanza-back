@@ -11,7 +11,8 @@ class Llegadas extends Model
 
     protected $table = 'llegadas';
 
-    protected $fillable = ['tipo_documento', 'numero_documento', 'telefono', 'id_departamento', 
+    protected $fillable = ['tipo_documento', 'numero_documento', 'numero_contacto','numero_contacto_asociado_whatsapp', 
+    'nombre_jefe_hogar', 'donde_te_encuentras','otro_donde_te_encuentras', 'id_departamento', 
     'id_municipio','id_encuesta','latitud','longitud'];
 
     public function encuesta()

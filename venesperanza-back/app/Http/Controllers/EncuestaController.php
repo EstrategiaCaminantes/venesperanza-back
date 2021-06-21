@@ -153,11 +153,14 @@ class EncuestaController extends Controller
                 $nuevaEncuesta->id_municipio_destino_final = null;
                 $nuevaEncuesta->pais_destino_final = $request['infoencuesta']['llegadaDestinoDestinoFinalFueraColombiaCtrl'];
             }
-            */
+            
             if ($request['infoencuesta']['llegadaDestinoDepartamentoCtrl'] != 'nodefinido') {
                 $nuevaEncuesta->id_departamento_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
                 
-            }
+            }*/
+
+            $nuevaEncuesta->nombre_municipio_destino_final = $request['infoencuesta']['llegadaDestinoDepartamentoCtrl'];
+            
             
             $nuevaEncuesta->numero_contacto = $request['infoencuesta']['numeroContactoCtrl'];
 

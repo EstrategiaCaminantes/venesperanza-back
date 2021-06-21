@@ -36,12 +36,41 @@ class LlegadasController extends Controller
             //if ($miembroHogar) {
             if($encuesta){
 
+             
+
                 $llegada = new Llegadas;
                 $llegada->tipo_documento = $request['formData']['tipoDocumentoCtrl'];
                 $llegada->numero_documento = $request['formData']['numeroDocumentoCtrl'];
-                $llegada->id_departamento = $request['formData']['departamentoCtrl'];
-                $llegada->id_municipio = $request['formData']['municipioCtrl'];
-                $llegada->telefono = $request['formData']['telefonoCtrl'];
+
+                $llegada->nombre_jefe_hogar = $request['formData']['nombreJefeHogarCtrl'];
+
+
+                //$llegada->id_departamento = $request['formData']['departamentoCtrl'];
+                //$llegada->id_municipio = $request['formData']['municipioCtrl'];
+                
+                //$llegada->telefono = $request['formData']['telefonoCtrl'];
+               
+                $llegada->numero_contacto = $request['formData']['numeroContactoCtrl'];
+
+                if(isset($request['formData']['numeroContactoAsociadoAWhatsappCtrl'])){
+                    if ($request['formData']['numeroContactoAsociadoAWhatsappCtrl'] === 'si') {
+                
+                        $llegada->numero_contacto_asociado_whatsapp = 1;
+                     
+                    } else if ($request['formData']['numeroContactoAsociadoAWhatsappCtrl'] === "no") {
+                        
+                        $llegada->numero_contacto_asociado_whatsapp = 0;
+                      
+                    }
+                }
+
+                $llegada->donde_te_encuentras = $request['formData']['dondeTeEncuentrasCtrl'];
+
+                if($llegada->donde_te_encuentras === 'Otro'){
+                    $llegada->otro_donde_te_encuentras = $request['formData']['otroDondeTeEncuentrasCtrl'];
+                }
+
+
                 //$llegada->id_encuesta = $miembroHogar['encuesta']['id'];
                 $llegada->id_encuesta = $encuesta['id'];
 
@@ -58,9 +87,32 @@ class LlegadasController extends Controller
 
                 $intentos->tipo_documento = $request['formData']['tipoDocumentoCtrl'];
                 $intentos->numero_documento = $request['formData']['numeroDocumentoCtrl'];
-                $intentos->id_departamento = $request['formData']['departamentoCtrl'];
-                $intentos->id_municipio = $request['formData']['municipioCtrl'];
-                $intentos->telefono = $request['formData']['telefonoCtrl'];
+                //$intentos->id_departamento = $request['formData']['departamentoCtrl'];
+                //$intentos->id_municipio = $request['formData']['municipioCtrl'];
+
+                $intentos->nombre_jefe_hogar = $request['formData']['nombreJefeHogarCtrl'];
+
+                //$intentos->telefono = $request['formData']['telefonoCtrl'];
+                $intentos->numero_contacto = $request['formData']['numeroContactoCtrl'];
+
+                if(isset($request['formData']['numeroContactoAsociadoAWhatsappCtrl'])){
+                    if ($request['formData']['numeroContactoAsociadoAWhatsappCtrl'] === 'si') {
+                
+                        $intentos->numero_contacto_asociado_whatsapp = 1;
+                     
+                    } else if ($request['formData']['numeroContactoAsociadoAWhatsappCtrl'] === "no") {
+                        
+                        $intentos->numero_contacto_asociado_whatsapp = 0;
+                      
+                    }
+                }
+
+                $intentos->donde_te_encuentras = $request['formData']['dondeTeEncuentrasCtrl'];
+
+                if($intentos->donde_te_encuentras === 'Otro'){
+                    $intentos->otro_donde_te_encuentras = $request['formData']['otroDondeTeEncuentrasCtrl'];
+                }
+
                 if ($request['coordenadas']) {
                     $intentos->latitud = $request['coordenadas']['latitud'];
                     $intentos->longitud = $request['coordenadas']['longitud'];
@@ -80,7 +132,7 @@ class LlegadasController extends Controller
                 return "error";
             }
         } catch (\Throwable $e) {
-            return "error";
+            return $e;
         }
     }
 
