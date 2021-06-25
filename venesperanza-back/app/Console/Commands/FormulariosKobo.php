@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
-
-use App\Models\Encuesta;
 use App\Models\Autorizacion;
-use App\Models\Municipio;
-
+use App\Models\Encuesta;
+use Illuminate\Console\Command;
 
 class FormulariosKobo extends Command
 {
@@ -47,120 +43,347 @@ class FormulariosKobo extends Command
         $client = new \GuzzleHttp\Client();
         $response = $client->request('GET', $endpoint, ['query' => [
             /*'fields' => '["Este_evento_tiene_incidencia_e_001", "_13_Hechos",
-            "_geolocation", "today", "categoria", "group_nw4pj90/N_mero_de_desaparecidos",
-            "group_nw4pj90/N_mero_de_fallecidos", "Riesgos"]'*/
-        ],'auth' => [
+        "_geolocation", "today", "categoria", "group_nw4pj90/N_mero_de_desaparecidos",
+        "group_nw4pj90/N_mero_de_fallecidos", "Riesgos"]'*/
+        ], 'auth' => [
             //'snavarrete',
             env('KOBOUSER'),
             //'toxicity.1'
-            env('KOBOPASSWORD')
+            env('KOBOPASSWORD'),
         ]]);
         $statusCode = $response->getStatusCode();
         $formulariosKobo = json_decode($response->getBody(), true);
-        
 
         $respuestasKobo = [];
         $totalkobo = 0;
-        
-        //foreach ($formulariosKobo as $encuestaKobo) {
 
-                $encuesta_kobo_existe = Encuesta::where('fuente','=',3)->where('id_kobo','=',$formulariosKobo[51]['_id'])->first();
+        foreach ($formulariosKobo as $encuestaKobo) {
 
-                if(!$encuesta_kobo_existe){
-                    array_push( $respuestasKobo, $formulariosKobo[51]['_id']);
-                    //cada kobo que no exista en la tabla encuesta de base datos, crea el registro nuevo con la info del kobo
-                    //cada campo del kobo convertirlo al campo de la base datos
-                    $nuevaEncuestaKobo = new Encuesta;
+            $encuesta_kobo_existe = Encuesta::where('fuente', '=', 3)->where('id_kobo', '=', $encuestaKobo['_id'])->first();
 
-                    $nuevaEncuestaKobo->id_kobo = $formulariosKobo[51]['_id'];
-                    $nuevaEncuestaKobo->fuente = 3;
+            if (!$encuesta_kobo_existe) {
+                array_push($respuestasKobo, $encuestaKobo['_id']);
+                //cada kobo que no exista en la tabla encuesta de base datos, crea el registro nuevo con la info del kobo
+                //cada campo del kobo convertirlo al campo de la base datos
+                $nuevaEncuestaKobo = new Encuesta;
 
-                    if(isset($formulariosKobo[51]['Caracterizacion_GF/Fecha_llegada'])){
-                        $nuevaEncuestaKobo->fecha_llegada_pais = $formulariosKobo[51]['Caracterizacion_GF/Fecha_llegada'];
+                $nuevaEncuestaKobo->id_kobo = $encuestaKobo['_id'];
+                $nuevaEncuestaKobo->fuente = 3;
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'])) {
+                    $nuevaEncuestaKobo->primer_nombre = $encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/primer_nombre'])) {
+                    $nuevaEncuestaKobo->primer_nombre = $encuestaKobo['Cabeza_de_Hogar/primer_nombre'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_segundo_nombre'])) {
+                    $nuevaEncuestaKobo->segundo_nombre = $encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_segundo_nombre'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/segundo_nombre'])) {
+                    $nuevaEncuestaKobo->segundo_nombre = $encuestaKobo['Cabeza_de_Hogar/segundo_nombre'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/_C_mo_es_tu_primer_apellido'])) {
+                    $nuevaEncuestaKobo->primer_apellido = $encuestaKobo['Cabeza_de_Hogar/_C_mo_es_tu_primer_apellido'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/primer_apellido'])) {
+                    $nuevaEncuestaKobo->primer_apellido = $encuestaKobo['Cabeza_de_Hogar/primer_apellido'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/_C_mo_es_tu_segundo_apellido'])) {
+                    $nuevaEncuestaKobo->segundo_apellido = $encuestaKobo['Cabeza_de_Hogar/_C_mo_es_tu_segundo_apellido'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/segundo_apellido'])) {
+                    $nuevaEncuestaKobo->segundo_apellido = $encuestaKobo['Cabeza_de_Hogar/segundo_apellido'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'])) {
+                    $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/tipo_documento'])) {
+                    $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/tipo_documento'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/_Qu_otro_tipo_de_documento'])) {
+                    $nuevaEncuestaKobo->cual_otro_tipo_documento = $encuestaKobo['Cabeza_de_Hogar/_Qu_otro_tipo_de_documento'];
+                }
+
+                if (isset($encuestaKobo['Cabeza_de_Hogar/_Cu_l_es_tu_n_mero_de_document'])) {
+                    $nuevaEncuestaKobo->numero_documento = $encuestaKobo['Cabeza_de_Hogar/_Cu_l_es_tu_n_mero_de_document'];
+                }
+                if (isset($encuestaKobo['Cabeza_de_Hogar/numero_documento'])) {
+                    $nuevaEncuestaKobo->numero_documento = $encuestaKobo['Cabeza_de_Hogar/numero_documento'];
+                }
+
+                if (isset($encuestaKobo['Caracterizacion_GF/Fecha_llegada'])) {
+                    $nuevaEncuestaKobo->fecha_llegada_pais = date("Y-m-d", strtotime($encuestaKobo['Caracterizacion_GF/Fecha_llegada']));
+                }
+                if (isset($encuestaKobo['group_bc6si92/fecha_llegada'])) {
+                    $nuevaEncuestaKobo->fecha_llegada_pais = date("Y-m-d", strtotime($encuestaKobo['group_bc6si92/fecha_llegada']));
+                }
+
+                if (isset($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])) {
+                    $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
+                }
+                if (isset($encuestaKobo['group_bc6si92/destino_final'])) {
+                    $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['group_bc6si92/destino_final'];
+                }
+
+                if (isset($encuestaKobo['group_bc6si92/telefono'])) {
+                    $nuevaEncuestaKobo->numero_contacto = $encuestaKobo['group_bc6si92/telefono'];
+                }
+                if (isset($encuestaKobo['group_bc6si92/N_mero_de_Tel_fono_1'])) {
+                    $nuevaEncuestaKobo->numero_contacto = $encuestaKobo['group_bc6si92/N_mero_de_Tel_fono_1'];
+                }
+
+                //$nuevaEncuestaKobo->save();
+
+                if (isset($encuestaKobo['group_bc6si92/entregado_venesperanza'])) {
+                    $nuevaEncuestaKobo->numero_entregado_venesperanza = $encuestaKobo['group_bc6si92/entregado_venesperanza'];
+                }
+                if (isset($encuestaKobo['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'])) {
+
+                    if ($encuestaKobo['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'] === 'no') {
+
+                        $nuevaEncuestaKobo->numero_entregado_venesperanza = 0;
+
+                    } else if ($encuestaKobo['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'] === 's') {
+                        $nuevaEncuestaKobo->numero_entregado_venesperanza = 1;
+                    }
+                }
+
+                if (isset($encuestaKobo['group_bc6si92/linea_propia'])) {
+                    $nuevaEncuestaKobo->linea_contacto_propia = $encuestaKobo['group_bc6si92/linea_propia'];
+                }
+
+                if (isset($encuestaKobo['group_bc6si92/linea_asociada_whatsapp'])) {
+                    $nuevaEncuestaKobo->linea_asociada_whatsapp = $encuestaKobo['group_bc6si92/linea_asociada_whatsapp'];
+                }
+                if (isset($encuestaKobo['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'])) {
+
+                    if ($encuestaKobo['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'] === 'no') {
+
+                        $nuevaEncuestaKobo->linea_asociada_whatsapp = 0;
+
+                    } else if ($encuestaKobo['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'] === 's') {
+                        $nuevaEncuestaKobo->linea_asociada_whatsapp = 1;
                     }
 
-                    if(isset($formulariosKobo[51]['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'])){
-                        $nuevaEncuestaKobo->ubicacion = $formulariosKobo[51]['Caracterizacion_GF/_En_qu_municipio_te_encuentras_ubicado'];
-                    }
+                }
 
-                    if(isset($formulariosKobo[51]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'])){
+                if (isset($encuestaKobo['group_bc6si92/correo'])) {
+                    $nuevaEncuestaKobo->correo_electronico = $encuestaKobo['group_bc6si92/correo'];
+                }
+                if (isset($encuestaKobo['group_bc6si92/_Tienes_un_correo_el_ico_para_contactarte'])) {
+                    $nuevaEncuestaKobo->correo_electronico = $encuestaKobo['group_bc6si92/_Tienes_un_correo_el_ico_para_contactarte'];
+                }
 
-                        if($formulariosKobo[51]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 's'){
-                            $nuevaEncuestaKobo->estar_dentro_colombia = 1;
-                        }else if($formulariosKobo[51]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no_estoy_seguro_a'){
-                            $nuevaEncuestaKobo->estar_dentro_colombia = 2;
-                        }else if($formulariosKobo[51]['Caracterizacion_GF/_En_los_pr_ximos_seis_meses_pl'] === 'no'){
-                            $nuevaEncuestaKobo->estar_dentro_colombia = 0;
-                        }
-                    }
+                //return $nuevaEncuestaKobo;
 
-                    if(isset($formulariosKobo[51]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])){
-
-                        if($formulariosKobo[51]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === 'otro'){
-
-                            $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[51]['Caracterizacion_GF/_Cu_l'];
-
-                        }else{
-
-                            $municipioDestinoFinal = Municipio::where('nombre', '=', $formulariosKobo[51]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])->first();
-
-                            if($municipioDestinoFinal){
-                                $nuevaEncuestaKobo->id_municipio_destino_final = $municipioDestinoFinal->id;
-                            }else{
-                                $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[51]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
-
-                            }
-                        }
-                        
-                       
-                    }
-
-                    //return $nuevaEncuestaKobo;
-
+                if ($nuevaEncuestaKobo->primer_nombre || $nuevaEncuestaKobo->primer_apellido) {
                     $nuevaEncuestaKobo->save();
-
                     //Autorizacion
                     $autorizacion = new Autorizacion;
 
                     $autorizacion->id_encuesta = $nuevaEncuestaKobo->id;
 
-                    if(isset($formulariosKobo[51]['Consentimiento/Autorizo_el_tratamiento_de_mis'])){
+                    if (isset($encuestaKobo['Consentimiento/Autorizo_el_tratamiento_de_mis'])) {
 
-                        if($formulariosKobo[51]['Consentimiento/Autorizo_el_tratamiento_de_mis'] === 's'){
-                            
+                        if ($encuestaKobo['Consentimiento/Autorizo_el_tratamiento_de_mis'] === 's') {
+
                             $autorizacion->tratamiento_datos = 1;
-                           
-                        }else{
+
+                        } else {
                             $autorizacion->tratamiento_datos = 0;
                         }
                         //return $kobo['Consentimiento/Autorizo_el_tratamiento_de_mis'];
                         $totalkobo += 1;
                     }
 
-                    if(isset($formulariosKobo[51]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'])){
+                    if (isset($encuestaKobo['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'])) {
 
-                        if($formulariosKobo[51]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'] === 's'){
+                        if ($encuestaKobo['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'] === 's') {
                             $autorizacion->terminos_condiciones = 1;
                             $autorizacion->condiciones = 1;
-                        }else{
-                            $autorizacion->terminos_condiciones = 0; 
+                        } else {
+                            $autorizacion->terminos_condiciones = 0;
                             $autorizacion->condiciones = 0;
                         }
                     }
 
                     $autorizacion->save();
-
-                    /*if($nuevaEncuestaKobo->save()){
-                        array_push( $respuestasKobo, $nuevaEncuestaKobo['id_kobo']);
-                        $totalkobo += 1;
-                    };*/
-
                 }
-           
 
-            
-        //}
+            }
+
+            //un solo caso
+            /*
+        $encuesta_kobo_existe = Encuesta::where('fuente','=',3)->where('id_kobo','=',$formulariosKobo[1]['_id'])->first();
+
+        if(!$encuesta_kobo_existe){
+        array_push( $respuestasKobo, $formulariosKobo[1]['_id']);
+        //cada kobo que no exista en la tabla encuesta de base datos, crea el registro nuevo con la info del kobo
+        //cada campo del kobo convertirlo al campo de la base datos
+        $nuevaEncuestaKobo = new Encuesta;
+
+        $nuevaEncuestaKobo->id_kobo = $formulariosKobo[1]['_id'];
+        $nuevaEncuestaKobo->fuente = 3;
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'])){
+        $nuevaEncuestaKobo->primer_nombre = $formulariosKobo[1]['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'];
+        }
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/primer_nombre'])){
+        $nuevaEncuestaKobo->primer_nombre = $formulariosKobo[1]['Cabeza_de_Hogar/primer_nombre'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/C_mo_es_su_segundo_nombre'])){
+        $nuevaEncuestaKobo->segundo_nombre = $formulariosKobo[1]['Cabeza_de_Hogar/C_mo_es_su_segundo_nombre'];
+        }
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/segundo_nombre'])){
+        $nuevaEncuestaKobo->segundo_nombre = $formulariosKobo[1]['Cabeza_de_Hogar/segundo_nombre'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/_C_mo_es_tu_primer_apellido'])){
+        $nuevaEncuestaKobo->primer_apellido = $formulariosKobo[1]['Cabeza_de_Hogar/_C_mo_es_tu_primer_apellido'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/primer_apellido'])){
+        $nuevaEncuestaKobo->primer_apellido = $formulariosKobo[1]['Cabeza_de_Hogar/primer_apellido'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/_C_mo_es_tu_segundo_apellido'])){
+        $nuevaEncuestaKobo->segundo_apellido = $formulariosKobo[1]['Cabeza_de_Hogar/_C_mo_es_tu_segundo_apellido'];
+        }
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/segundo_apellido'])){
+        $nuevaEncuestaKobo->segundo_apellido = $formulariosKobo[1]['Cabeza_de_Hogar/segundo_apellido'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'])){
+        $nuevaEncuestaKobo->tipo_documento = $formulariosKobo[1]['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'];
+        }
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/tipo_documento'])){
+        $nuevaEncuestaKobo->cual_otro_tipo_documento = $formulariosKobo[1]['Cabeza_de_Hogar/tipo_documento'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/_Qu_otro_tipo_de_documento'])){
+        $nuevaEncuestaKobo->cual_otro_tipo_documento = $formulariosKobo[1]['Cabeza_de_Hogar/_Qu_otro_tipo_de_documento'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/_Cu_l_es_tu_n_mero_de_document'])){
+        $nuevaEncuestaKobo->numero_documento = $formulariosKobo[1]['Cabeza_de_Hogar/_Cu_l_es_tu_n_mero_de_document'];
+        }
+
+        if(isset($formulariosKobo[1]['Cabeza_de_Hogar/numero_documento'])){
+        $nuevaEncuestaKobo->numero_documento = $formulariosKobo[1]['Cabeza_de_Hogar/numero_documento'];
+        }
+
+        if(isset($formulariosKobo[1]['Caracterizacion_GF/Fecha_llegada'])){
+        $nuevaEncuestaKobo->fecha_llegada_pais = date("Y-m-d", strtotime($formulariosKobo[1]['Caracterizacion_GF/Fecha_llegada']));
+
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/fecha_llegada'])){
+        $nuevaEncuestaKobo->fecha_llegada_pais = date("Y-m-d", strtotime($formulariosKobo[1]['group_bc6si92/fecha_llegada']));
+        }
+
+        if(isset($formulariosKobo[1]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])){
+        $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[1]['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/destino_final'])){
+        $nuevaEncuestaKobo->nombre_municipio_destino_final = $formulariosKobo[1]['group_bc6si92/destino_final'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/telefono'])){
+        $nuevaEncuestaKobo->numero_contacto = $formulariosKobo[1]['group_bc6si92/telefono'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/N_mero_de_Tel_fono_1'])){
+        $nuevaEncuestaKobo->numero_contacto = $formulariosKobo[1]['group_bc6si92/N_mero_de_Tel_fono_1'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/entregado_venesperanza'])){
+        $nuevaEncuestaKobo->numero_entregado_venesperanza = $formulariosKobo[1]['group_bc6si92/entregado_venesperanza'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'])){
+        if($formulariosKobo[1]['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'] === 'no'){
+
+        $nuevaEncuestaKobo->numero_entregado_venesperanza = 0;
+
+        }else if($formulariosKobo[1]['group_bc6si92/_Este_n_mero_te_fue_ado_por_Venesperanza'] === 's'){
+        $nuevaEncuestaKobo->numero_entregado_venesperanza = 1;
+        }
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/linea_propia'])){
+        $nuevaEncuestaKobo->linea_contacto_propia = $formulariosKobo[0]['group_bc6si92/linea_propia'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/linea_asociada_whatsapp'])){
+        $nuevaEncuestaKobo->linea_asociada_whatsapp = $formulariosKobo[0]['group_bc6si92/linea_asociada_whatsapp'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'])){
+
+        if($formulariosKobo[1]['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'] === 'no'){
+
+        $nuevaEncuestaKobo->linea_asociada_whatsapp = 0;
+
+        }else if($formulariosKobo[1]['group_bc6si92/_Esta_l_nea_est_asociada_a_Whatsapp'] === 's'){
+        $nuevaEncuestaKobo->linea_asociada_whatsapp = 1;
+        }
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/correo'])){
+        $nuevaEncuestaKobo->correo_electronico = $formulariosKobo[1]['group_bc6si92/correo'];
+        }
+
+        if(isset($formulariosKobo[1]['group_bc6si92/_Tienes_un_correo_el_ico_para_contactarte'])){
+        $nuevaEncuestaKobo->correo_electronico = $formulariosKobo[1]['group_bc6si92/_Tienes_un_correo_el_ico_para_contactarte'];
+        }
+
+        $nuevaEncuestaKobo->save();
+
+        //Autorizacion
+        $autorizacion = new Autorizacion;
+
+        $autorizacion->id_encuesta = $nuevaEncuestaKobo->id;
+
+        if(isset($formulariosKobo[1]['Consentimiento/Autorizo_el_tratamiento_de_mis'])){
+
+        if($formulariosKobo[1]['Consentimiento/Autorizo_el_tratamiento_de_mis'] === 's'){
+
+        $autorizacion->tratamiento_datos = 1;
+
+        }else{
+        $autorizacion->tratamiento_datos = 0;
+        }
+        //return $kobo['Consentimiento/Autorizo_el_tratamiento_de_mis'];
+        $totalkobo += 1;
+        }
+
+        if(isset($formulariosKobo[1]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'])){
+
+        if($formulariosKobo[1]['Consentimiento/Entiendo_y_acepto_lo_cipar_en_la_encuesta'] === 's'){
+        $autorizacion->terminos_condiciones = 1;
+        $autorizacion->condiciones = 1;
+        }else{
+        $autorizacion->terminos_condiciones = 0;
+        $autorizacion->condiciones = 0;
+        }
+        }
+
+        $autorizacion->save();
+
+        }
+        //un solo caso
+         */
+
+        }
+
         //return $totalkobo;
-        return $formulariosKobo[51];
+        //return $formulariosKobo[1];
     }
 }
