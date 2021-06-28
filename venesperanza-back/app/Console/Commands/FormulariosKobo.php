@@ -99,10 +99,65 @@ class FormulariosKobo extends Command
                 }
 
                 if (isset($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'])) {
-                    $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'];
+
+                    if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "acta_de_nacimiento"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Acta de nacimiento";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "c_dula_de_identidad"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Cédula de Identidad (venezolana)";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "c_dula_de_ciudadan_a__colombiana"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Cédula de ciudadania (colombiana)";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "pasaporte"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Pasaporte";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "no_tengo_ning_n_documento_de_identidad"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Indocumentado";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'] === "otro"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Otro";
+
+                    }else{
+                        $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/Cu_l_es_su_tipo_de_documento_d'];
+                    }
+                    
                 }
                 if (isset($encuestaKobo['Cabeza_de_Hogar/tipo_documento'])) {
-                    $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/tipo_documento'];
+
+                    if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "acta_de_nacimiento"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Acta de nacimiento";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "c_dula_de_identidad"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Cédula de Identidad (venezolana)";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "c_dula_de_ciudadan_a__colombiana"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Cédula de ciudadania (colombiana)";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "pasaporte"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Pasaporte";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "no_tengo_ning_n_documento_de_identidad"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Indocumentado";
+
+                    }else if($encuestaKobo['Cabeza_de_Hogar/tipo_documento'] === "otro"){
+                        
+                        $nuevaEncuestaKobo->tipo_documento = "Otro";
+
+                    }else{
+                        $nuevaEncuestaKobo->tipo_documento = $encuestaKobo['Cabeza_de_Hogar/tipo_documento'];
+                    }
                 }
 
                 if (isset($encuestaKobo['Cabeza_de_Hogar/_Qu_otro_tipo_de_documento'])) {
@@ -124,10 +179,79 @@ class FormulariosKobo extends Command
                 }
 
                 if (isset($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'])) {
-                    $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
+
+                    if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "bogot" || 
+                    $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "Bogota"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Bogotá";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "medell_n"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Medellín";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "barranquilla"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Barranquilla";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "cali"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cali";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "bucaramanga"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Bucaramanga";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "cartagena"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cartagena";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "pasto"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Pasto";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "arauca"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Arauca";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "c_cuta"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cúcuta";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "riohacha"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Riohacha";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "valledupar"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Valledupar";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "no_estoy_seguro_a"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "No estoy seguro/a";
+                    }else if($encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'] === "otro"){
+                        
+
+                       // if(isset($encuestaKobo['Caracterizacion_GF/_Cu_l'])){
+                       //     $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_Cu_l']; 
+                        //}else{
+                            $nuevaEncuestaKobo->nombre_municipio_destino_final = "Otro";
+                        //}
+                        
+                    }else{
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['Caracterizacion_GF/_Cu_l_es_tu_destino_final_dent'];
+                    }
+                    
+                
                 }
                 if (isset($encuestaKobo['group_bc6si92/destino_final'])) {
-                    $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['group_bc6si92/destino_final'];
+                   
+                    if($encuestaKobo['group_bc6si92/destino_final'] === "bogot" || 
+                    $encuestaKobo['group_bc6si92/destino_final'] === "Bogota"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Bogotá";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "medell_n"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Medellín";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "barranquilla"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Barranquilla";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "cali"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cali";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "bucaramanga"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Bucaramanga";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "cartagena"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cartagena";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "pasto"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Pasto";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "arauca"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Arauca";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "c_cuta"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Cúcuta";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "riohacha"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Riohacha";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "valledupar"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Valledupar";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "no_estoy_seguro_a"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "No estoy seguro/a";
+                    }else if($encuestaKobo['group_bc6si92/destino_final'] === "otro"){
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = "Otro";
+                    }else{
+                        $nuevaEncuestaKobo->nombre_municipio_destino_final = $encuestaKobo['group_bc6si92/destino_final'];
+                    }
                 }
 
                 if (isset($encuestaKobo['group_bc6si92/telefono'])) {
