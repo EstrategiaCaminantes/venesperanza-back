@@ -60,7 +60,7 @@ class DatosActualizadosController extends Controller
 
                 $intentos->tipo_documento = $request['tipoDocumentoCtrl'];
                 $intentos->numero_documento = $request['numeroDocumentoCtrl'];
-                $intentos->telefono = $request['telefonoCtrl'];
+                $intentos->numero_contacto = $request['telefonoCtrl']; 
                 $intentos->correo_electronico = $request['correoCtrl'];
 
                 $intentos->save();

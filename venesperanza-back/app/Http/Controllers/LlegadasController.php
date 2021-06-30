@@ -113,10 +113,11 @@ class LlegadasController extends Controller
                     $intentos->otro_donde_te_encuentras = $request['formData']['otroDondeTeEncuentrasCtrl'];
                 }
 
+                /*
                 if ($request['coordenadas']) {
                     $intentos->latitud = $request['coordenadas']['latitud'];
                     $intentos->longitud = $request['coordenadas']['longitud'];
-                }
+                }*/
 
                 $intentos->save();
 

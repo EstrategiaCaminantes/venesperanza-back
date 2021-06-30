@@ -11,6 +11,6 @@ class Intentos extends Model
 
     protected $table = 'intentos';
 
-    protected $fillable = ['tipo_documento', 'numero_documento', 'telefono', 'correo_electronico','id_departamento', 
-    'id_municipio','latitud','longitud'] ;
+    protected $fillable = ['tipo_documento', 'numero_documento', 'numero_contacto', 'correo_electronico','numero_contacto_asociado_whatsapp', 
+    'nombre_jefe_hogar', 'donde_te_encuentras','otro_donde_te_encuentras',] ;
 }
