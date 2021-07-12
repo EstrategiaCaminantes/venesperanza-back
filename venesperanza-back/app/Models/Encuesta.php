@@ -19,7 +19,8 @@ class Encuesta extends Model
         'cual_otro_tipo_documento', 'numero_documento',
         'numero_contacto', 'linea_contacto_propia', 'linea_asociada_whatsapp',
         'correo_electronico', 'codigo_encuesta', 
-        'fecha_llegada_pais', 'como_llego_al_formulario','numero_entregado_venesperanza', 'id_kobo'
+        'fecha_llegada_pais', 'como_llego_al_formulario','numero_entregado_venesperanza', 'id_kobo',
+        'created_at','updated_at'
     ];
 
     protected $appends = ['puntaje'];

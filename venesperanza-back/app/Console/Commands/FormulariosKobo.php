@@ -69,6 +69,9 @@ class FormulariosKobo extends Command
 
                 $nuevaEncuestaKobo->id_kobo = $encuestaKobo['_id'];
                 $nuevaEncuestaKobo->fuente = 3;
+                $nuevaEncuestaKobo->created_at = $encuestaKobo['_submission_time'];
+                $nuevaEncuestaKobo->updated_at = $encuestaKobo['_submission_time'];
+
 
                 if (isset($encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'])) {
                     $nuevaEncuestaKobo->primer_nombre = $encuestaKobo['Cabeza_de_Hogar/C_mo_es_su_primer_nombre'];
