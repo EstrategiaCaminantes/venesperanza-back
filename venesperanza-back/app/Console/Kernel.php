@@ -5,6 +5,8 @@ namespace App\Console;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\FormulariosKobo;
+use App\Console\Commands\NotificacionWhatsapp;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -14,7 +16,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\FormulariosKobo::Class
+        Commands\FormulariosKobo::Class,
+        Commands\NotificacionWhatsapp::Class,
     ];
 
     /**
@@ -28,6 +31,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
         //$schedule->command('formularioskobo:task')->everyMinute(); //pruebalocal
         $schedule->command('formularioskobo:task')->dailyAt('00:00');
+        $schedule->command('notificacionwhatsapp:task')->everyMinute(); //pruebalocal
+
     }
 
     /**
