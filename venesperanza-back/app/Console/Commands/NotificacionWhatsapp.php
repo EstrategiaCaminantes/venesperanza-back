@@ -60,8 +60,14 @@ class NotificacionWhatsapp extends Command
                 //y que sea de tamaño 10
                 if(sizeof($encuesta['numero_contacto']) == 10 || sizeof($encuesta['numero_contacto']) == 11){
 
-                    if($encuesta['numero_contacto'].substring(0,3) === '+57' || $encuesta['numero_contacto'].substring(0,3) === '+58'){
+                    //if($encuesta['numero_contacto'].substring(0,3) === '+57' || $encuesta['numero_contacto'].substring(0,3) === '+58'){
 
+                        //validar si el numero es prefijo de operadores en venezuela o colombia para agregar el +57 o +58
+                        if($prefijovenezuela){
+                            $numero = '+58'+$encuesta['numero_contacto'];
+                        }else if($prefijocolombia){
+                            $numero = '+57'+$encuesta['numero_contacto'];
+                        }
                         //hago llamado a url del back chatbot con los datos de cada encuesta
                         $response = $client->post(env('URL_CHATBOT'),[
                             // un array con la data de los headers como tipo de peticion, etc.
@@ -70,15 +76,15 @@ class NotificacionWhatsapp extends Command
                             'body' => [
                                 'primer_nombre' => $encuesta['primer_nombre'],
                                 'primer_apellido' => $encuesta['primer_apellido'],
-                                'numero_whatsapp' => $encuesta['numero_contacto']
+                                'numero_whatsapp' => $numero
                             ]
                         ]);
-                    }
+                    //}
 
 
                 }else if( sizeof($encuesta['waId']) == 10 || sizeof($encuesta['waId']) == 11){
 
-                    if($encuesta['waId'].substring(0,3) === '+57' || $encuesta['waId'].substring(0,3) === '+58'){
+                    //if($encuesta['waId'].substring(0,3) === '+57' || $encuesta['waId'].substring(0,3) === '+58'){
 
                             //hago llamado a url del back chatbot con los datos de cada encuesta
                             $response = $client->post(env('URL_CHATBOT'),[
@@ -92,14 +98,11 @@ class NotificacionWhatsapp extends Command
                                 ]
                             ]);
 
-                    }
+                    //}
 
                 }
                 
             }
-
-
-            
 
 
         } catch (\Throwable $e) {
