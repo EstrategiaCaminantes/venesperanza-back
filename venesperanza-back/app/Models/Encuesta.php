@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Models\Encuesta;
+use App\Models\Llegadas;
 
 class Encuesta extends Model
 {
@@ -60,6 +61,11 @@ class Encuesta extends Model
     {
         return $this->puntaje_paso_tres + $this->puntaje_paso_cuatro + $this->puntaje_paso_cinco
             + $this->puntaje_paso_seis + $this->puntaje_paso_siete + $this->puntaje_paso_ocho;
+    }
+
+    public function llegadas()
+    {
+        return $this->hasOne('App\Models\Llegadas', 'id_encuesta');
     }
 
 
