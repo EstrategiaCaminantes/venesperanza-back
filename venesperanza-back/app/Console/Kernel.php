@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         //$schedule->command('formularioskobo:task')->everyMinute(); //pruebalocal
-        $schedule->command('formularioskobo:task')->dailyAt('00:00');
+        $schedule->command('formularioskobo:task')->hourly();
     }
 
     /**
