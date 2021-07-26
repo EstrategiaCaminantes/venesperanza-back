@@ -39,16 +39,14 @@ class FormulariosKobo extends Command
      */
     public function handle()
     {
-        $endpoint = "https://kc.humanitarianresponse.info/api/v1/data/753415?format=json";
+        $endpoint = env('KOBOENDPOINT');
         $client = new \GuzzleHttp\Client();
         $response = $client->request('GET', $endpoint, ['query' => [
             /*'fields' => '["Este_evento_tiene_incidencia_e_001", "_13_Hechos",
         "_geolocation", "today", "categoria", "group_nw4pj90/N_mero_de_desaparecidos",
         "group_nw4pj90/N_mero_de_fallecidos", "Riesgos"]'*/
         ], 'auth' => [
-            //'snavarrete',
             env('KOBOUSER'),
-            //'toxicity.1'
             env('KOBOPASSWORD'),
         ]]);
         $statusCode = $response->getStatusCode();

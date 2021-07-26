@@ -23,19 +23,17 @@ class KoboController extends Controller
 
     public function index()
     {
-        //https://kc.humanitarianresponse.info/api/v1/
-        //https://kc.humanitarianresponse.info/api/v1/data?format=json
-        //Lista de formularios: https://kc.humanitarianresponse.info/api/v1/data/753415?format=json
-        $endpoint = "https://kc.humanitarianresponse.info/api/v1/data/753415?format=json";
+        
+        $endpoint = env('KOBOENDPOINT');
         $client = new \GuzzleHttp\Client();
         $response = $client->request('GET', $endpoint, ['query' => [
             /*'fields' => '["Este_evento_tiene_incidencia_e_001", "_13_Hechos",
             "_geolocation", "today", "categoria", "group_nw4pj90/N_mero_de_desaparecidos",
             "group_nw4pj90/N_mero_de_fallecidos", "Riesgos"]'*/
         ],'auth' => [
-            //'snavarrete',
+            
             env('KOBOUSER'),
-            //'toxicity.1'
+            
             env('KOBOPASSWORD')
         ]]);
         $statusCode = $response->getStatusCode();
@@ -177,7 +175,10 @@ class KoboController extends Controller
 
     public function envioNotificacion(){
             try {
-                
+                //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
+                //$content = new \MessageBird\Objects\Conversation\Content();
+                //$content->text = 'Hello world';
+            
                 $fechaActual = new DateTime();
                 //$fechaActualModificada = $fechaActual->format('Y-m-d H:i:s');
                 //$fechaActual->sub(new DateInterval('P3D'));
@@ -186,16 +187,8 @@ class KoboController extends Controller
                  $fecha3diasAntes24horas = $fecha3diasAntes->format('y-m-d 23:59:59'); //23:59:59 horas del dia
                  //return $fecha3diasAntes24horas;
                  //return $fecha3diasAntes->format('Y-m-d H:i:s');
-          
-
-                
-                //base_uri es la url para llamar a la funcion /notificacionwhatsapp de app.j (chatbot)
-                //la url se define en .env variable URL_CHATBOT 
-                //ejemplo dev: https://fe2980fe2c5b.ngrok.io/notificacionwhatsapp
-
-                //$client = new GuzzleHttp\Client(['base_uri' => env('URL_CHATBOT')]);
-                $client = new \GuzzleHttp\Client();
-               
+    
+             
                 //Consulta las encuentas creadas en los ultimos 3 dias, que no tienen reporte de llegada
                 //fecha creacion mayor a hace 3 dias y ademas
                 //que tienen 'linea_asociada_whataspp' = 1 (para web y kobo) o las que tienen 'waId' diferente de NULL
@@ -206,14 +199,61 @@ class KoboController extends Controller
                     $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
                         $query2->whereNotNull('waId')->where('pregunta','=',16);});
                 })->get();
+
+
+                //Cliente http
+                $client = new \GuzzleHttp\Client();
+
+                foreach($encuestas as $encuesta){
+                
+                    if($encuesta['waId']) {
+
+                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                            [  
+                                'form_params' => [
+                                    'numero' => $encuesta['waId']
+                                ]]);
+
+                    }else if(strlen($encuesta['numero_contacto']) == 10 ){
+                        $primerNumero = substr($encuesta['numero_contacto'],0,1);
+                        
+                            //validar si el numero es prefijo de operadores en venezuela o colombia para agregar alguno de los prefijos +58 o +57
+                            if($primerNumero === '4'){
+
+                                $numero_whatsapp = '+58'.$encuesta['numero_contacto'];
+
+                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                [  
+                            
+                                'form_params' => [
+                                    'numero' => $numero_whatsapp
+                                ]]);
+                            
+
+                            }else if($primerNumero === '3'){
+                                
+                                $numero_whatsapp = '+57'.$encuesta['numero_contacto'];
+                                
+                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                [  
+                            
+                                'form_params' => [
+                                    'numero' => $numero_whatsapp
+                                ]]);
+                                                            
+                            }
+                    }
+
+                    
+                }
                 
                 //return $encuestas;
-                    
+                
+                /*
                 $mensajesAEnviar = [];
 
                 foreach($encuestas as $encuesta){
 
-                    if($encuesta)
 
                     //valido que alguno de los campos 'numero_contacto' o 'waId' empiece con +57 (colombia) o +58 (venezuela)
                     //y que sea de tamaño 10
@@ -228,7 +268,7 @@ class KoboController extends Controller
 
                         $mensajesAEnviar[] = $datosMensaje;
 
-                    }else if(strlen($encuesta['numero_contacto']) == 10 /*|| sizeof($encuesta['numero_contacto']) == 11*/){
+                    }else if(strlen($encuesta['numero_contacto']) == 10 ){
 
                         $primerNumero = substr($encuesta['numero_contacto'],0,1);
                         
@@ -262,6 +302,7 @@ class KoboController extends Controller
 
                 //return $mensajesAEnviar;
 
+                
                 if(sizeof($mensajesAEnviar) > 0){
                     try {
                         $res = $client->request('POST', env('URL_CHATBOT'), 
@@ -290,10 +331,11 @@ class KoboController extends Controller
                 }else{
                     return 'No hay mensajes para enviar!';
                 }
+                */
                 
             } catch (\Throwable $e) {
                 //throw $th;
-                return $e;
+                //return $e->getMessage();
                 return "Error en CRON!";
             }
             
