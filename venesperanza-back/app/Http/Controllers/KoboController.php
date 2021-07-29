@@ -243,12 +243,17 @@ class KoboController extends Controller
                         strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas)){
                             //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                             //return 'Notificacion updated es: '.$notificacion_reporte_llegada['updated_at'].' y fecha convertida '. strtotime($notificacion_reporte_llegada['updated_at'],time()) .'y fecha 3 dias atras es: '.$fecha3diasAntes24horas.' convertida es: '.strtotime($fecha3diasAntes24horas,time());
+                            $notificacion_reporte_llegada->reenviar = 0;
                             
+                            if($notificacion_reporte_llegada->save()){
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                 'form_params' => [
                                     'numero' => $encuesta['waId']
                                 ]]);
+                            }
+
+                                
                         }
 
                             
@@ -288,11 +293,15 @@ class KoboController extends Controller
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                     
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                        'form_params' => [
-                                            'numero' => $numero_whatsapp
-                                        ]]);
+                                        $notificacion_reporte_llegada->reenviar = 0;
+
+                                        if($notificacion_reporte_llegada->save()){
+                                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                            [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                        }
                                 }
 
                                 
@@ -326,11 +335,16 @@ class KoboController extends Controller
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                     
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                        'form_params' => [
-                                            'numero' => $numero_whatsapp
-                                        ]]);
+                                        $notificacion_reporte_llegada->reenviar = 0;
+
+                                        if($notificacion_reporte_llegada->save()){
+                                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                            [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                        }
+                                        
                                 }
                                                             
                             }

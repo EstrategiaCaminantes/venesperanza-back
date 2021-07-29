@@ -168,11 +168,15 @@ class NotificacionWhatsapp extends Command
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                     
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                        'form_params' => [
-                                            'numero' => $numero_whatsapp
-                                        ]]);
+                                        $notificacion_reporte_llegada->reenviar = 0;
+
+                                        if($notificacion_reporte_llegada->save()){
+                                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                            [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                        }
                                 }
 
                                 
@@ -206,11 +210,16 @@ class NotificacionWhatsapp extends Command
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                     
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                        'form_params' => [
-                                            'numero' => $numero_whatsapp
-                                        ]]);
+                                        $notificacion_reporte_llegada->reenviar = 0;
+
+                                        if($notificacion_reporte_llegada->save()){
+                                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                            [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                        }
+                                        
                                 }
                                                             
                             }
