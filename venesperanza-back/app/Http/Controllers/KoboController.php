@@ -11,6 +11,7 @@ use App\Models\Autorizacion;
 use App\Models\Webhook;
 use App\Models\NecesidadBasica;
 use App\Models\Municipio;
+use App\Models\NotificacionLlegada;
 
 use DateTime;
 
@@ -193,53 +194,144 @@ class KoboController extends Controller
                 //fecha creacion mayor a hace 3 dias y ademas
                 //que tienen 'linea_asociada_whataspp' = 1 (para web y kobo) o las que tienen 'waId' diferente de NULL
                 $encuestas = Encuesta::doesnthave('llegadas')
-                ->where('created_at','>=',$fecha3diasAntes0horas)
+                //->where('created_at','>=',$fecha3diasAntes0horas)
                 ->where('created_at','<=',$fecha3diasAntes24horas)
                 ->where(function($query){
                     $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
                         $query2->whereNotNull('waId')->where('pregunta','=',16);});
                 })->get();
-
+                
+                //return $encuestas;
 
                 //Cliente http
                 $client = new \GuzzleHttp\Client();
 
                 foreach($encuestas as $encuesta){
-                
-                    if($encuesta['waId']) {
 
-                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                            [  
+                    //Consulto con el waid o con el numero_contacto si ya existe el registro en la tabla 'notificacion_reporte_llegada'.
+                    //si existe el registro y reenviar = 0 ignora el registro y no envia notificacion
+                    //si no existe o existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
+                    
+
+                    if(strlen($encuesta['waId']) == 12 ) { //si en encuesta existe waid
+
+                        $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])->first();
+
+                        if(!$notificacion_reporte_llegada){ //si no existe registro
+
+                            //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
+
+                            $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
+
+                            $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
+                            $nueva_notificacion_reporte_llegada->waId = $encuesta['waId'];
+
+                            if($nueva_notificacion_reporte_llegada->save()){
+                                //Hace llamado a messagebird para enviar notificacion
+                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                [  
+                                    'form_params' => [
+                                        'numero' => $encuesta['waId']
+                                    ]]);
+                            }
+                            
+
+                        /*}else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
+                        (($notificacion_reporte_llegada['created_at'] <= $fecha3diasAntes24horas && !$notificacion_reporte_llegada['updated_at']) ||
+                        ($notificacion_reporte_llegada['updated_at'] <= $fecha3diasAntes24horas)) ){*/
+                        }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
+                        strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas)){
+                            //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
+                            //return 'Notificacion updated es: '.$notificacion_reporte_llegada['updated_at'].' y fecha convertida '. strtotime($notificacion_reporte_llegada['updated_at'],time()) .'y fecha 3 dias atras es: '.$fecha3diasAntes24horas.' convertida es: '.strtotime($fecha3diasAntes24horas,time());
+                            
+                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                [  
                                 'form_params' => [
                                     'numero' => $encuesta['waId']
                                 ]]);
+                        }
 
-                    }else if(strlen($encuesta['numero_contacto']) == 10 ){
+                            
+
+                    }else if(strlen($encuesta['numero_contacto']) == 10 ){ //En Encuesta no hay waId pero si hay numero_contacto
+                        
+                        
                         $primerNumero = substr($encuesta['numero_contacto'],0,1);
                         
                             //validar si el numero es prefijo de operadores en venezuela o colombia para agregar alguno de los prefijos +58 o +57
                             if($primerNumero === '4'){
 
-                                $numero_whatsapp = '+58'.$encuesta['numero_contacto'];
+                                $numero_whatsapp = '58'.$encuesta['numero_contacto'];
 
-                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                [  
-                            
-                                'form_params' => [
-                                    'numero' => $numero_whatsapp
-                                ]]);
-                            
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                        
+                                if(!$notificacion_reporte_llegada){ //si no existe registro
+
+                                    //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
+
+                                    $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
+
+                                    $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
+                                    $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+
+                                    if($nueva_notificacion_reporte_llegada->save()){
+                                        //Hace llamado a messagebird para enviar notificacion
+                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                        [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                    }
+                                    
+
+                                }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
+                                strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
+                                    //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
+                    
+                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                        [  
+                                        'form_params' => [
+                                            'numero' => $numero_whatsapp
+                                        ]]);
+                                }
+
+                                
 
                             }else if($primerNumero === '3'){
                                 
-                                $numero_whatsapp = '+57'.$encuesta['numero_contacto'];
+                                $numero_whatsapp = '57'.$encuesta['numero_contacto'];
                                 
-                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                [  
-                            
-                                'form_params' => [
-                                    'numero' => $numero_whatsapp
-                                ]]);
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                        
+                                if(!$notificacion_reporte_llegada){ //si no existe registro
+
+                                    //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
+
+                                    $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
+
+                                    $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
+                                    $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+
+                                    if($nueva_notificacion_reporte_llegada->save()){
+                                        //Hace llamado a messagebird para enviar notificacion
+                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                        [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp
+                                            ]]);
+                                    }
+                                    
+
+                                }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
+                                strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
+                                    //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
+                    
+                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                        [  
+                                        'form_params' => [
+                                            'numero' => $numero_whatsapp
+                                        ]]);
+                                }
                                                             
                             }
                     }
