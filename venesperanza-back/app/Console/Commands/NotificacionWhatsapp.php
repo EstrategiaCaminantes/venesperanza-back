@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Encuesta;
 use App\Models\NotificacionLlegada;
-
+use App\Models\ConversacionChat;
 
 use Illuminate\Console\Command;
 
@@ -147,7 +147,7 @@ class NotificacionWhatsapp extends Command
                         
                                 if(!$notificacion_reporte_llegada){ //si no existe registro
 
-                                    //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
+                                    //Crea registro en 'notificacion_reporte_llegada
 
                                     $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
 
@@ -155,19 +155,50 @@ class NotificacionWhatsapp extends Command
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
 
                                     if($nueva_notificacion_reporte_llegada->save()){
-                                        //Hace llamado a messagebird para enviar notificacion
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                            'form_params' => [
-                                                'numero' => $numero_whatsapp
-                                            ]]);
+                                        
+                                        //consula si existe conversacion-chatbot con el numero_contacto
+                                        $conversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+
+                                        if(!$conversacion){
+                                            //si no existe crea la conversacion con autorizacion 1 porque ya autorizo tratamiento de datos para venesperanza
+                                            
+                                            $nuevaConversacion = new ConversacionChat;
+
+                                            $nuevaConversacion->conversation_start = 1;
+                                            $nuevaConversacion->waId = $numero_whatsapp;
+                                            $nuevaConversacion->profileName = $encuesta['primer_nombre'];
+                                            $nuevaConversacion->autorizacion = 1;
+
+                                            if($nuevaConversacion->save()){
+                                                //Hace llamado a messagebird para enviar notificacion
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp
+                                                    ]]);
+                                            }
+                                            
+                                        }else{
+
+                                             //return 'CNVERSA YA EXISTE';
+                                             $conversacion->autorizacion = 1;
+                                             if($conversacion->save()){
+                                                //si conversacion ya existe envia la notificacion
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp
+                                                    ]]);
+                                            }
+                                            
+                                        }
                                     }
                                     
 
                                 }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
-                    
+                                    //la conversacion ya existe, se creo cuando se envio la primera notificacion de reporte de llegada
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
@@ -197,19 +228,57 @@ class NotificacionWhatsapp extends Command
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
 
                                     if($nueva_notificacion_reporte_llegada->save()){
-                                        //Hace llamado a messagebird para enviar notificacion
-                                        $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
-                                        [  
-                                            'form_params' => [
-                                                'numero' => $numero_whatsapp
-                                            ]]);
+
+                                        //Consulta si existe una conversacion con el numero_contacto
+                                        $conversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+                                        
+                                        
+                                        if(!$conversacion){
+
+                                            
+                                            //no existe conversacion entonces la crea con autorizacion = 1 y envia notificacion
+                                            $nuevaConversacion = new ConversacionChat;
+
+                                            $nuevaConversacion->conversation_start = 1;
+                                            $nuevaConversacion->waId = $numero_whatsapp;
+                                            $nuevaConversacion->profileName = $encuesta['primer_nombre'];
+                                            $nuevaConversacion->autorizacion = 1;
+                                            
+                                            
+                                            if($nuevaConversacion->save()){
+
+
+                                                //Hace llamado a messagebird para enviar notificacion
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp
+                                                    ]]);
+                                            }
+                                            
+                                        }else{
+
+                                            //return 'CNVERSA YA EXISTE';
+                                            $conversacion->autorizacion = 1;
+
+                                            if($conversacion->save()){
+                                                //si conversacion ya existe envia la notificacion
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp
+                                                    ]]);
+                                            }
+                                            
+                                        }
+                                        
                                     }
                                     
 
                                 }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
                                 strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
-                    
+                                    //envia notificacion a una conversacion que ya existe
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
