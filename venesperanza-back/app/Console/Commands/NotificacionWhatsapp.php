@@ -50,8 +50,8 @@ class NotificacionWhatsapp extends Command
     public function handle()
     {
         try {
-                
-             //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
+             
+            //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
                 //$content = new \MessageBird\Objects\Conversation\Content();
                 //$content->text = 'Hello world';
             
@@ -64,10 +64,13 @@ class NotificacionWhatsapp extends Command
                  //return $fecha3diasAntes24horas;
                  //return $fecha3diasAntes->format('Y-m-d H:i:s');
     
-             
-                //Consulta las encuentas creadas en los ultimos 3 dias, que no tienen reporte de llegada
-                //fecha creacion mayor a hace 3 dias y ademas
-                //que tienen 'linea_asociada_whataspp' = 1 (para web y kobo) o las que tienen 'waId' diferente de NULL
+                //Consulta las encuentas creadas menores a hace 3 dias, que no tienen reporte de llegada
+                //que tienen 'linea_asociada_whataspp' = 1 (para web y kobo) o las que tienen 'waId' diferente de NULL y pregunta 16 es decir ya terminaron de responder
+                //No tienen notificacion_llegada o Si tienen, pero reenviar==1 y updated_at menor a fecha de hace 3 dias
+
+
+                //Anterior
+                /*
                 $encuestas = Encuesta::doesnthave('llegadas')
                 //->where('created_at','>=',$fecha3diasAntes0horas)
                 ->where('created_at','<=',$fecha3diasAntes24horas)
@@ -75,6 +78,26 @@ class NotificacionWhatsapp extends Command
                     $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
                         $query2->whereNotNull('waId')->where('pregunta','=',16);});
                 })->get();
+                */
+
+            
+                $encuestas = Encuesta::doesnthave('llegadas')
+                //->where('created_at','>=',$fecha3diasAntes0horas)
+                ->where('created_at','<=',$fecha3diasAntes24horas)
+                ->where(function($query){
+                    $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
+                        $query2->whereNotNull('waId')->where('pregunta','=',16);});
+                })
+				->where(function($query3){
+                    $query3->doesnthave('notificacion_llegada')->orWhereHas('notificacion_llegada', function($q){
+                        $fechaActual2 = new DateTime();
+                        $fecha3diasAntes2 = date_sub($fechaActual2, date_interval_create_from_date_string("3 days"));
+                        $fecha3diasAntes24horas2 = $fecha3diasAntes2->format('y-m-d 23:59:59'); //23:59:59 horas del dia
+
+						$q->where('updated_at', '<=', $fecha3diasAntes24horas2)->where('reenviar','1');
+						});
+                })->get();
+
                 
                 //return $encuestas;
 
@@ -84,14 +107,11 @@ class NotificacionWhatsapp extends Command
                 foreach($encuestas as $encuesta){
 
                     //Consulto con el waid o con el numero_contacto si ya existe el registro en la tabla 'notificacion_reporte_llegada'.
-                    //si existe el registro y reenviar = 0 ignora el registro y no envia notificacion
-                    //si no existe o existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                     
-
                     if(strlen($encuesta['waId']) == 12 ) { //si en encuesta existe waid
 
                         $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])->first();
-
+                        //return  $notificacion_reporte_llegada;
                         if(!$notificacion_reporte_llegada){ //si no existe registro
 
                             //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
@@ -106,7 +126,8 @@ class NotificacionWhatsapp extends Command
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                     'form_params' => [
-                                        'numero' => $encuesta['waId']
+                                        'numero' => $encuesta['waId'],
+                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                     ]]);
                             }
                             
@@ -114,17 +135,15 @@ class NotificacionWhatsapp extends Command
                         /*}else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
                         (($notificacion_reporte_llegada['created_at'] <= $fecha3diasAntes24horas && !$notificacion_reporte_llegada['updated_at']) ||
                         ($notificacion_reporte_llegada['updated_at'] <= $fecha3diasAntes24horas)) ){*/
-                        }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
-                        strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas)){
-                            //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
-                            //return 'Notificacion updated es: '.$notificacion_reporte_llegada['updated_at'].' y fecha convertida '. strtotime($notificacion_reporte_llegada['updated_at'],time()) .'y fecha 3 dias atras es: '.$fecha3diasAntes24horas.' convertida es: '.strtotime($fecha3diasAntes24horas,time());
+                        }else {
                             $notificacion_reporte_llegada->reenviar = 0;
                             
                             if($notificacion_reporte_llegada->save()){
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                 'form_params' => [
-                                    'numero' => $encuesta['waId']
+                                    'numero' => $encuesta['waId'],
+                                    'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                 ]]);
                             }
 
@@ -174,7 +193,8 @@ class NotificacionWhatsapp extends Command
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
-                                                        'numero' => $numero_whatsapp
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                     ]]);
                                             }
                                             
@@ -187,7 +207,8 @@ class NotificacionWhatsapp extends Command
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
-                                                        'numero' => $numero_whatsapp
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                     ]]);
                                             }
                                             
@@ -195,8 +216,7 @@ class NotificacionWhatsapp extends Command
                                     }
                                     
 
-                                }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
-                                strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
+                                }else {
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                                     //la conversacion ya existe, se creo cuando se envio la primera notificacion de reporte de llegada
                                         $notificacion_reporte_llegada->reenviar = 0;
@@ -205,7 +225,8 @@ class NotificacionWhatsapp extends Command
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
-                                                'numero' => $numero_whatsapp
+                                                'numero' => $numero_whatsapp,
+                                                'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                             ]]);
                                         }
                                 }
@@ -252,7 +273,8 @@ class NotificacionWhatsapp extends Command
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
-                                                        'numero' => $numero_whatsapp
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                     ]]);
                                             }
                                             
@@ -266,7 +288,8 @@ class NotificacionWhatsapp extends Command
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
-                                                        'numero' => $numero_whatsapp
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                     ]]);
                                             }
                                             
@@ -275,8 +298,7 @@ class NotificacionWhatsapp extends Command
                                     }
                                     
 
-                                }else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
-                                strtotime($notificacion_reporte_llegada['updated_at']) <= strtotime($fecha3diasAntes24horas) ){
+                                }else {
                                     //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                                     //envia notificacion a una conversacion que ya existe
                                         $notificacion_reporte_llegada->reenviar = 0;
@@ -285,7 +307,8 @@ class NotificacionWhatsapp extends Command
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
-                                                'numero' => $numero_whatsapp
+                                                'numero' => $numero_whatsapp,
+                                                'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                             ]]);
                                         }
                                         
@@ -297,9 +320,10 @@ class NotificacionWhatsapp extends Command
                     
                 }
             
+            
         } catch (\Throwable $e) {
             //throw $th;
-            //return $e;
+            //return $e->;
             return "Error en CRON!";
         }
         

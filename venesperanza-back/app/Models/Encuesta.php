@@ -68,5 +68,10 @@ class Encuesta extends Model
         return $this->hasOne('App\Models\Llegadas', 'id_encuesta');
     }
 
+    public function notificacion_llegada()
+    {
+        return $this->hasOne('App\Models\NotificacionLlegada', 'id_encuesta');
+    }
+
 
 }
