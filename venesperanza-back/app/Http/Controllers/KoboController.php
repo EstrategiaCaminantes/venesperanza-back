@@ -177,10 +177,9 @@ class KoboController extends Controller
     }
 
     public function envioNotificacion(){
-            try {
-                
-                
-                //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
+        try {
+             
+            //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
                 //$content = new \MessageBird\Objects\Conversation\Content();
                 //$content->text = 'Hello world';
             
@@ -239,7 +238,9 @@ class KoboController extends Controller
                     
                     if(strlen($encuesta['waId']) == 12 ) { //si en encuesta existe waid
 
-                        $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])->first();
+                        $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])
+                        ->where('numero_documento','=',$encuesta['numero_documento'])
+                        ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         //return  $notificacion_reporte_llegada;
                         if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -249,16 +250,18 @@ class KoboController extends Controller
 
                             $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                             $nueva_notificacion_reporte_llegada->waId = $encuesta['waId'];
+                            $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                            $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                             if($nueva_notificacion_reporte_llegada->save()){
                                 //Hace llamado a messagebird para enviar notificacion
+                                /*
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                     'form_params' => [
                                         'numero' => $encuesta['waId'],
                                         'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                    ]]);
+                                    ]]);*/
                             }
                             
 
@@ -269,12 +272,13 @@ class KoboController extends Controller
                             $notificacion_reporte_llegada->reenviar = 0;
                             
                             if($notificacion_reporte_llegada->save()){
+                                /*
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                 'form_params' => [
                                     'numero' => $encuesta['waId'],
                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-                                ]]);
+                                ]]);*/
                             }
 
                                 
@@ -292,7 +296,9 @@ class KoboController extends Controller
 
                                 $numero_whatsapp = '58'.$encuesta['numero_contacto'];
 
-                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )
+                                ->where('numero_documento','=',$encuesta['numero_documento'])
+                                ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         
                                 if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -302,6 +308,8 @@ class KoboController extends Controller
 
                                     $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+                                    $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                                    $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                                     if($nueva_notificacion_reporte_llegada->save()){
                                         
@@ -320,13 +328,13 @@ class KoboController extends Controller
 
                                             if($nuevaConversacion->save()){
                                                 //Hace llamado a messagebird para enviar notificacion
+                                                /*
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
                                                         'numero' => $numero_whatsapp,
                                                         'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                                    ]]);
+                                                    ]]);*/
                                             }
                                             
                                         }else{
@@ -335,13 +343,13 @@ class KoboController extends Controller
                                              $conversacion->autorizacion = 1;
                                              if($conversacion->save()){
                                                 //si conversacion ya existe envia la notificacion
+                                                /*
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
                                                         'numero' => $numero_whatsapp,
                                                         'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                                    ]]);
+                                                    ]]);*/
                                             }
                                             
                                         }
@@ -354,13 +362,13 @@ class KoboController extends Controller
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
+                                            /*
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
                                                 'numero' => $numero_whatsapp,
                                                 'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                            ]]);
+                                            ]]);*/
                                         }
                                 }
 
@@ -370,7 +378,9 @@ class KoboController extends Controller
                                 
                                 $numero_whatsapp = '57'.$encuesta['numero_contacto'];
                                 
-                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )
+                                ->where('numero_documento','=',$encuesta['numero_documento'])
+                                ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         
                                 if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -380,6 +390,8 @@ class KoboController extends Controller
 
                                     $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+                                    $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                                    $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                                     if($nueva_notificacion_reporte_llegada->save()){
 
@@ -401,15 +413,14 @@ class KoboController extends Controller
                                             
                                             if($nuevaConversacion->save()){
 
-
+                                                /*
                                                 //Hace llamado a messagebird para enviar notificacion
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
                                                         'numero' => $numero_whatsapp,
                                                         'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                                    ]]);
+                                                    ]]);*/
                                             }
                                             
                                         }else{
@@ -419,13 +430,13 @@ class KoboController extends Controller
 
                                             if($conversacion->save()){
                                                 //si conversacion ya existe envia la notificacion
+                                                /*
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
                                                         'numero' => $numero_whatsapp,
                                                         'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                                    ]]);
+                                                    ]]);*/
                                             }
                                             
                                         }
@@ -439,13 +450,13 @@ class KoboController extends Controller
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
+                                            /*
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
                                                 'numero' => $numero_whatsapp,
                                                 'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-
-                                            ]]);
+                                            ]]);*/
                                         }
                                         
                                 }
@@ -455,98 +466,36 @@ class KoboController extends Controller
 
                     
                 }
-                
-                //return $encuestas;
-                
-                /*
-                $mensajesAEnviar = [];
-
-                foreach($encuestas as $encuesta){
-
-
-                    //valido que alguno de los campos 'numero_contacto' o 'waId' empiece con +57 (colombia) o +58 (venezuela)
-                    //y que sea de tamaño 10
-                    if($encuesta['waId']) {
-
-                        $datosMensaje = [
-                            'id' => $encuesta['id'],
-                            'primer_nombre' => $encuesta['primer_nombre'],
-                            'primer_apellido' => $encuesta['primer_apellido'],
-                            'numero_whatsapp' => $encuesta['waId']
-                        ];
-
-                        $mensajesAEnviar[] = $datosMensaje;
-
-                    }else if(strlen($encuesta['numero_contacto']) == 10 ){
-
-                        $primerNumero = substr($encuesta['numero_contacto'],0,1);
-                        
-                            //validar si el numero es prefijo de operadores en venezuela o colombia para agregar alguno de los prefijos +58 o +57
-                            if($primerNumero === '4'){
-
-                                $datosMensaje = [
-                                    'id' => $encuesta['id'],
-                                    'primer_nombre' => $encuesta['primer_nombre'],
-                                    'primer_apellido' => $encuesta['primer_apellido'],
-                                    'numero_whatsapp' => '+58'.$encuesta['numero_contacto']
-                                ];
-                            
-                                $mensajesAEnviar[] = $datosMensaje;
-
-                            }else if($primerNumero === '3'){
-                                
-                                $datosMensaje = [
-                                    'id' => $encuesta['id'],
-                                    'primer_nombre' => $encuesta['primer_nombre'],
-                                    'primer_apellido' => $encuesta['primer_apellido'],
-                                    'numero_whatsapp' => '+57'.$encuesta['numero_contacto']
-                                ];
-                                
-                                $mensajesAEnviar[] = $datosMensaje;
-                            }
-
-                    }
-                    
-                }
-
-                //return $mensajesAEnviar;
-
-                
-                if(sizeof($mensajesAEnviar) > 0){
-                    try {
-                        $res = $client->request('POST', env('URL_CHATBOT'), 
-                            [   'headers' => ['Content-Type' => 'application/json',
-                                                'auth' => [env('APP_API_KEY')],
-                                ],
-                            
-                                'json' => $mensajesAEnviar]);
-
-                        if($res->getstatusCode() == 200){
-                            $respuesta = (string) $res->getBody();
-                            $respuesta =json_decode($respuesta);
-                            $mensaje = $respuesta->message;
-                             
-                             return $mensaje;
-                            //'Mensajes mensaje!';
-                         
-                        }
-                    
-                    } catch (RequestException $exception) {
-                        //$exception->getResponse()->getStatusCode()
-                            return 'Error en Servidor ChatBot';
-                        
-                    }
-                    
-                }else{
-                    return 'No hay mensajes para enviar!';
-                }
-                */
-                
-            } catch (\Throwable $e) {
-                //throw $th;
-                return $e;
-                return "Error en CRON!";
-            }
             
+            
+        } catch (\Throwable $e) {
+            //throw $th;
+            return $e;
+            return "Error en CRON!";
+        }
+            
+    }
+
+    public function actualicarDatosNotificaciones(){
+
+        try {
+            $llegadas = NotificacionLlegada::whereNull('tipo_documento')->get();
+
+            //return $llegadas->count();
+            foreach($llegadas as $llegada){
+
+                $encuesta = Encuesta::where('id','=',$llegada['id_encuesta'])->first();
+
+                if($encuesta){
+                    $llegada->numero_documento = $encuesta['numero_documento'];
+                    $llegada->tipo_documento = $encuesta['tipo_documento'];
+
+                    $llegada->save();
+                }
+            }
+
+        } catch (\Throwable $e) {
+            return $e;
+        }
     }
 }

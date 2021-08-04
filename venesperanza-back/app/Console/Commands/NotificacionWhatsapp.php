@@ -110,7 +110,9 @@ class NotificacionWhatsapp extends Command
                     
                     if(strlen($encuesta['waId']) == 12 ) { //si en encuesta existe waid
 
-                        $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])->first();
+                        $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['waId'])
+                        ->where('numero_documento','=',$encuesta['numero_documento'])
+                        ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         //return  $notificacion_reporte_llegada;
                         if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -120,9 +122,12 @@ class NotificacionWhatsapp extends Command
 
                             $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                             $nueva_notificacion_reporte_llegada->waId = $encuesta['waId'];
+                            $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                            $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                             if($nueva_notificacion_reporte_llegada->save()){
                                 //Hace llamado a messagebird para enviar notificacion
+                                
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                     'form_params' => [
@@ -139,6 +144,7 @@ class NotificacionWhatsapp extends Command
                             $notificacion_reporte_llegada->reenviar = 0;
                             
                             if($notificacion_reporte_llegada->save()){
+                                
                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                 [  
                                 'form_params' => [
@@ -162,7 +168,9 @@ class NotificacionWhatsapp extends Command
 
                                 $numero_whatsapp = '58'.$encuesta['numero_contacto'];
 
-                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )
+                                ->where('numero_documento','=',$encuesta['numero_documento'])
+                                ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         
                                 if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -172,6 +180,8 @@ class NotificacionWhatsapp extends Command
 
                                     $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+                                    $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                                    $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                                     if($nueva_notificacion_reporte_llegada->save()){
                                         
@@ -190,6 +200,7 @@ class NotificacionWhatsapp extends Command
 
                                             if($nuevaConversacion->save()){
                                                 //Hace llamado a messagebird para enviar notificacion
+                                                
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
@@ -204,6 +215,7 @@ class NotificacionWhatsapp extends Command
                                              $conversacion->autorizacion = 1;
                                              if($conversacion->save()){
                                                 //si conversacion ya existe envia la notificacion
+                                                
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
@@ -222,6 +234,7 @@ class NotificacionWhatsapp extends Command
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
+                                            
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
@@ -237,7 +250,9 @@ class NotificacionWhatsapp extends Command
                                 
                                 $numero_whatsapp = '57'.$encuesta['numero_contacto'];
                                 
-                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )->first();
+                                $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$numero_whatsapp )
+                                ->where('numero_documento','=',$encuesta['numero_documento'])
+                                ->where('tipo_documento','=',$encuesta['tipo_documento'])->first();
                         
                                 if(!$notificacion_reporte_llegada){ //si no existe registro
 
@@ -247,6 +262,8 @@ class NotificacionWhatsapp extends Command
 
                                     $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
                                     $nueva_notificacion_reporte_llegada->waId = $numero_whatsapp;
+                                    $nueva_notificacion_reporte_llegada->numero_documento = $encuesta['numero_documento'];
+                                    $nueva_notificacion_reporte_llegada->tipo_documento = $encuesta['tipo_documento'];
 
                                     if($nueva_notificacion_reporte_llegada->save()){
 
@@ -268,7 +285,7 @@ class NotificacionWhatsapp extends Command
                                             
                                             if($nuevaConversacion->save()){
 
-
+                                                
                                                 //Hace llamado a messagebird para enviar notificacion
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
@@ -285,6 +302,7 @@ class NotificacionWhatsapp extends Command
 
                                             if($conversacion->save()){
                                                 //si conversacion ya existe envia la notificacion
+                                                
                                                 $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                                 [  
                                                     'form_params' => [
@@ -304,6 +322,7 @@ class NotificacionWhatsapp extends Command
                                         $notificacion_reporte_llegada->reenviar = 0;
 
                                         if($notificacion_reporte_llegada->save()){
+                                            
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                             'form_params' => [
@@ -323,9 +342,32 @@ class NotificacionWhatsapp extends Command
             
         } catch (\Throwable $e) {
             //throw $th;
-            //return $e->;
+            //return $e;
             return "Error en CRON!";
         }
+
+        /*
+        //Funcion para actualizar 'numero_documento' y 'tipo_documento' de registros d enotificaciones
+        try {
+            $llegadas = NotificacionLlegada::whereNull('tipo_documento')->get();
+
+            //return $llegadas->count();
+            foreach($llegadas as $llegada){
+
+                $encuesta = Encuesta::where('id','=',$llegada['id_encuesta'])->first();
+
+                if($encuesta){
+                    $llegada->numero_documento = $encuesta['numero_documento'];
+                    $llegada->tipo_documento = $encuesta['tipo_documento'];
+
+                    $llegada->save();
+                }
+            }
+
+        } catch (\Throwable $e) {
+            return $e;
+        }
+         */
         
     }
 }
