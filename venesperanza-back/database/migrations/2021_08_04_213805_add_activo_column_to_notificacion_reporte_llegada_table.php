@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddDocumentoColumnsToNotificacionReporteLlegadaTable extends Migration
+class AddActivoColumnToNotificacionReporteLlegadaTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,8 +15,7 @@ class AddDocumentoColumnsToNotificacionReporteLlegadaTable extends Migration
     {
         Schema::table('notificacion_reporte_llegada', function (Blueprint $table) {
             
-            $table->string('tipo_documento', 50)->nullable()->default(NULL);
-            $table->string('numero_documento', 20)->nullable()->default(NULL);
+            $table->tinyInteger('activo')->nullable();
         });
     }
 

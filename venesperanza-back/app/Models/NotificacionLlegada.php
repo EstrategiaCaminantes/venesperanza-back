@@ -11,7 +11,7 @@ class NotificacionLlegada extends Model
 
     protected $table = 'notificacion_reporte_llegada';
 
-    protected $fillable = ['id_encuesta', 'waId', 'respuesta','reenviar','tipo_documento','numero_documento'];
+    protected $fillable = ['id_encuesta', 'waId', 'respuesta','reenviar','activo'];
 
     public function encuesta()
     {
