@@ -51,7 +51,7 @@ class NotificacionWhatsapp extends Command
     {
         try {
              
-            //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
+           //$messageBird = new \MessageBird\Client(env('MB_KEY')); // Set your own API access key here.  
                 //$content = new \MessageBird\Objects\Conversation\Content();
                 //$content->text = 'Hello world';
             
@@ -359,11 +359,108 @@ class NotificacionWhatsapp extends Command
                                 }
                                                             
                             }
+                    }else if(strlen($encuesta['numero_contacto']) == 12  ){
+
+                        $primerosDosNumeros = substr($encuesta['numero_contacto'],0,2);
+
+                        if($primerosDosNumeros === '58' || $primerosDosNumeros === '57' ){
+                            //return $encuesta;
+                            $notificacion_reporte_llegada = NotificacionLlegada::where('waId','=',$encuesta['numero_contacto'] )
+                                ->where('activo','=','1')->first();
+                        
+                                if(!$notificacion_reporte_llegada){ //si no existe registro
+
+                                    //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
+
+                                    $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
+
+                                    $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
+                                    $nueva_notificacion_reporte_llegada->waId = $encuesta['numero_contacto'];
+                                    $nueva_notificacion_reporte_llegada->activo = 1;
+
+                                    if($nueva_notificacion_reporte_llegada->save()){
+
+                                        //Consulta si existe una conversacion con el numero_contacto
+                                        $conversacion = ConversacionChat::where('waId','=',$encuesta['numero_contacto'])->first();
+                                        
+                                        
+                                        if(!$conversacion){
+
+                                            
+                                            //no existe conversacion entonces la crea con autorizacion = 1 y envia notificacion
+                                            $nuevaConversacion = new ConversacionChat;
+
+                                            $nuevaConversacion->conversation_start = 1;
+                                            $nuevaConversacion->waId = $encuesta['numero_contacto'];
+                                            $nuevaConversacion->profileName = $encuesta['primer_nombre'];
+                                            $nuevaConversacion->autorizacion = 1;
+                                            
+                                            
+                                            if($nuevaConversacion->save()){
+
+                                                
+                                                //Hace llamado a messagebird para enviar notificacion
+                                                
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
+                                                    ]]);
+                                            }
+                                            
+                                        }else{
+
+                                            //return 'CNVERSA YA EXISTE';
+                                            $conversacion->autorizacion = 1;
+
+                                            if($conversacion->save()){
+                                                //si conversacion ya existe envia la notificacion
+                                                
+                                                $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                                [  
+                                                    'form_params' => [
+                                                        'numero' => $numero_whatsapp,
+                                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
+                                                    ]]);
+                                            }
+                                            
+                                        }
+                                        
+                                    }
+                                    
+
+                                }else if($notificacion_reporte_llegada['id_encuesta'] == $encuesta['id']){
+                                    //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
+                                    //envia notificacion a una conversacion que ya existe
+                                        $notificacion_reporte_llegada->reenviar = 0;
+
+                                        if($notificacion_reporte_llegada->save()){
+                                            
+                                            $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
+                                            [  
+                                            'form_params' => [
+                                                'numero' => $numero_whatsapp,
+                                                'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
+                                            ]]);
+                                        }
+                                        
+                                }else{
+                                    $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
+
+                                    $nueva_notificacion_reporte_llegada->id_encuesta = $encuesta['id'];
+                                    $nueva_notificacion_reporte_llegada->waId = $encuesta['numero_contacto'];
+                                    $nueva_notificacion_reporte_llegada->activo = 0;
+                                    $nueva_notificacion_reporte_llegada->save();
+                                }
+                        }
+
+
+
                     }
 
                     
                 }
-            
             
         } catch (\Throwable $e) {
             //throw $th;
