@@ -32,7 +32,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('formularioskobo:task')->everyMinute(); //pruebalocal
         $schedule->command('formularioskobo:task')->hourly();
         //$schedule->command('notificacionwhatsapp:task')->everyMinute(); //pruebalocal
-        $schedule->command('notificacionwhatsapp:task')->dailyAt('00:00');
+        $schedule->command('notificacionwhatsapp:task')->twiceDaily(13, 23);
     }
 
     /**
