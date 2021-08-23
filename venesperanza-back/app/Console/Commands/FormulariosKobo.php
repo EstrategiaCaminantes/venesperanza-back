@@ -66,6 +66,7 @@ class FormulariosKobo extends Command
                 $nuevaEncuestaKobo = new Encuesta;
 
                 $nuevaEncuestaKobo->id_kobo = $encuestaKobo['_id'];
+                $nuevaEncuestaKobo->usuario_kobo = $encuestaKobo['_submitted_by'];
                 $nuevaEncuestaKobo->fuente = 3;
                 $nuevaEncuestaKobo->created_at = $encuestaKobo['_submission_time'];
                 $nuevaEncuestaKobo->updated_at = $encuestaKobo['_submission_time'];
@@ -339,6 +340,12 @@ class FormulariosKobo extends Command
 
                     $autorizacion->save();
                 }
+
+            }else if(!$encuesta_kobo_existe['usuario_kobo']){ //si la encuesta existe pero no tiene usuario_kobo
+
+                $encuesta_kobo_existe->usuario_kobo = $encuestaKobo['_submitted_by'];
+
+                $encuesta_kobo_existe->save();
 
             }
 
