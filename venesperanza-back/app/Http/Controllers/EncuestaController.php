@@ -187,6 +187,18 @@ class EncuestaController extends Controller
 
             $nuevaEncuesta->correo_electronico = $request['infoencuesta']['correoCtrl'];
 
+            $nuevaEncuesta->telefono_conocido_destino = $request['infoencuesta']['telefonoConocidoDestinoCtrl'];
+
+
+            if(isset($request['infoencuesta']['parentescoConocidoDestinoCtrl'])){
+
+                $nuevaEncuesta->parentesco_conocido_destino = $request['infoencuesta']['parentescoConocidoDestinoCtrl'];
+
+                if($nuevaEncuesta->parentesco_conocido_destino === 'Otro'){
+                    $nuevaEncuesta->otro_parentesco_conocido_destino = $request['infoencuesta']['otroParentescoConocidoDestinoCtrl'];
+                }
+            } 
+
             /*
             if ($request['infoencuesta']['razonElegirDestinoFinalCtrl'] === "Otra") {
                 $nuevaEncuesta->razon_elegir_destino_final = $request['infoencuesta']['razonElegirDestinoFinalCtrl'];
