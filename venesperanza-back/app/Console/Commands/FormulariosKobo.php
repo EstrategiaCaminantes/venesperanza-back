@@ -305,6 +305,18 @@ class FormulariosKobo extends Command
                     $nuevaEncuestaKobo->correo_electronico = $encuestaKobo['group_bc6si92/_Tienes_un_correo_el_ico_para_contactarte'];
                 }
 
+                if (isset($encuestaKobo['group_bc6si92/telefono_conocido_destino'])) {
+                    $nuevaEncuestaKobo->telefono_conocido_destino = $encuestaKobo['group_bc6si92/telefono_conocido_destino'];
+                }
+
+                if (isset($encuestaKobo['group_bc6si92/parentesco_conocido_destino'])) {
+                    $nuevaEncuestaKobo->parentesco_conocido_destino = $encuestaKobo['group_bc6si92/parentesco_conocido_destino'];
+                }
+
+                if (isset($encuestaKobo['group_bc6si92/otro_parentesco_conocido_desti'])) {
+                    $nuevaEncuestaKobo->otro_parentesco_conocido_destino = $encuestaKobo['group_bc6si92/otro_parentesco_conocido_desti'];
+                }
+
                 //return $nuevaEncuestaKobo;
 
                 if ($nuevaEncuestaKobo->primer_nombre || $nuevaEncuestaKobo->primer_apellido) {
