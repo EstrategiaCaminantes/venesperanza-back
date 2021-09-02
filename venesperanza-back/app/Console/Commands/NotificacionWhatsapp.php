@@ -65,7 +65,7 @@ class NotificacionWhatsapp extends Command
             ->where('created_at','<=',$fecha3diasAntes24horas)
             ->where(function($query){
                 $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
-                    $query2->whereNotNull('waId')->where('pregunta','=',16);});
+                    $query2->whereNotNull('waId')->where('pregunta','=',19);});
             })
             ->where(function($query3){
                 $query3->doesnthave('notificacion_llegada')->orWhereHas('notificacion_llegada', function($q){
