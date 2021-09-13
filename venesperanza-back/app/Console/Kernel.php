@@ -6,6 +6,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\FormulariosKobo;
 use App\Console\Commands\NotificacionWhatsapp;
+use App\Console\Commands\ActualizarLlegadasYDatosActualizados;
 
 
 class Kernel extends ConsoleKernel
@@ -18,6 +19,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\FormulariosKobo::Class,
         Commands\NotificacionWhatsapp::Class,
+        Commands\ActualizarLlegadasYDatosActualizados::Class,
     ];
 
     /**
@@ -33,6 +35,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('formularioskobo:task')->hourly();
         //$schedule->command('notificacionwhatsapp:task')->everyMinute(); //pruebalocal
         $schedule->command('notificacionwhatsapp:task')->twiceDaily(13, 23);
+        $schedule->command('actualizarLlegadasYDatosActualizados:task')->everyMinute();
+
+        
     }
 
     /**
