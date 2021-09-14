@@ -194,7 +194,7 @@ class KoboController extends Controller
             
             $encuestas = Encuesta::doesnthave('llegadas')
             //->where('created_at','>=',$fecha3diasAntes0horas)
-            ->where('created_at','<=',$fecha3diasAntes24horas)->where('numero_contacto','=','3175049604')
+            ->where('created_at','<=',$fecha3diasAntes24horas)
             ->where(function($query){
                 $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
                     $query2->whereNotNull('waId')->where('pregunta','=',19);});
@@ -439,6 +439,10 @@ class KoboController extends Controller
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
 
                                         
@@ -575,6 +579,10 @@ class KoboController extends Controller
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
                                     }
                                     
@@ -588,6 +596,7 @@ class KoboController extends Controller
                             }
                                                         
                         }
+
                 }else if(strlen($encuesta['numero_contacto']) == 12  ){
 
                     $primerosDosNumeros = substr($encuesta['numero_contacto'],0,2);
@@ -633,7 +642,7 @@ class KoboController extends Controller
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                                 'form_params' => [
-                                                    'numero' => $numero_whatsapp,
+                                                    'numero' => $encuesta['numero_contacto'],
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
                                             
@@ -643,7 +652,7 @@ class KoboController extends Controller
                                 
                                                 //return $encuesta;
                                                 $logMensaje = new LogsMensajesAuto;
-                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->waId = $encuesta['numero_contacto'];
                                                 $logMensaje->mensaje = 'reporte_llegada';
                                                 $logMensaje->tipo_mensaje = 1;
                                                 $logMensaje->save();
@@ -665,7 +674,7 @@ class KoboController extends Controller
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                                 'form_params' => [
-                                                    'numero' => $numero_whatsapp,
+                                                    'numero' => $encuesta['numero_contacto'],
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
                                             
@@ -675,7 +684,7 @@ class KoboController extends Controller
                                 
                                                 //return $encuesta;
                                                 $logMensaje = new LogsMensajesAuto;
-                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->waId = $encuesta['numero_contacto'];
                                                 $logMensaje->mensaje = 'reporte_llegada';
                                                 $logMensaje->tipo_mensaje = 1;
                                                 $logMensaje->save();
@@ -698,7 +707,7 @@ class KoboController extends Controller
                                         $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                         [  
                                         'form_params' => [
-                                            'numero' => $numero_whatsapp,
+                                            'numero' => $encuesta['numero_contacto'],
                                             'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                         ]]);
 
@@ -708,10 +717,14 @@ class KoboController extends Controller
                         
                                                 //return $encuesta;
                                             $logMensaje = new LogsMensajesAuto;
-                                            $logMensaje->waId = $numero_whatsapp;
+                                            $logMensaje->waId = $encuesta['numero_contacto'];
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$encuesta['numero_contacto'])->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
 
                                     }
@@ -735,7 +748,7 @@ class KoboController extends Controller
         
     } catch (\Throwable $e) {
         //throw $th;
-        return $e;
+        //return $e;
         return "Error en CRON!";
     }
             

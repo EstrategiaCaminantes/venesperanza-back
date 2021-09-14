@@ -310,6 +310,10 @@ class NotificacionWhatsapp extends Command
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
 
                                         
@@ -446,6 +450,10 @@ class NotificacionWhatsapp extends Command
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$numero_whatsapp)->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
                                     }
                                     
@@ -459,6 +467,7 @@ class NotificacionWhatsapp extends Command
                             }
                                                         
                         }
+
                 }else if(strlen($encuesta['numero_contacto']) == 12  ){
 
                     $primerosDosNumeros = substr($encuesta['numero_contacto'],0,2);
@@ -504,7 +513,7 @@ class NotificacionWhatsapp extends Command
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                                 'form_params' => [
-                                                    'numero' => $numero_whatsapp,
+                                                    'numero' => $encuesta['numero_contacto'],
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
                                             
@@ -514,7 +523,7 @@ class NotificacionWhatsapp extends Command
                                 
                                                 //return $encuesta;
                                                 $logMensaje = new LogsMensajesAuto;
-                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->waId = $encuesta['numero_contacto'];
                                                 $logMensaje->mensaje = 'reporte_llegada';
                                                 $logMensaje->tipo_mensaje = 1;
                                                 $logMensaje->save();
@@ -536,7 +545,7 @@ class NotificacionWhatsapp extends Command
                                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                             [  
                                                 'form_params' => [
-                                                    'numero' => $numero_whatsapp,
+                                                    'numero' => $encuesta['numero_contacto'],
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
                                             
@@ -546,7 +555,7 @@ class NotificacionWhatsapp extends Command
                                 
                                                 //return $encuesta;
                                                 $logMensaje = new LogsMensajesAuto;
-                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->waId = $encuesta['numero_contacto'];
                                                 $logMensaje->mensaje = 'reporte_llegada';
                                                 $logMensaje->tipo_mensaje = 1;
                                                 $logMensaje->save();
@@ -569,7 +578,7 @@ class NotificacionWhatsapp extends Command
                                         $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                                         [  
                                         'form_params' => [
-                                            'numero' => $numero_whatsapp,
+                                            'numero' => $encuesta['numero_contacto'],
                                             'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                         ]]);
 
@@ -579,10 +588,14 @@ class NotificacionWhatsapp extends Command
                         
                                                 //return $encuesta;
                                             $logMensaje = new LogsMensajesAuto;
-                                            $logMensaje->waId = $numero_whatsapp;
+                                            $logMensaje->waId = $encuesta['numero_contacto'];
                                             $logMensaje->mensaje = 'reporte_llegada';
                                             $logMensaje->tipo_mensaje = 1;
                                             $logMensaje->save();
+
+                                            $actualizoConversacion = ConversacionChat::where('waId','=',$encuesta['numero_contacto'])->first();
+                                            $actualizoConversacion->updated_at = new DateTime();
+                                            $actualizoConversacion->save();
                                         }
 
                                     }
@@ -606,7 +619,7 @@ class NotificacionWhatsapp extends Command
         
     } catch (\Throwable $e) {
         //throw $th;
-        return $e;
+        //return $e;
         return "Error en CRON!";
     }
         
