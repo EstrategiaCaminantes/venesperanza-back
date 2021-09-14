@@ -13,7 +13,7 @@ use App\Models\NecesidadBasica;
 use App\Models\Municipio;
 use App\Models\NotificacionLlegada;
 use App\Models\ConversacionChat;
-
+use App\Models\LogsMensajesAuto;
 use App\Models\Llegadas;
 use App\Models\DatosActualizados;
 
@@ -194,7 +194,7 @@ class KoboController extends Controller
             
             $encuestas = Encuesta::doesnthave('llegadas')
             //->where('created_at','>=',$fecha3diasAntes0horas)
-            ->where('created_at','<=',$fecha3diasAntes24horas)->where('waId','=','573175049604')
+            ->where('created_at','<=',$fecha3diasAntes24horas)->where('numero_contacto','=','3175049604')
             ->where(function($query){
                 $query->where('linea_asociada_whatsapp','=',1)->orWhere(function ($query2){
                     $query2->whereNotNull('waId')->where('pregunta','=',19);});
@@ -242,39 +242,33 @@ class KoboController extends Controller
 
                         if($nueva_notificacion_reporte_llegada->save()){
                             //Hace llamado a messagebird para enviar notificacion
+
                             
-                            /*
                             $res = $client->request('POST', env('MB_ARRIVAL_REPORT'), 
                             [  
                                 'form_params' => [
                                     'numero' => $encuesta['waId'],
                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-                                ]]);*/
-                                
-                                $respuesta = '';
-                                $res = new \GuzzleHttp\Psr7\Request('POST', env('MB_ARRIVAL_REPORT'), 
-                                [  
-                                    'form_params' => [
-                                        'numero' => $encuesta['waId'],
-                                        'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
-                                    ]]);
-                                $promise = $client->sendAsync($res)->then(function ($response) {
-                                    echo  $response ;
-                                    //$respuesta = $response->getBody();
-                                });
-                                $promise->wait();
-                            //return $respuesta;
-                            //return $res->getStatusCode();
-                            //return $res->getBody();
-                            //cuando se envia el mensaje, se crea el registro en log_mensajes_automatizados
-                            /*$logMensaje = new LogsMensajesAuto;
-                            $logMensaje->waId = $encuesta['waId'];
-                            $logMensaje->mensaje = 'reporte_llegada';
-                            $logMensaje->tipo_mensaje = 1;*/
-                            //$logMensaje->save();
+                                ]]);
+                            
+                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
 
+                                //return $encuesta;
+                                $logMensaje = new LogsMensajesAuto;
+                                $logMensaje->waId = $encuesta['waId'];
+                                $logMensaje->mensaje = 'reporte_llegada';
+                                $logMensaje->tipo_mensaje = 1;
+                                $logMensaje->save();
+
+                                $actualizoConversacion = ConversacionChat::where('waId','=',$encuesta['waId'])->first();
+                                $actualizoConversacion->updated_at = new DateTime();
+                                $actualizoConversacion->save();
+
+                            }
+                             
                         }
-                        
 
                     /*}else if ( $notificacion_reporte_llegada['reenviar'] == 1 && 
                     (($notificacion_reporte_llegada['created_at'] <= $fecha3diasAntes24horas && !$notificacion_reporte_llegada['updated_at']) ||
@@ -282,6 +276,7 @@ class KoboController extends Controller
                     }else if($notificacion_reporte_llegada['id_encuesta'] == $encuesta['id']){
                         
                         $notificacion_reporte_llegada->reenviar = 0;
+                        $notificacion_reporte_llegada->updated_at = new DateTime();
                         
                         if($notificacion_reporte_llegada->save()){
                             
@@ -292,6 +287,22 @@ class KoboController extends Controller
                                 'numero' => $encuesta['waId'],
                                 'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                             ]]);
+
+                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+
+                                //return $encuesta;
+                                $logMensaje = new LogsMensajesAuto;
+                                $logMensaje->waId = $encuesta['waId'];
+                                $logMensaje->mensaje = 'reporte_llegada';
+                                $logMensaje->tipo_mensaje = 1;
+                                $logMensaje->save();
+
+                                $actualizoConversacion = ConversacionChat::where('waId','=',$encuesta['waId'])->first();
+                                $actualizoConversacion->updated_at = new DateTime();
+                                $actualizoConversacion->save();
+                            }
                         }
 
                             
@@ -354,6 +365,18 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                    
+                                                    //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
                                                 
                                         }
                                         
@@ -361,6 +384,8 @@ class KoboController extends Controller
 
                                          //return 'CNVERSA YA EXISTE';
                                          $conversacion->autorizacion = 1;
+                                         $conversacion->updated_at = new DateTime();
+                                         
                                          if($conversacion->save()){
                                             //si conversacion ya existe envia la notificacion
                                             
@@ -371,6 +396,18 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+                                            
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                        
+                                                //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
                                         }
                                         
                                     }
@@ -381,6 +418,7 @@ class KoboController extends Controller
                                 //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                                 //la conversacion ya existe, se creo cuando se envio la primera notificacion de reporte de llegada
                                     $notificacion_reporte_llegada->reenviar = 0;
+                                    $notificacion_reporte_llegada->updated_at = new DateTime();
 
                                     if($notificacion_reporte_llegada->save()){
                                         
@@ -390,6 +428,20 @@ class KoboController extends Controller
                                             'numero' => $numero_whatsapp,
                                             'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                         ]]);
+
+                                        $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                        if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                        
+                                                //return $encuesta;
+                                            $logMensaje = new LogsMensajesAuto;
+                                            $logMensaje->waId = $numero_whatsapp;
+                                            $logMensaje->mensaje = 'reporte_llegada';
+                                            $logMensaje->tipo_mensaje = 1;
+                                            $logMensaje->save();
+                                        }
+
+                                        
                                     }
                             }else{
 
@@ -412,6 +464,7 @@ class KoboController extends Controller
                     
                             if(!$notificacion_reporte_llegada){ //si no existe registro
 
+                                
                                 //Crea registro en 'notificacion_reporte_llegada... y envia notificacion
 
                                 $nueva_notificacion_reporte_llegada = new NotificacionLlegada;
@@ -427,7 +480,7 @@ class KoboController extends Controller
                                     
                                     
                                     if(!$conversacion){
-
+                                       
                                         
                                         //no existe conversacion entonces la crea con autorizacion = 1 y envia notificacion
                                         $nuevaConversacion = new ConversacionChat;
@@ -449,12 +502,25 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                                
+                                                //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
                                         }
                                         
                                     }else{
 
                                         //return 'CNVERSA YA EXISTE';
                                         $conversacion->autorizacion = 1;
+                                        $conversacion->updated_at = new DateTime();
 
                                         if($conversacion->save()){
                                             //si conversacion ya existe envia la notificacion
@@ -465,6 +531,18 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+                                            
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                                
+                                                    //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
                                         }
                                         
                                     }
@@ -476,6 +554,7 @@ class KoboController extends Controller
                                 //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                                 //envia notificacion a una conversacion que ya existe
                                     $notificacion_reporte_llegada->reenviar = 0;
+                                    $notificacion_reporte_llegada->updated_at = new DateTime();
 
                                     if($notificacion_reporte_llegada->save()){
                                         
@@ -485,6 +564,18 @@ class KoboController extends Controller
                                             'numero' => $numero_whatsapp,
                                             'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                         ]]);
+
+                                        $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                        if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                        
+                                                //return $encuesta;
+                                            $logMensaje = new LogsMensajesAuto;
+                                            $logMensaje->waId = $numero_whatsapp;
+                                            $logMensaje->mensaje = 'reporte_llegada';
+                                            $logMensaje->tipo_mensaje = 1;
+                                            $logMensaje->save();
+                                        }
                                     }
                                     
                             }else{
@@ -545,12 +636,28 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+                                            
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                                
+                                                //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
+
+
+
                                         }
                                         
                                     }else{
 
                                         //return 'CNVERSA YA EXISTE';
                                         $conversacion->autorizacion = 1;
+                                        $conversacion->updated_at = new DateTime();
 
                                         if($conversacion->save()){
                                             //si conversacion ya existe envia la notificacion
@@ -561,6 +668,18 @@ class KoboController extends Controller
                                                     'numero' => $numero_whatsapp,
                                                     'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                                 ]]);
+                                            
+                                            $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                            if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                                
+                                                //return $encuesta;
+                                                $logMensaje = new LogsMensajesAuto;
+                                                $logMensaje->waId = $numero_whatsapp;
+                                                $logMensaje->mensaje = 'reporte_llegada';
+                                                $logMensaje->tipo_mensaje = 1;
+                                                $logMensaje->save();
+                                            }
                                         }
                                         
                                     }
@@ -572,6 +691,7 @@ class KoboController extends Controller
                                 //existe y reenviar == 1, valida que haya pasado 3 dias en fecha de creacion y actualizacion sea nulo, o, hayan pasado 3 dias en fecha de actualizacion
                                 //envia notificacion a una conversacion que ya existe
                                     $notificacion_reporte_llegada->reenviar = 0;
+                                    $notificacion_reporte_llegada->updated_at = new DateTime();
 
                                     if($notificacion_reporte_llegada->save()){
                                         
@@ -581,6 +701,19 @@ class KoboController extends Controller
                                             'numero' => $numero_whatsapp,
                                             'nombre_contacto' => $encuesta['primer_nombre'].' '.$encuesta['primer_apellido']
                                         ]]);
+
+                                        $statusCodeLlamadoAMessageBird = $res->getStatusCode();
+                            
+                                        if(strval($statusCodeLlamadoAMessageBird)[0] === '2'){
+                        
+                                                //return $encuesta;
+                                            $logMensaje = new LogsMensajesAuto;
+                                            $logMensaje->waId = $numero_whatsapp;
+                                            $logMensaje->mensaje = 'reporte_llegada';
+                                            $logMensaje->tipo_mensaje = 1;
+                                            $logMensaje->save();
+                                        }
+
                                     }
                                     
                             }else{
@@ -602,7 +735,7 @@ class KoboController extends Controller
         
     } catch (\Throwable $e) {
         //throw $th;
-        //return $e;
+        return $e;
         return "Error en CRON!";
     }
             
