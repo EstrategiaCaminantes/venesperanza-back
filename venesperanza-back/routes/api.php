@@ -42,3 +42,8 @@ Route::group(['middleware' => 'auth:api'], function () {
 });
 Route::post('validation', 'ValidationController@validacionUsuario');
 Route::post('matiw', 'WebhookController@webhookmati');
+//Route::get('envioNotificacion','KoboController@envioNotificacion');
+//Route::get('actualizarNotificaciones','KoboController@actualicarDatosNotificaciones');
+
+//ruta para actualizar llegadas y datos_actualizados que tienen id_encuesta=NULL
+Route::get('actualizarIdEncuestaLlegadas','KoboController@actualizarLlegadasYDatosActualizadosSinIdEncuesta');
