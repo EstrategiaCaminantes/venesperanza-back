@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLogsMensajesAutomatizadosTable extends Migration
+class CreateLogMensajesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateLogsMensajesAutomatizadosTable extends Migration
      */
     public function up()
     {
-        Schema::create('logs_mensajes_automatizados', function (Blueprint $table) {
+        Schema::create('log_mensajes', function (Blueprint $table) {
             $table->bigInteger('id',true);
             $table->string('waId',255);
             $table->string('mensaje',255)->nullable()->default(NULL);

@@ -9,7 +9,7 @@ class LogsMensajesAuto extends Model
 {
     use HasFactory;
 
-    protected $table = 'logs_mensajes_automatizados';
+    protected $table = 'log_mensajes';
 
     protected $fillable = [ 'waId', 'mensaje','tipo_mensaje'];
 
